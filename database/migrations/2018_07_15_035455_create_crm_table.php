@@ -59,7 +59,7 @@ class CreateCrmTable extends Migration
             $table->increments('id');
             $table->char('name', 10)->comment('客户姓名')->index();
             $table->unsignedSmallInteger('source_id')->comment('客户来源');
-            $table->tinyInteger('status')->comment('客户状态:0:待合作,1:已合作，-1:合作完毕');
+            $table->tinyInteger('status')->comment('客户状态:-1:黑名单，0:潜在客户,1:合作中，2:合作完成');
             $table->char('gender', 1)->comment('性别 ,男,女');
             $table->char('mobile', 14)->comment('电话号码')->unique();
             $table->char('wechat', 20)->comment('微信')->index()->nullable();
