@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\Clients;
+use App\Models\Nations;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -30,7 +31,11 @@ class ClientRequest extends FormRequest
             'name' => 'required|max:10',
             'source_id' => 'required|numeric|max:5|exists:source,id',
             'status' => 'required|max:1|numeric',
-            'gender' => 'required|max:1',
+            'gender' => ['required','max:1',function($attribute, $value, $event){
+                if($value != '男' && $value != '女'){
+                    return $event('性别不正确');
+                }
+            }],
             'mobile' => ['required','max:14','min:11',
                 function($attribute, $value, $event){
                     $id=$this->route('id');
@@ -48,7 +53,7 @@ class ClientRequest extends FormRequest
                 }
                 ],
             'wechat' => 'max:20|nullable',
-            'nation' => 'required|max:5',
+            'nation' => 'required|max:5|exists:nations,name',
             'id_card_number' => ['required',
             function($attribute, $value, $event){
                 $id=$this->route('id');
