@@ -1,0 +1,29 @@
+{
+    "name": "fisher/package-sso",
+    "description": "A \"fisher/package-sso\" package For PMS.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": ">=7.1.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Fisher\\SSO\\": "src/",
+            "Fisher\\SSO\\Seeds\\": "database/seeds/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Fisher\\SSO\\Providers\\AppServiceProvider",
+                "Fisher\\SSO\\Providers\\ModelServiceProvider",
+                "Fisher\\SSO\\Providers\\RouteServiceProvider",
+                "Fisher\\SSO\\Providers\\SSOServiceProvider"
+            ]
+        }
+    },
+    "version": "1.0.0"
+}
