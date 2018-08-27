@@ -30,7 +30,11 @@ class ClientRequest extends FormRequest
         return [
             'name' => 'required|max:10',
             'source_id' => 'required|numeric|max:5|exists:source,id',
-            'status' => 'required|max:1|numeric',
+            'status' => ['required','max:2','numeric',function($attribute, $value, $event){
+                if($value != '-1' && $value != '0' && $value != '1' && $value != '2'){
+                    return $event('未知状态');
+                }
+            }],
             'gender' => ['required','max:1',function($attribute, $value, $event){
                 if($value != '男' && $value != '女'){
                     return $event('性别不正确');
