@@ -128,14 +128,17 @@ class ClientsController extends Controller
      */
     protected function clientActionAuth($request)
     {
-        foreach ($request->brand_id as $item) {
-            $auth[] = AuthorityGroups::where(['auth_type' => 2, 'auth_brand' => $item['id']])
-                ->whereHas('staffs', function ($query) use ($request) {
-                    $query->where('staff_sn', $request->user()->staff_sn);
-                })->orWhereHas('departments', function ($query) use ($request) {
-                    $query->where('department_id', $request->user()->department['id']);
-                })->first();
+        if(empty($request->brand_id)){
+            abort(404,'未找到的品牌');
         }
+        foreach ($request->brand_id as $item) {
+        $auth[] = AuthorityGroups::where(['auth_type' => 2, 'auth_brand' => $item['id']])
+            ->whereHas('staffs', function ($query) use ($request) {
+                $query->where('staff_sn', $request->user()->staff_sn);
+            })->orWhereHas('departments', function ($query) use ($request) {
+                $query->where('department_id', $request->user()->department['id']);
+            })->first();
+    }
         $data = isset($auth) ? $auth : [];
         $bool = array_filter($data);
         if ($bool === []) {
