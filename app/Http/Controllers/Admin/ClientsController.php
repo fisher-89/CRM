@@ -41,7 +41,7 @@ class ClientsController extends Controller
      */
     public function store(ClientRequest $clientRequest)
     {
-        $this->clientActionAuth($clientRequest);
+        $this->clientActionAuth($clientRequest);dd(456);
         return $this->client->addClient($clientRequest);
     }
 
