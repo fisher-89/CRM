@@ -41,7 +41,7 @@ class ClientsController extends Controller
      */
     public function store(ClientRequest $clientRequest)
     {
-        $this->clientActionAuth($clientRequest);dd(456);
+        $this->clientActionAuth($clientRequest);
         return $this->client->addClient($clientRequest);
     }
 
@@ -132,13 +132,14 @@ class ClientsController extends Controller
             abort(404,'未找到的品牌');
         }
         foreach ($request->brand_id as $item) {
-        $auth[] = AuthorityGroups::where(['auth_type' => 2, 'auth_brand' => $item['id']])
-            ->whereHas('staffs', function ($query) use ($request) {
-                $query->where('staff_sn', $request->user()->staff_sn);
-            })->orWhereHas('departments', function ($query) use ($request) {
-                $query->where('department_id', $request->user()->department['id']);
-            })->first();
-    }
+            dd(987);
+            $auth[] = AuthorityGroups::where(['auth_type' => 2, 'auth_brand' => $item['id']])
+                ->whereHas('staffs', function ($query) use ($request) {
+                    $query->where('staff_sn', $request->user()->staff_sn);
+                })->orWhereHas('departments', function ($query) use ($request) {
+                    $query->where('department_id', $request->user()->department['id']);
+                })->first();
+        }
         $data = isset($auth) ? $auth : [];
         $bool = array_filter($data);
         if ($bool === []) {
