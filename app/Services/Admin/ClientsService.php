@@ -46,7 +46,7 @@ class ClientsService
     public function listClient($request)
     {
         $arr = $this->authDetection($request);
-        return $this->client->with('source')->with('hasTags.tag.tagType')->with('hasShops')
+        return $this->client->with('hasTags')->with('hasShops')->with('hasBrands')
             ->whereHas('hasBrands', function ($query) use ($arr) {
                 $query->whereIn('brand_id', $arr);
             })->filterByQueryString()->withPagination($request->get('pagesize', 10));
@@ -107,7 +107,7 @@ class ClientsService
             DB::rollback();
             abort(400, '客户添加失败');
         }
-        return response()->json($this->client->with('source')->with('hasTags.tag')->with('hasBrands')
+        return response()->json($this->client->with('hasTags')->with('hasBrands')
             ->with('hasShops')->where('id', $bool->id)->first(), 201);
     }
 
@@ -167,7 +167,7 @@ class ClientsService
             DB::rollback();
             abort(400, '客户添加失败');
         }
-        return response()->json($this->client->with('source')->with('hasTags.tag')->with('hasBrands')
+        return response()->json($this->client->with('hasTags')->with('hasBrands')
             ->with('hasShops')->where('id', $clientData->id)->first(), 201);
     }
 
@@ -229,7 +229,7 @@ class ClientsService
     {
         $arr = $this->authDetection($request);
         return $this->client->where('id', $request->route('id'))
-            ->with('source')->with('hasTags.tag')->with('hasBrands')->with('hasShops')
+            ->with('hasTags')->with('hasBrands')->with('hasShops')
             ->whereHas('hasBrands', function ($query) use ($arr) {
                 $query->whereIn('brand_id', $arr);
             })->first();
@@ -261,7 +261,7 @@ class ClientsService
             abort(400, '传递无效参数');
         }
         $arr = $this->authDetection($request);
-        $client = $this->client->with('source')->with('hasTags.tag')->with('hasBrands')->with('hasShops')
+        $client = $this->client->with('source')->with('hasTags')->with('hasBrands')->with('hasShops')
             ->whereHas('hasBrands', function ($query) use ($arr) {
                 $query->whereIn('brand_id', $arr);
             })->filterByQueryString()->withPagination();
