@@ -79,6 +79,7 @@ class ClientRequest extends FormRequest
             'present_address' => 'nullable|max:150',
             'tag_id.*.id' => ['exists:tags,id', 'numeric', 'nullable',
                 function ($attribute, $value, $event) {
+            dd($value);
                     if (count($value) == 0) {
                         return $event('未选择标签');
                     }
