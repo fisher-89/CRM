@@ -77,14 +77,12 @@ class ClientRequest extends FormRequest
                 'regex:/^[1-9][0-9]{5}(19|20)[0-9]{2}((01|03|05|07|08|10|12)(0[1-9]|[1-2][0-9]|31)|(04|06|09|11)(0[1-9]|[1-2][0-9]|30)|02(0[1-9]|[1-2][0-9]))[0-9]{3}([0-9]|x|X)$/'],
             'native_place' => 'nullable|max:8',
             'present_address' => 'nullable|max:150',
-            'tag_id.*.id' => ['exists:tags,id', 'numeric', 'nullable',
-                function ($attribute, $value, $event) {
-            dd($value);
-                    if (count($value) == 0) {
-                        return $event('未选择标签');
-                    }
+            'tag_id.*.id' => ['exists:tags,id', 'numeric', 'nullable'],
+            'tag_id'=>function($attribute, $value, $event){
+                if (count($value) == 0) {
+                    return $event('未选择标签');
                 }
-            ],
+            },
             'first_cooperation_at' => 'required|date',
             'vindicator_sn' => ['numeric', 'nullable',
                 function ($attribute, $value, $event) {
