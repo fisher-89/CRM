@@ -66,7 +66,7 @@ class CreateCrmTable extends Migration
             $table->char('nation', 5)->comment('民族');
             $table->char('id_card_number', 18)->comment('身份证号码')->unique();
             $table->char('native_place', 8)->comment('籍贯：省份')->default('');
-            $table->char('present_address', 50)->comment('现住地址')->default('')->nullable();
+            $table->string('present_address', 150)->comment('现住地址')->default('')->nullable();
             $table->dateTime('first_cooperation_at')->comment('初次合作时间');
             $table->unsignedMediumInteger('vindicator_sn')->comment('维护人编号')->nullable();
             $table->char('vindicator_name', 10)->comment('维护人姓名')->nullable();

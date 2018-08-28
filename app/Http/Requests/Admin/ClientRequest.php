@@ -76,7 +76,7 @@ class ClientRequest extends FormRequest
                 'max:18|',
                 'regex:/^[1-9][0-9]{5}(19|20)[0-9]{2}((01|03|05|07|08|10|12)(0[1-9]|[1-2][0-9]|31)|(04|06|09|11)(0[1-9]|[1-2][0-9]|30)|02(0[1-9]|[1-2][0-9]))[0-9]{3}([0-9]|x|X)$/'],
             'native_place' => 'nullable|max:8',
-            'present_address' => 'nullable|max:50',
+            'present_address' => 'nullable|max:150',
             'tag_id.*.id' => ['exists:tags,id','numeric','nullable',
                 function($attribute, $value, $event){
                     if(count($value)==0){
