@@ -138,7 +138,7 @@ class ClientsController extends Controller
                 })->orWhereHas('departments', function ($query) use ($request) {
                     $query->where('department_id', $request->user()->department['id']);
                 })->first();
-        }dd(98700);
+        }
         $data = isset($auth) ? $auth : [];
         $bool = array_filter($data);
         if ($bool === []) {

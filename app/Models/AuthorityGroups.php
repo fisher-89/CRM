@@ -16,7 +16,7 @@ class AuthorityGroups extends Model
 
     public function staffs()
     {
-        return $this->hasMany(clientGroupStaff::class,'authority_group_id','id');
+        return $this->hasMany(ClientGroupStaff::class,'authority_group_id','id');
     }
 
     public function departments()
