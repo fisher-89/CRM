@@ -84,7 +84,7 @@ class ClientRequest extends FormRequest
                     return $event('未选择标签');
                 }
             },
-            'first_cooperation_at' => 'required|date',
+            'first_cooperation_at' => 'nullable|date',
             'vindicator_sn' => ['numeric', 'nullable',
                 function ($attribute, $value, $event) {
                     if ((bool)$value === true) {
