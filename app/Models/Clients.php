@@ -20,17 +20,17 @@ class Clients extends Model
         return $this->belongsTo(Source::class,'source_id','id');
     }
 
-    public function hasTags()
+    public function Tags()
     {
         return $this->hasMany(ClientHasTags::class,'client_id','id');
     }
 
-    public function hasBrands()
+    public function Brands()
     {
         return $this->hasMany(ClientHasBrands::class,'client_id','id');
     }
 
-    public function hasShops()
+    public function Shops()
     {
         return $this->hasMany(ClientHasShops::class,'client_id','id');
     }

@@ -26,7 +26,7 @@ class NoteLogsService
         }
         $bool = isset($data) ? $data : [] ;
         $arr = array_filter($bool);
-        return $this->noteLogsModel->orderBy('id', 'desc')->with('notes')->whereHas('notes.clients.hasBrands',function ($query)use($arr){
+        return $this->noteLogsModel->orderBy('id', 'desc')->with('notes')->whereHas('notes.clients.Brands',function ($query)use($arr){
             $query->whereIn('brand_id',$arr);
         })->filterByQueryString()->withPagination($request->get('pagesize', 10));
     }

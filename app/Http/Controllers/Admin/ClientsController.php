@@ -132,7 +132,7 @@ class ClientsController extends Controller
             abort(404,'未找到的品牌');
         }
         foreach ($request->brand_id as $item) {
-            $auth[] = AuthorityGroups::where(['auth_type' => 2, 'auth_brand' => $item['id']])
+            $auth[] = AuthorityGroups::where(['auth_type' => 2, 'auth_brand' => $item])
                 ->whereHas('staffs', function ($query) use ($request) {
                     $query->where('staff_sn', $request->user()->staff_sn);
                 })->orWhereHas('departments', function ($query) use ($request) {

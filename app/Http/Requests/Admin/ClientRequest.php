@@ -78,7 +78,7 @@ class ClientRequest extends FormRequest
                 'regex:/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/'],
             'native_place' => 'nullable|max:8',
             'present_address' => 'nullable|max:150',
-            'tag_id.*.id' => ['exists:tags,id', 'numeric', 'nullable'],
+            'tag_id.*' => ['exists:tags,id', 'numeric', 'nullable'],
             'tag_id'=>function($attribute, $value, $event){
                 if (count($value) == 0) {
                     return $event('未选择标签');
@@ -101,10 +101,15 @@ class ClientRequest extends FormRequest
             ],
             'vindicator_name' => 'max:10',
             'remark' => 'max:200',
-            'brand_id.*.id' => [
+            'brand_id.*' => [
                 'numeric', 'required'
             ],
-            'shop_id.*.id' => [
+            'brand_id'=>[function($attribute, $value, $event){
+                if(count($value) == 0){
+                    return $event('未选择品牌');
+                }
+            }],
+            'shop_id.*' => [
                 'required',
             ]
         ];

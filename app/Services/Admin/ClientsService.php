@@ -2,7 +2,6 @@
 
 namespace App\Services\Admin;
 
-//use App\Services\Admin\Traits\GetInfo;
 use App\Models\AuthorityGroups;
 use App\Models\ClientGroupDepartments;
 use App\Models\ClientGroupStaff;
@@ -46,8 +45,8 @@ class ClientsService
     public function listClient($request)
     {
         $arr = $this->authDetection($request);
-        return $this->client->with('hasTags')->with('hasShops')->with('hasBrands')
-            ->whereHas('hasBrands', function ($query) use ($arr) {
+        return $this->client->with('Tags')->with('Shops')->with('Brands')
+            ->whereHas('Brands', function ($query) use ($arr) {
                 $query->whereIn('brand_id', $arr);
             })->filterByQueryString()->withPagination($request->get('pagesize', 10));
     }
@@ -59,13 +58,14 @@ class ClientsService
             DB::beginTransaction();
             $bool = $this->client->create($all);
             if ((bool)$bool === false) {
+                DB::rollback();
                 abort(400, '客户添加失败');
             }
             if (isset($request->tag_id)) {
                 foreach ($request->tag_id as $k => $v) {
                     $tagSql = [
                         'client_id' => $bool->id,
-                        'tag_id' => $v['id'],
+                        'tag_id' => $v,
                     ];
                     $this->clientHasTags->create($tagSql);
                 }
@@ -74,7 +74,7 @@ class ClientsService
                 foreach ($request->brand_id as $item) {
                     $brandSql = [
                         'client_id' => $bool->id,
-                        'brand_id' => $item['id'],
+                        'brand_id' => $item,
                     ];
                     $this->clientHasBrands->create($brandSql);
                 }
@@ -83,7 +83,7 @@ class ClientsService
                 foreach ($request->shop_id as $items) {
                     $shopSql = [
                         'client_id' => $bool->id,
-                        'shop_id' => $items['id'],
+                        'shop_id' => $items,
                     ];
                     $this->clientHasShops->create($shopSql);
                 }
@@ -107,8 +107,28 @@ class ClientsService
             DB::rollback();
             abort(400, '客户添加失败');
         }
-        return response()->json($this->client->with('hasTags')->with('hasBrands')
-            ->with('hasShops')->where('id', $bool->id)->first(), 201);
+        $date = $this->client->with('Tags')->with('Brands')->with('Shops')->where('id', $bool->id)->first();
+        $list=[
+            'id'=>$date->id,
+            'name'=>$date->name,
+            'source_id'=>$date->source_id,
+            'status'=>$date->status,
+            'gender'=>$date->gender,
+            'mobile'=>$date->mobile,
+            'wechat'=>$date->wechat,
+            'nation'=>$date->nation,
+            'id_card_number'=>$date->id_card_number,
+            'native_place'=>$date->native_place,
+            'present_address'=>$date->present_address,
+            'tag_id'=>$all['tag_id'],//
+            'first_cooperation_at'=>$date->first_cooperation_at,
+            'vindicator_sn'=>$date->vindicator_sn,
+            'vindicator_name'=>$date->vindicator_name,
+            'remark'=>$date->remark,
+            'brand_id'=>$all['brand_id'],//
+            'shop_id'=>$all['shop_id']//
+        ];
+        return response($list,201);
     }
 
     public function editClient($request)
@@ -122,6 +142,7 @@ class ClientsService
             }
             $clientData->update($all);
             if ((bool)$clientData === false) {
+                DB::rollback();
                 abort(400, '客户修改失败');
             }
             $this->clientHasTags->where('client_id', $clientData->id)->delete();
@@ -130,21 +151,21 @@ class ClientsService
             foreach ($request->tag_id as $k => $v) {
                 $sql = [
                     'client_id' => $clientData->id,
-                    'tag_id' => $v['id'],
+                    'tag_id' => $v,
                 ];
                 $this->clientHasTags->create($sql);
             }
             foreach ($request->brand_id as $item) {
                 $brandSql = [
                     'client_id' => $clientData->id,
-                    'brand_id' => $item['id'],
+                    'brand_id' => $item,
                 ];
                 $this->clientHasBrands->create($brandSql);
             }
             foreach ($request->shop_id as $items) {
                 $shopSql = [
                     'client_id' => $clientData->id,
-                    'shop_id' => $items['id'],
+                    'shop_id' => $items,
                 ];
                 $this->clientHasShops->create($shopSql);
             }
@@ -167,8 +188,28 @@ class ClientsService
             DB::rollback();
             abort(400, '客户添加失败');
         }
-        return response()->json($this->client->with('hasTags')->with('hasBrands')
-            ->with('hasShops')->where('id', $clientData->id)->first(), 201);
+        $date = $this->client->with('Tags')->with('Brands')->with('Shops')->where('id', $clientData->id)->first();
+        $list=[
+            'id'=>$date->id,
+            'name'=>$date->name,
+            'source_id'=>$date->source_id,
+            'status'=>$date->status,
+            'gender'=>$date->gender,
+            'mobile'=>$date->mobile,
+            'wechat'=>$date->wechat,
+            'nation'=>$date->nation,
+            'id_card_number'=>$date->id_card_number,
+            'native_place'=>$date->native_place,
+            'present_address'=>$date->present_address,
+            'tag_id'=>$all['tag_id'],//
+            'first_cooperation_at'=>$date->first_cooperation_at,
+            'vindicator_sn'=>$date->vindicator_sn,
+            'vindicator_name'=>$date->vindicator_name,
+            'remark'=>$date->remark,
+            'brand_id'=>$all['brand_id'],//
+            'shop_id'=>$all['shop_id']//
+        ];
+        return response($list,201);
     }
 
     public function delClient($request)
@@ -229,8 +270,8 @@ class ClientsService
     {
         $arr = $this->authDetection($request);
         return $this->client->where('id', $request->route('id'))
-            ->with('hasTags')->with('hasBrands')->with('hasShops')
-            ->whereHas('hasBrands', function ($query) use ($arr) {
+            ->with('Tags')->with('Brands')->with('Shops')
+            ->whereHas('Brands', function ($query) use ($arr) {
                 $query->whereIn('brand_id', $arr);
             })->first();
     }
@@ -261,8 +302,8 @@ class ClientsService
             abort(400, '传递无效参数');
         }
         $arr = $this->authDetection($request);
-        $client = $this->client->with('source')->with('hasTags')->with('hasBrands')->with('hasShops')
-            ->whereHas('hasBrands', function ($query) use ($arr) {
+        $client = $this->client->with('source')->with('Tags')->with('Brands')->with('Shops')
+            ->whereHas('Brands', function ($query) use ($arr) {
                 $query->whereIn('brand_id', $arr);
             })->filterByQueryString()->withPagination();
         if (false == (bool)$client) {
@@ -274,7 +315,7 @@ class ClientsService
             '备注'];
         foreach ($client as $k => $v) {
             $eventTop[] = [$v['name'], $v['source']['name'], $this->transform($v['status']), $v['gender'], $v['mobile'],
-                $v['wechat'], $v['nation'], $v['id_card_number'], $v['hasTags'] ? $this->transTags($v['hasTags']) : '', $v['native_place'],
+                $v['wechat'], $v['nation'], $v['id_card_number'], $v['Tags'] ? $this->transTags($v['Tags']) : '', $v['native_place'],
                 $v['present_address'], $v['first_cooperation_at'], $v['vindicator_sn'] . ',' . $v['vindicator_name'], $v['remark']
             ];
         }

@@ -37,7 +37,7 @@ class ClientLogsService
         $array = isset($data) ? $data : [];
         $arr = array_filter($array);
         return $this->clientLogs->orderBy('id','desc')->with('clients')
-            ->whereHas('clients.hasBrands',function($query)use($arr){
+            ->whereHas('clients.Brands',function($query)use($arr){
                 $query->whereIn('brand_id',$arr);
             })->filterByQueryString()->withPagination($request->get('pagesize', 10));
     }

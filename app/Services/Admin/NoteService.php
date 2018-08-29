@@ -63,7 +63,7 @@ class NoteService
             $brand_id[] = $item->auth_brand;
         }
         $arr = isset($brand_id) ? $brand_id : [];
-        return $this->noteModel->whereHas('clients.hasBrands', function ($query) use ($arr) {
+        return $this->noteModel->whereHas('clients.Brands', function ($query) use ($arr) {
             $query->whereIn('brand_id', $arr);
         })->orderBy('id', 'asc')->filterByQueryString()->withPagination($request->get('pagesize', 10));
     }
@@ -164,7 +164,7 @@ class NoteService
             $brand_id[] = $item->auth_brand;
         }
         $arr = isset($brand_id) ? $brand_id : [];
-        return $this->noteModel->where('id', $request->route('id'))->whereHas('clients.hasBrands', function ($query) use ($arr) {
+        return $this->noteModel->where('id', $request->route('id'))->whereHas('clients.Brands', function ($query) use ($arr) {
             $query->whereIn('brand_id', $arr);
         })->with('clients')->with('noteType')->first();
     }
