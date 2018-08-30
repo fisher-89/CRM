@@ -51,9 +51,9 @@ class ClientsService
                 $query->whereIn('brand_id', $arr);
             })->filterByQueryString()->withPagination($request->get('pagesize', 10));
 //        return $list;
-        if (isset($list)) {
-            $listData = new ClientsCollection(collect($list));
-            return $listData;
+        if (isset($list['data'])) {
+            $list['data'] = new ClientsCollection(collect($list['data']));
+            return $list;
         } else {
             return new ClientsCollection($list);
         }
