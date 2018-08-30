@@ -10,14 +10,12 @@ class FilesController extends Controller
 {
     public function index(Request $request)
     {
-        if ($request->isMethod('post')) {
-            if (empty($_FILES['file']))
-                abort(400, '文件接收失败');
-            $this->verifyFile($request);
-            $files = $request->file('file');
-            $this->checkFile($files);
-            return $this->storageName($files, $request->user()->staff_sn);
-        }
+        if (empty($_FILES['file']))
+            abort(400, '文件接收失败');
+        $this->verifyFile($request);
+        $files = $request->file('file');
+        $this->checkFile($files);
+        return $this->storageName($files, $request->user()->staff_sn);
     }
 
     /**
@@ -32,10 +30,10 @@ class FilesController extends Controller
             if(!$value->isValid()){
                 abort(400,'文件上传失败');
             }
-            $typeList = ['jpg', 'JPG', 'png', 'PNG', 'gif', 'GIF', 'jpeg', 'JPEG'];
-            if (!in_array($value->getClientOriginalExtension(), $typeList)) {
-                abort(400, '第' . $n . '个文件类型错误');
-            }
+//            $typeList = ['jpg', 'JPG', 'png', 'PNG', 'gif', 'GIF', 'jpeg', 'JPEG','xls','XLS','docx'];
+//            if (!in_array($value->getClientOriginalExtension(), $typeList)) {
+//                abort(400, '第' . $n . '个文件类型错误');
+//            }
             if ($value->getClientSize() > 4194304) {
                 abort(400, '第' . $n . '个文件超4MB');
             }
@@ -68,7 +66,7 @@ class FilesController extends Controller
     {
         $this->validate($request,
             [
-                'file.*'=>'file|image|max:4194304'
+                'file.*'=>'file|max:4194304|mimes:png,gif,jpeg,txt,pdf,doc,docx'
             ],[],[
                 'file'=>'文件'
             ]
