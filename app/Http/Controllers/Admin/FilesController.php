@@ -14,31 +14,13 @@ class FilesController extends Controller
             abort(400, '文件接收失败');
         $this->verifyFile($request);
         $files = $request->file('file');
-        $this->checkFile($files);
-        return $this->storageName($files, $request->user()->staff_sn);
-    }
-
-    /**
-     * 是否接收到和文件类型判断
-     * @param $file
-     */
-    private function checkFile($file)
-    {
-        $n = 0;
-        foreach ($file as $key => $value) {
-            $n++;
-            if (!$value->isValid()) {
-                abort(400, '文件上传失败');
-            }
-//            $typeList = ['jpg', 'JPG', 'png', 'PNG', 'gif', 'GIF', 'jpeg', 'JPEG','xls','XLS','docx'];
-//            if (!in_array($value->getClientOriginalExtension(), $typeList)) {
-//                abort(400, '第' . $n . '个文件类型错误');
-//            }
-            if ($value->getClientSize() > 4194304) {
-                abort(400, '第' . $n . '个文件超4MB');
-            }
-//            $size[]=$value->getClientSize();
+        if (!$files->isValid()) {
+            abort(400, '文件上传失败');
         }
+        if ($files->getClientSize() > 4194304) {
+            abort(400, '文件超4MB');
+        }
+        return $this->storageName($files, $request->user()->staff_sn);
     }
 
     /**
@@ -49,25 +31,22 @@ class FilesController extends Controller
      */
     private function storageName($file, $staff_sn)
     {
-        foreach ($file as $k => $v) {
-            $exe = $v->getClientOriginalExtension();
-            $fileName = md5(microtime() . $v->getClientOriginalName() . $staff_sn);
-            $bool = Storage::disk('public')->put('temporary/' . $fileName . '.' . $exe,
-                file_get_contents($v->getRealPath()));
-            if ((bool)$bool == false) {
-                abort(400, '文件上传失败');
-            }
-            $path[] = 'http://' . $_SERVER['HTTP_HOST'] . '/storage/temporary/' . $fileName . '.' . $exe;
+        $exe = $file->getClientOriginalExtension();
+        $fileName = md5(microtime() . $file->getClientOriginalName() . $staff_sn);
+        $bool = Storage::disk('public')->put('temporary/' . $fileName . '.' . $exe,
+            file_get_contents($file->getRealPath()));
+        if ((bool)$bool == false) {
+            abort(400, '文件上传失败');
         }
-        return isset($path) ? $path : [];
+        $path[] = 'http://' . $_SERVER['HTTP_HOST'] . '/storage/temporary/' . $fileName . '.' . $exe;
+        return $path;
     }
 
     private function verifyFile($request)
     {
         $this->validate($request,
             [
-                'file' => ['required', 'array'],
-                'file.*' => 'file|max:4194304|mimes:png,gif,jpeg,txt,pdf,doc,docx'
+                'file' => 'file|max:4194304|mimes:png,gif,jpeg,txt,pdf,doc,docx'
             ], [], [
                 'file' => '文件'
             ]
