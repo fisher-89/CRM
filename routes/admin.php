@@ -4,6 +4,9 @@ use App\Http\Controllers\Admin;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Contracts\Routing\Registrar;
 
+Route::options('{a?}/{b?}/{c?}', function () {
+    return response('', 204);
+});
 Route::group(['middleware' => 'auth:api'], function (Registrar $admin) {
     //标签类型
     $admin->get('tags/types', Admin\TagController::class . '@indexType');
