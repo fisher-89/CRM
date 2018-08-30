@@ -26,6 +26,7 @@ class CreateVisitTable extends Migration
             $table->increments('id');
             $table->unsignedSmallInteger('note_type_id')->comment('类型');
             $table->unsignedInteger('client_id')->comment('客户id')->index();
+            $table->char('name',10)->comment('客户姓名')->index();
             $table->dateTime('took_place_at')->comment('发生时间');
             $table->unsignedMediumInteger('recorder_sn')->comment('记录人编号')->index();
             $table->char('recorder_name',10)->comment('记录人姓名');
@@ -59,6 +60,13 @@ class CreateVisitTable extends Migration
             $table->primary(['authority_group_id', 'staff_sn'], 'authority_group_staff_sn');
             $table->char('staff_name', 10)->comment('员工姓名');
             $table->foreign('authority_group_id')->references('id')->on('authority_groups');
+        });
+
+        Schema::create('note_has_brand', function (Blueprint $table) {
+            $table->unsignedInteger('note_id')->index();
+            $table->unsignedSmallInteger('brand_id')->index();
+            $table->primary(['note_id', 'brand_id'], 'note_id_brand_id');
+            $table->foreign('note_id')->references('id')->on('notes');
         });
     }
 

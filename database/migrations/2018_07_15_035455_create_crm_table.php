@@ -93,8 +93,8 @@ class CreateCrmTable extends Migration
         //店铺中间表
         Schema::create('client_has_shops', function (Blueprint $table) {
             $table->unsignedInteger('client_id')->index();
-            $table->char('shop_id', 10)->index();
-            $table->primary(['client_id', 'shop_id'], 'client_id_shop_id');
+            $table->char('shop_sn', 10)->index();
+            $table->primary(['client_id', 'shop_sn'], 'client_id_shop_id');
             $table->foreign('client_id')->references('id')->on('clients');
         });
         //客户资料记录
