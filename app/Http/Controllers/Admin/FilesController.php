@@ -10,13 +10,14 @@ class FilesController extends Controller
 {
     public function index(Request $request)
     {
-        if ($request->isMethod('post')) {
-            if (empty($_FILES['file']))
-                abort(400, '文件接收失败');
+//        if ($request->isMethod('post')) {
+//            if (empty($_FILES['file']))
+//                abort(400, '文件接收失败');
+            $this->verifyFile($request);
             $files = $request->file('file');
             $this->checkFile($files);
             return $this->storageName($files, $request->user()->staff_sn);
-        }
+//        }
     }
 
     /**
@@ -56,11 +57,22 @@ class FilesController extends Controller
             $bool = Storage::disk('public')->put('temporary/' . $fileName . '.' . $exe,
                 file_get_contents($v->getRealPath()));
             if ($bool == true) {
-                $path[] = '/storage/temporary/'. $fileName . '.' . $exe;
+                $path[] = 'http://'.$_SERVER['HTTP_HOST'].'/storage/temporary/'. $fileName . '.' . $exe;
             } else {
                 abort(400, '文件上传失败');
             }
         }
-        return $path;
+        return isset($path) ? $path : [];
+    }
+
+    private function verifyFile($request)
+    {
+        $this->validate($request,
+            [
+                'file.*'=>'file|image|max:4194304'
+            ],[],[
+                'file'=>'文件'
+            ]
+        );
     }
 }
