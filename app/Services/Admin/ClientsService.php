@@ -3,6 +3,7 @@
 namespace App\Services\Admin;
 
 use App\Models\AuthorityGroups;
+use App\Http\Resources\ClientsCollection;
 use App\Models\ClientGroupDepartments;
 use App\Models\ClientGroupStaff;
 use App\Models\ClientHasBrands;
@@ -45,10 +46,17 @@ class ClientsService
     public function listClient($request)
     {
         $arr = $this->authDetection($request);
-        return $this->client->with('Tags')->with('Shops')->with('Brands')
+        $list = $this->client->with('Tags')->with('Shops')->with('Brands')
             ->whereHas('Brands', function ($query) use ($arr) {
                 $query->whereIn('brand_id', $arr);
             })->filterByQueryString()->withPagination($request->get('pagesize', 10));
+//        return $list;
+        if (isset($list)) {
+            $listData = new ClientsCollection(collect($list));
+            return $listData;
+        } else {
+            return new ClientsCollection($list);
+        }
     }
 
     public function addClient($request)
@@ -108,27 +116,27 @@ class ClientsService
             abort(400, '客户添加失败');
         }
         $date = $this->client->with('Tags')->with('Brands')->with('Shops')->where('id', $bool->id)->first();
-        $list=[
-            'id'=>$date->id,
-            'name'=>$date->name,
-            'source_id'=>$date->source_id,
-            'status'=>$date->status,
-            'gender'=>$date->gender,
-            'mobile'=>$date->mobile,
-            'wechat'=>$date->wechat,
-            'nation'=>$date->nation,
-            'id_card_number'=>$date->id_card_number,
-            'native_place'=>$date->native_place,
-            'present_address'=>$date->present_address,
-            'tag_id'=>$all['tag_id'],//
-            'first_cooperation_at'=>$date->first_cooperation_at,
-            'vindicator_sn'=>$date->vindicator_sn,
-            'vindicator_name'=>$date->vindicator_name,
-            'remark'=>$date->remark,
-            'brand_id'=>$all['brand_id'],//
-            'shop_id'=>$all['shop_id']//
+        $list = [
+            'id' => $date->id,
+            'name' => $date->name,
+            'source_id' => $date->source_id,
+            'status' => $date->status,
+            'gender' => $date->gender,
+            'mobile' => $date->mobile,
+            'wechat' => $date->wechat,
+            'nation' => $date->nation,
+            'id_card_number' => $date->id_card_number,
+            'native_place' => $date->native_place,
+            'present_address' => $date->present_address,
+            'tag_id' => $all['tag_id'],//
+            'first_cooperation_at' => $date->first_cooperation_at,
+            'vindicator_sn' => $date->vindicator_sn,
+            'vindicator_name' => $date->vindicator_name,
+            'remark' => $date->remark,
+            'brand_id' => $all['brand_id'],//
+            'shop_id' => $all['shop_id']//
         ];
-        return response($list,201);
+        return response($list, 201);
     }
 
     public function editClient($request)
@@ -189,35 +197,35 @@ class ClientsService
             abort(400, '客户添加失败');
         }
         $date = $this->client->with('Tags')->with('Brands')->with('Shops')->where('id', $clientData->id)->first();
-        $list=[
-            'id'=>$date->id,
-            'name'=>$date->name,
-            'source_id'=>$date->source_id,
-            'status'=>$date->status,
-            'gender'=>$date->gender,
-            'mobile'=>$date->mobile,
-            'wechat'=>$date->wechat,
-            'nation'=>$date->nation,
-            'id_card_number'=>$date->id_card_number,
-            'native_place'=>$date->native_place,
-            'present_address'=>$date->present_address,
-            'tag_id'=>$all['tag_id'],//
-            'first_cooperation_at'=>$date->first_cooperation_at,
-            'vindicator_sn'=>$date->vindicator_sn,
-            'vindicator_name'=>$date->vindicator_name,
-            'remark'=>$date->remark,
-            'brand_id'=>$all['brand_id'],//
-            'shop_id'=>$all['shop_id']//
+        $list = [
+            'id' => $date->id,
+            'name' => $date->name,
+            'source_id' => $date->source_id,
+            'status' => $date->status,
+            'gender' => $date->gender,
+            'mobile' => $date->mobile,
+            'wechat' => $date->wechat,
+            'nation' => $date->nation,
+            'id_card_number' => $date->id_card_number,
+            'native_place' => $date->native_place,
+            'present_address' => $date->present_address,
+            'tag_id' => $all['tag_id'],//
+            'first_cooperation_at' => $date->first_cooperation_at,
+            'vindicator_sn' => $date->vindicator_sn,
+            'vindicator_name' => $date->vindicator_name,
+            'remark' => $date->remark,
+            'brand_id' => $all['brand_id'],//
+            'shop_id' => $all['shop_id']//
         ];
-        return response($list,201);
+        return response($list, 201);
     }
 
     public function delClient($request)
     {
         $id = $request->route('id');
-        $client= $this->client->find($id);
-        if((bool)$client === false){
-            abort(404,'未找到数据');
+        $client = $this->client->find($id);
+        if ((bool)$client === false) {
+            abort(404, '未找到数据');
         }
         try {
             DB::beginTransaction();
