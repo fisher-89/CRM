@@ -38,7 +38,7 @@ class FilesController extends Controller
         if ((bool)$bool == false) {
             abort(400, '文件上传失败');
         }
-        $path[] = 'http://' . $_SERVER['HTTP_HOST'] . '/storage/temporary/' . $fileName . '.' . $exe;
+        $path = 'http://' . $_SERVER['HTTP_HOST'] . '/storage/temporary/' . $fileName . '.' . $exe;
         return $path;
     }
 
