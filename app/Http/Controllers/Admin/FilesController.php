@@ -27,8 +27,8 @@ class FilesController extends Controller
         $n = 0;
         foreach ($file as $key => $value) {
             $n++;
-            if(!$value->isValid()){
-                abort(400,'文件上传失败');
+            if (!$value->isValid()) {
+                abort(400, '文件上传失败');
             }
 //            $typeList = ['jpg', 'JPG', 'png', 'PNG', 'gif', 'GIF', 'jpeg', 'JPEG','xls','XLS','docx'];
 //            if (!in_array($value->getClientOriginalExtension(), $typeList)) {
@@ -57,7 +57,7 @@ class FilesController extends Controller
             if ((bool)$bool == false) {
                 abort(400, '文件上传失败');
             }
-            $path[] = 'http://'.$_SERVER['HTTP_HOST'].'/storage/temporary/'. $fileName . '.' . $exe;
+            $path[] = 'http://' . $_SERVER['HTTP_HOST'] . '/storage/temporary/' . $fileName . '.' . $exe;
         }
         return isset($path) ? $path : [];
     }
@@ -66,9 +66,10 @@ class FilesController extends Controller
     {
         $this->validate($request,
             [
-                'file.*'=>'file|max:4194304|mimes:png,gif,jpeg,txt,pdf,doc,docx'
-            ],[],[
-                'file'=>'文件'
+                'file' => ['required', 'array'],
+                'file.*' => 'file|max:4194304|mimes:png,gif,jpeg,txt,pdf,doc,docx'
+            ], [], [
+                'file' => '文件'
             ]
         );
     }
