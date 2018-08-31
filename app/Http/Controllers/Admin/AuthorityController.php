@@ -48,7 +48,12 @@ class AuthorityController extends Controller
                 'auth_brand' => 'required|min:1|max:20|numeric',
                 'departments.*.department_id' => 'numeric|digits:3',
                 'departments.*.department_name' => 'max:10',
-                'staffs.*.staff_sn' => 'numeric|digits:6',
+                'staffs.*.staff_sn' => ['numeric','digits:6',
+                    Rule::unique('client_group_staff','staff_sn')
+                    ->where(function ($query)use($request){
+                        $query->where('authority_group_id',$request->route('id'));
+                    })
+                    ],
                 'staffs.*.staff_name' => 'max:10',
                 'notes_staff.*.staff_sn' => 'numeric|digits:6',
                 'notes_staff.*.staff_name' => 'max:10',
