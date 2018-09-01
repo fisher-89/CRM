@@ -74,16 +74,15 @@ class ClientRequest extends FormRequest
                     }
                 },
                 'max:18|',
-//                'regex:/^[1-9][0-9]{5}(19|20)[0-9]{2}((01|03|05|07|08|10|12)(0[1-9]|[1-2][0-9]|31)|(04|06|09|11)(0[1-9]|[1-2][0-9]|30)|02(0[1-9]|[1-2][0-9]))[0-9]{3}([0-9]|x|X)$/'],
                 'regex:/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/'],
             'native_place' => 'nullable|max:8',
             'present_address' => 'nullable|max:150',
-            'tag_id.*' => ['exists:tags,id', 'numeric', 'nullable'],
-            'tag_id'=>function($attribute, $value, $event){
+            'tags.*.tag_id' => ['exists:tags,id', 'numeric', 'nullable'],
+            'tags'=>['array',function($attribute, $value, $event){
                 if (count($value) == 0) {
                     return $event('未选择标签');
                 }
-            },
+            }],
             'first_cooperation_at' => 'nullable|date',
             'vindicator_sn' => ['numeric', 'nullable',
                 function ($attribute, $value, $event) {
@@ -101,15 +100,15 @@ class ClientRequest extends FormRequest
             ],
             'vindicator_name' => 'max:10',
             'remark' => 'max:200',
-            'brand_id.*' => [
+            'brands.*.brand_id' => [
                 'numeric', 'required'
             ],
-            'brand_id'=>[function($attribute, $value, $event){
+            'brands'=>['array',function($attribute, $value, $event){
                 if(count($value) == 0){
                     return $event('未选择品牌');
                 }
             }],
-            'shop_id.*' => [
+            'shops.*.shop_sn' => [
                 'required',
             ]
         ];

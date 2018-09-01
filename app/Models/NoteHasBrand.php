@@ -14,4 +14,6 @@ class NoteHasBrand extends Model
 
     protected $fillable = ['note_id','brand_id' ];
 
+    public $timestamps =false;
+
 }

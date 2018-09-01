@@ -12,7 +12,7 @@ class Notes extends Model
 
     protected $table = 'notes';
 
-    protected $fillable = ['note_type_id', 'client_id', 'took_place_at', 'recorder_sn','title',
+    protected $fillable = ['note_type_id', 'client_id', 'name', 'took_place_at', 'recorder_sn','title',
         'recorder_name', 'content', 'attachments', 'task_deadline', 'finished_at', 'task_result'];
 
     protected $casts = [
@@ -27,5 +27,10 @@ class Notes extends Model
     public function noteType()
     {
         return $this->hasOne(NoteTypes::class,'id','note_type_id');
+    }
+
+    public function Brands()
+    {
+        return $this->hasMany(NoteHasBrand::class,'note_id','id');
     }
 }

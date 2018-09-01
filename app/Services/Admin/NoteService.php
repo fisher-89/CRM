@@ -4,6 +4,7 @@ namespace App\Services\Admin;
 
 use App\Models\AuthorityGroups;
 use App\Models\NoteGroupStaff;
+use App\Models\NoteHasBrand;
 use App\Models\NoteLogs;
 use App\Models\Notes;
 use App\Models\NoteTypes;
@@ -15,14 +16,16 @@ class NoteService
     use Traits\Filterable, Traits\GetInfo;
 
     protected $noteModel;
+    protected $noteHasBrand;
     protected $noteLogsModel;
     protected $noteTypesModel;
 
-    public function __construct(Notes $notes, NoteTypes $noteTypes, NoteLogs $noteLogs)
+    public function __construct(Notes $notes, NoteTypes $noteTypes, NoteLogs $noteLogs,NoteHasBrand $noteHasBrand)
     {
         $this->noteModel = $notes;
         $this->noteLogsModel = $noteLogs;
         $this->noteTypesModel = $noteTypes;
+        $this->noteHasBrand = $noteHasBrand;
     }
 
     public function getListType($request)
@@ -63,9 +66,9 @@ class NoteService
             $brand_id[] = $item->auth_brand;
         }
         $arr = isset($brand_id) ? $brand_id : [];
-        return $this->noteModel->whereHas('clients.Brands', function ($query) use ($arr) {
+        return $this->noteModel->whereHas('Brands', function ($query) use ($arr) {
             $query->whereIn('brand_id', $arr);
-        })->orderBy('id', 'asc')->filterByQueryString()->withPagination($request->get('pagesize', 10));
+        })->orderBy('id', 'asc')->with('Brands')->filterByQueryString()->withPagination($request->get('pagesize', 10));
     }
 
     public function addNote($request)
@@ -73,6 +76,7 @@ class NoteService
         $note = $this->noteModel;
         $note->note_type_id = $request->note_type_id;
         $note->client_id = $request->client_id;
+        $note->name = $request->name;
         $note->took_place_at = $request->took_place_at;
         $note->recorder_sn = $request->user()->staff_sn;
         $note->recorder_name = $request->user()->realname;
@@ -83,8 +87,15 @@ class NoteService
         $note->finished_at = $request->finished_at;
         $note->task_result = $request->task_result;
         $note->save();
-        $this->saveLogs($request, '后台添加', $note->id, $note);
-        return response()->json($note, 201);
+        foreach ($request->brands as $items){
+            $brandSql=[
+                'note_id'=>$note->id,
+                'brand_id'=>$items['brand_id'],
+            ];
+            $this->noteHasBrand->create($brandSql);
+        }
+//        $this->saveLogs($request, '后台添加', $note->id, $note);
+        return response()->json($note->where('id',$note->id)->with('Brands')->first(), 201);
     }
 
     public function editNote($request)
@@ -95,21 +106,7 @@ class NoteService
             abort(404, '未找到数据');
         }
         if (true === (bool)$note->attachments) {
-            try {
-                if (is_array($note->attachments)) {
-                    foreach ($note->attachments as $key => $value) {
-                        $fileName = basename($value);
-                        copy(storage_path() . '/app/public/uploads/' . $fileName, storage_path() . '/app/public/abandon/' . $fileName);
-                        unlink(storage_path() . '/app/public/uploads/' . $fileName);
-                    }
-                } else {
-                    $fileName = basename($note->attachments);
-                    copy(storage_path() . '/app/public/uploads/' . $fileName, storage_path() . '/app/public/abandon/' . $fileName);
-                    unlink(storage_path() . '/app/public/uploads/' . $fileName);
-                }
-            } catch (\Exception $e) {
-                abort(500, '修改失败');
-            }
+            $this->fileDiscard($note->attachments);
         }
         $noteSql = [
             'note_type_id' => $request->note_type_id,
@@ -126,7 +123,7 @@ class NoteService
         ];
         $note->update($noteSql);
         $this->saveLogs($request, '后台修改', $id, $note);
-        return response()->json($note, 201);
+        return response()->json($note->where('id',$note->id)->with('Brands')->first(), 201);
     }
 
     public function delNote($request)
@@ -137,24 +134,10 @@ class NoteService
             abort(404, '未找到数据');
         }
         if (true === (bool)$note->attachments) {
-            try {
-                if (is_array($note->attachments)) {
-                    foreach ($note->attachments as $key => $value) {
-                        $fileName = basename($value);
-                        copy(storage_path() . '/app/public/uploads/' . $fileName, storage_path() . '/app/public/abandon/' . $fileName);
-                        unlink(storage_path() . '/app/public/uploads/' . $fileName);
-                    }
-                } else {
-                    $fileName = basename($note->attachments);
-                    copy(storage_path() . '/app/public/uploads/' . $fileName, storage_path() . '/app/public/abandon/' . $fileName);
-                    unlink(storage_path() . '/app/public/uploads/' . $fileName);
-                }
-            } catch (\Exception $e) {
-                abort(500, '删除失败');
-            }
+            $this->fileDiscard($note->attachments);
         }
         $note->delete();
-        $this->saveLogs($request, '后台删除', $id, $note);
+        $this->saveLogs($request, '后台删除', $id);
         return response('', 204);
     }
 
@@ -164,9 +147,10 @@ class NoteService
             $brand_id[] = $item->auth_brand;
         }
         $arr = isset($brand_id) ? $brand_id : [];
-        return $this->noteModel->where('id', $request->route('id'))->whereHas('clients.Brands', function ($query) use ($arr) {
+        return $this->noteModel->where('id', $request->route('id'))
+            ->whereHas('Brands', function ($query) use ($arr) {
             $query->whereIn('brand_id', $arr);
-        })->with('clients')->with('noteType')->first();
+        })->with('noteType')->first();
     }
 
     /**
@@ -187,25 +171,50 @@ class NoteService
                         $dst = storage_path() . '/app/public/uploads/' . $getFileName;
                         copy($src, $dst);
                         unlink($src);
-                        $arr[] = '/storage/uploads/' . $getFileName;
+//                        $arr[] = '/storage/uploads/' . $getFileName;
                     }
-                    return $arr;
+                    return $file;
                 } else {
                     $getFileName = basename($file);
                     $src = storage_path() . '/app/public/temporary/' . $getFileName;
                     $dst = storage_path() . '/app/public/uploads/' . $getFileName;
                     copy($src, $dst);
                     unlink($src);
-                    return '/storage/uploads/' . $getFileName;
+//                    '/storage/uploads/' . $getFileName;
+                    return $file;
                 }
             } catch (\Exception $e) {
-                abort(500, '操作失败');
+                abort(500, '没找到文件');
             }
         }
         return '';
     }
 
-    protected function saveLogs($request, $type, $id, $arr)
+    /**
+     * 文件移废弃文件夹
+     *
+     * @param $attachments
+     */
+    private function fileDiscard($attachments)
+    {
+        try {
+            if (is_array($attachments)) {
+                foreach ($attachments as $key => $value) {
+                    $fileName = basename($value);
+                    copy(storage_path() . '/app/public/uploads/' . $fileName, storage_path() . '/app/public/abandon/' . $fileName);
+                    unlink(storage_path() . '/app/public/uploads/' . $fileName);
+                }
+            } else {
+                $fileName = basename($attachments);
+                copy(storage_path() . '/app/public/uploads/' . $fileName, storage_path() . '/app/public/abandon/' . $fileName);
+                unlink(storage_path() . '/app/public/uploads/' . $fileName);
+            }
+        } catch (\Exception $e) {
+            abort(500, '修改失败');
+        }
+    }
+
+    protected function saveLogs($request, $type, $id, $arr=[])
     {
         $logSql = [
             'note_id' => $id,

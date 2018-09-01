@@ -54,6 +54,7 @@ class NotesController extends Controller
      */
     public function editType(Request $request)
     {
+        $this->verifyEmploy($request);
         $this->editVerify($request);
         return $this->note->editNoteType($request);
     }
@@ -66,6 +67,7 @@ class NotesController extends Controller
      */
     public function deleteType(Request $request)
     {
+        $this->verifyEmploy($request);
         return $this->note->delNoteType($request);
     }
 
@@ -89,7 +91,7 @@ class NotesController extends Controller
      */
     public function store(NotesRequest $request)
     {
-        $this->noteActionAuth($request);
+//        $this->noteActionAuth($request);
         return $this->note->addNote($request);
     }
 
@@ -237,6 +239,19 @@ class NotesController extends Controller
         $recorderSn = Notes::where('id', $request->route('id'))->value('recorder_sn');
         if ($recorderSn != Auth::user()->staff_sn) {
             abort(401, '暂无权限');
+        }
+    }
+
+    /**
+     * 被使用验证
+     *
+     * @param $request
+     */
+    private function verifyEmploy($request)
+    {
+        $note=Notes::where('note_type_id',$request->route('id'))->first();
+        if((bool)$note === true){
+            abort(400,'当前分类被暂用，不能修改');
         }
     }
 }

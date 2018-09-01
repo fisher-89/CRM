@@ -44,7 +44,7 @@ Route::group(['middleware' => 'auth:api'], function (Registrar $admin) {
     $admin->get('notes', Admin\NotesController::class . '@index');
     $admin->post('notes', Admin\NotesController::class . '@store');
     $admin->put('notes/{id}', Admin\NotesController::class . '@edit');
-    $admin->delete('notes/{id}', Admin\NotesController::class . '@delete');
+    $admin->delete('notes/{id}', Admin\NotesController::class . '@delete');//todo 还没有做废弃文件夹定时清理
     $admin->get('notes/{id}', Admin\NotesController::class . '@detailNote');
     //临时文件存储
     $admin->post('notes/files', Admin\FilesController::class . '@index');

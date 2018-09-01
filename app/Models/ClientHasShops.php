@@ -11,7 +11,7 @@ class ClientHasShops extends Model
 
     protected $table = 'client_has_shops';
 
-    protected $fillable = ['client_id', 'shop_id'];
+    protected $fillable = ['client_id', 'shop_sn'];
 
     public $timestamps = false;
 }
