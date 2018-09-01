@@ -14,19 +14,9 @@ Trait ListScopes
      */
     public function scopeFilterByQueryString(Builder $query): Builder
     {
-        $filters = array_filter(explode(';', request('filters', '')));
+        $filters = $this->unserializeFilters();
         return $query->when($filters, function ($query) use ($filters) {
-            foreach ($filters as $filter) {
-                preg_match('/((?<relation>.*)\.|^)(?<key>.+?)(?<mark>=|~|>=|>|<=|<)(?<value>.+?)$/', $filter, $match);
-                $relation = trim($match['relation']);
-                if ($relation) {
-                    $query->whereHas($relation, function ($query) use ($match) {
-                        $this->filterBuilder($query, $match);
-                    });
-                } else {
-                    $this->filterBuilder($query, $match);
-                }
-            }
+            $this->addFiltersToQuery($query, $filters);
         });
     }
 
@@ -56,8 +46,7 @@ Trait ListScopes
     public function scopeWithPagination(Builder $query, int $pagesize = 10)
     {
         if (request()->has('page') && is_numeric(request('page'))) {
-            $pagesize = request()->has('pagesize') ? request('pagesize') : $pagesize;
-            $items = $query->paginate($pagesize);
+            $items = $query->paginate(request()->get('pagesize', $pagesize));
 
             return [
                 'data' => $items->items(),
@@ -71,7 +60,70 @@ Trait ListScopes
         }
     }
 
-    protected function filterBuilder(Builder $query, $filter)
+    protected function unserializeFilters()
+    {
+        $inputString = request('filters');
+        if (!$inputString) return false;
+        $inputArr = str_split(request('filters'));
+        $filters = [];
+        $key = [0];
+        $implodedKey = '0';
+        foreach ($inputArr as $string) {
+            switch ($string) {
+                case'(':
+                    array_push($key, 0);
+                    $implodedKey = implode('.', $key);
+                    break;
+                case')':
+                    array_pop($key);
+                    $implodedKey = implode('.', $key);
+                    break;
+                case';':
+                    array_push($key, abs(array_pop($key)) + 1);
+                    $implodedKey = implode('.', $key);
+                    break;
+                case'|':
+                    array_push($key, -(abs(array_pop($key)) + 1));
+                    $implodedKey = implode('.', $key);
+                    break;
+                default:
+                    $originalValue = array_get($filters, $implodedKey) ?: '';
+                    array_set($filters, $implodedKey, $originalValue . $string);
+                    break;
+            }
+        }
+        return $filters;
+    }
+
+    protected function addFiltersToQuery($query, $filters)
+    {
+        foreach ($filters as $key => $filter) {
+            $isOrWhere = $key < 0;
+            if (is_array($filter)) {
+                if ($isOrWhere) {
+                    $query->orWhere(function ($query) use ($filter) {
+                        $this->addFiltersToQuery($query, $filter);
+                    });
+                } else {
+                    $query->where(function ($query) use ($filter) {
+                        $this->addFiltersToQuery($query, $filter);
+                    });
+                }
+            } else {
+                preg_match('/((?<relation>.*)\.|^)(?<key>.+?)(?<mark>=|~|>=|>|<=|<)(?<value>.+?)$/', $filter, $match);
+                $relation = trim($match['relation']);
+                if ($relation) {
+                    $query->whereHas($relation, function ($query) use ($match, $isOrWhere) {
+                        $this->filterBuilder($query, $match, $isOrWhere);
+                    });
+                } else {
+                    $this->filterBuilder($query, $match, $isOrWhere);
+                }
+            }
+        }
+    }
+
+    protected function filterBuilder(Builder $query, $filter, $isOrWhere = false)
     {
         $mark = $filter['mark'];
         $key = trim($filter['key']);
@@ -80,18 +132,34 @@ Trait ListScopes
             case '=':
                 if (strpos($value, '[') !== false) {
                     $toArr = explode(',', trim($value, '[]'));
-                    $query->whereIn($key, $toArr);
+                    if ($isOrWhere) {
+                        $query->orWhereIn($key, $toArr);
+                    } else {
+                        $query->whereIn($key, $toArr);
+                    }
                     continue;
                 }
-                $query->where($key, $value);
-                break;
+                if ($isOrWhere) {
+                    $query->orWhere($key, $value);
+                } else {
+                    $query->where($key, $value);
+                }
 
+                break;
             case '~':
-                $query->where($key, 'like', "%{$value}%");
-                break;
+                if ($isOrWhere) {
+                    $query->orWhere($key, 'like', "%{$value}%");
+                } else {
+                    $query->where($key, 'like', "%{$value}%");
+                }
 
+                break;
             default:
-                $query->where($key, $mark, $value);
+                if ($isOrWhere) {
+                    $query->orWhere($key, $mark, $value);
+                } else {
+                    $query->where($key, $mark, $value);
+                }
                 break;
         }
     }
