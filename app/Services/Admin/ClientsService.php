@@ -101,13 +101,16 @@ class ClientsService
             DB::rollback();
             abort(400, '客户添加失败');
         }
-        return response()->json($this->client->with('Tags')->with('Shops')->with('Brands')->where('id', $bool->id)->first(),201);
+        return response()->json($this->client->with('Tags')->with('Shops')->with('Brands')->where('id', $bool->id)->first(), 201);
     }
 
     public function editClient($request)
     {
         $all = $request->all();
         $clientData = $this->client->with('Tags')->with('Shops')->with('Brands')->find($request->route('id'));
+        if ((bool)$clientData === false) {
+            abort(404, '未找到数据');
+        }
         $clientLogSql = [
             'client_id' => $clientData->id,
             'type' => '后台修改',
@@ -121,9 +124,6 @@ class ClientsService
                 ],
             'alteration_content' => $this->getDirtyWithOriginal($clientData->fill($all)),
         ];
-        if ((bool)$clientData === false) {
-            abort(404, '未找到数据');
-        }
         try {
             DB::beginTransaction();
             $clientData->update($all);
@@ -161,14 +161,15 @@ class ClientsService
                     $this->clientHasShops->create($shopSql);
                 }
             }
-        $this->clientLogs->create($clientLogSql);
+            $this->clientLogs->create($clientLogSql);
             DB::commit();
         } catch (\Exception $e) {
             DB::rollback();
             abort(400, '客户修改失败');
         }
-        return response($this->client->with('Tags')->with('Shops')->with('Brands')->where('id', $clientData->id)->first(),201);
+        return response($this->client->with('Tags')->with('Shops')->with('Brands')->where('id', $clientData->id)->first(), 201);
     }
+
     protected function getDirtyWithOriginal($model)
     {
         $dirty = [];
@@ -221,7 +222,7 @@ class ClientsService
     {
         $worn = $this->client->find($request->route('id'))->pivot;
         $arr = $this->client->find($request->route('id'))->pivot->toArray();//
-        $data=$worn->fill($arr);
+        $data = $worn->fill($arr);
 
     }
 

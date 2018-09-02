@@ -20,7 +20,7 @@ class NoteService
     protected $noteLogsModel;
     protected $noteTypesModel;
 
-    public function __construct(Notes $notes, NoteTypes $noteTypes, NoteLogs $noteLogs,NoteHasBrand $noteHasBrand)
+    public function __construct(Notes $notes, NoteTypes $noteTypes, NoteLogs $noteLogs, NoteHasBrand $noteHasBrand)
     {
         $this->noteModel = $notes;
         $this->noteLogsModel = $noteLogs;
@@ -87,15 +87,15 @@ class NoteService
         $note->finished_at = $request->finished_at;
         $note->task_result = $request->task_result;
         $note->save();
-        foreach ($request->brands as $items){
-            $brandSql=[
-                'note_id'=>$note->id,
-                'brand_id'=>$items['brand_id'],
+        foreach ($request->brands as $items) {
+            $brandSql = [
+                'note_id' => $note->id,
+                'brand_id' => $items['brand_id'],
             ];
             $this->noteHasBrand->create($brandSql);
         }
 //        $this->saveLogs($request, '后台添加', $note->id, $note);
-        return response()->json($note->where('id',$note->id)->with('Brands')->first(), 201);
+        return response()->json($note->where('id', $note->id)->with('Brands')->first(), 201);
     }
 
     public function editNote($request)
@@ -121,9 +121,23 @@ class NoteService
             'finished_at' => $request->finished_at,
             'task_result' => $request->task_result,
         ];
+        $noteLogs = $this->getDirtyWithOriginal($note->fill($request->all()));
+        dd($noteLogs);
         $note->update($noteSql);
-        $this->saveLogs($request, '后台修改', $id, $note);
-        return response()->json($note->where('id',$note->id)->with('Brands')->first(), 201);
+        $this->saveLogs($request, '后台修改', $id, $noteLogs);
+        return response()->json($note->where('id', $note->id)->with('Brands')->first(), 201);
+    }
+
+    protected function getDirtyWithOriginal($model)
+    {
+        $dirty = [];
+        foreach ($model->getDirty() as $key => $value) {
+            $dirty[$key] = [
+                'original' => $model->getOriginal($key, ''),
+                'dirty' => $value,
+            ];
+        }
+        return $dirty;
     }
 
     public function delNote($request)
@@ -141,7 +155,7 @@ class NoteService
         return response('', 204);
     }
 
-    public function getDetail($request,$obj)
+    public function getDetail($request, $obj)
     {
         foreach ($obj as $item) {
             $brand_id[] = $item->auth_brand;
@@ -149,8 +163,8 @@ class NoteService
         $arr = isset($brand_id) ? $brand_id : [];
         return $this->noteModel->where('id', $request->route('id'))
             ->whereHas('Brands', function ($query) use ($arr) {
-            $query->whereIn('brand_id', $arr);
-        })->with('noteType')->first();
+                $query->whereIn('brand_id', $arr);
+            })->with('noteType')->first();
     }
 
     /**
@@ -214,7 +228,7 @@ class NoteService
         }
     }
 
-    protected function saveLogs($request, $type, $id, $arr=[])
+    protected function saveLogs($request, $type, $id, $arr = [])
     {
         $logSql = [
             'note_id' => $id,
