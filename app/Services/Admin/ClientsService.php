@@ -107,12 +107,25 @@ class ClientsService
     public function editClient($request)
     {
         $all = $request->all();
+        $clientData = $this->client->with('Tags')->with('Shops')->with('Brands')->find($request->route('id'));
+        $clientLogSql = [
+            'client_id' => $clientData->id,
+            'type' => '后台修改',
+            'staff_sn' => $request->user()->staff_sn,
+            'staff_name' => $request->user()->realname,
+            'operation_address' =>
+                [
+                    '电话号码' => $this->getOperation(),
+                    '设备类型' => $this->getPhoneType(),
+                    'IP地址' => $request->getClientIp()
+                ],
+            'alteration_content' => $this->getDirtyWithOriginal($clientData->fill($all)),
+        ];
+        if ((bool)$clientData === false) {
+            abort(404, '未找到数据');
+        }
         try {
             DB::beginTransaction();
-            $clientData = $this->client->find($request->route('id'));
-            if ((bool)$clientData === false) {
-                abort(404, '未找到数据');
-            }
             $clientData->update($all);
             if ((bool)$clientData === false) {
                 DB::rollback();
@@ -148,26 +161,24 @@ class ClientsService
                     $this->clientHasShops->create($shopSql);
                 }
             }
-            $clientLogSql = [
-                'client_id' => $clientData->id,
-                'type' => '后台修改',
-                'staff_sn' => $request->user()->staff_sn,
-                'staff_name' => $request->user()->realname,
-                'operation_address' =>
-                    [
-                        '电话号码' => $this->getOperation(),
-                        '设备类型' => $this->getPhoneType(),
-                        'IP地址' => $request->getClientIp()
-                    ],
-                'alteration_content' => $all,//todo
-            ];
-            $this->clientLogs->create($clientLogSql);
+        $this->clientLogs->create($clientLogSql);
             DB::commit();
         } catch (\Exception $e) {
             DB::rollback();
             abort(400, '客户修改失败');
         }
         return response($this->client->with('Tags')->with('Shops')->with('Brands')->where('id', $clientData->id)->first(),201);
+    }
+    protected function getDirtyWithOriginal($model)
+    {
+        $dirty = [];
+        foreach ($model->getDirty() as $key => $value) {
+            $dirty[$key] = [
+                'original' => $model->getOriginal($key, ''),
+                'dirty' => $value,
+            ];
+        }
+        return $dirty;
     }
 
     public function delClient($request)
@@ -204,6 +215,14 @@ class ClientsService
         }
 
         return response('', 204);
+    }
+
+    private function getDirty($request)
+    {
+        $worn = $this->client->find($request->route('id'))->pivot;
+        $arr = $this->client->find($request->route('id'))->pivot->toArray();//
+        $data=$worn->fill($arr);
+
     }
 
     protected function authDetection($request)
