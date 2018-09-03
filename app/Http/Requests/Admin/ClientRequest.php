@@ -78,11 +78,6 @@ class ClientRequest extends FormRequest
             'native_place' => 'nullable|max:8',
             'present_address' => 'nullable|max:150',
             'tags.*.tag_id' => ['exists:tags,id', 'numeric', 'nullable'],
-            'tags'=>['array',function($attribute, $value, $event){
-                if (count($value) == 0) {
-                    return $event('未选择标签');
-                }
-            }],
             'first_cooperation_at' => 'nullable|date',
             'vindicator_sn' => ['numeric', 'nullable',
                 function ($attribute, $value, $event) {
