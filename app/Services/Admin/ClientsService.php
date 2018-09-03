@@ -62,8 +62,8 @@ class ClientsService
     public function addClient($request)
     {
         $all = $request->all();
-        try {
-            DB::beginTransaction();
+//        try {
+//            DB::beginTransaction();
             $bool = $this->client->create($all);
             if ((bool)$bool === false) {
                 DB::rollback();
@@ -96,11 +96,11 @@ class ClientsService
                     $this->clientHasShops->create($shopSql);
                 }
             }
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollback();
-            abort(400, '客户添加失败');
-        }
+//            DB::commit();
+//        } catch (\Exception $e) {
+//            DB::rollback();
+//            abort(400, '客户添加失败');
+//        }
         return response()->json($this->client->with('Tags')->with('Shops')->with('Brands')->where('id', $bool->id)->first(), 201);
     }
 
@@ -111,8 +111,58 @@ class ClientsService
         if ((bool)$clientData === false) {
             abort(404, '未找到数据');
         }
+//        $specialHandling = $clientData;
+//        $this->saveClientLog($specialHandling, $all, $request);  todo 附表数据待改
+        try {
+            DB::beginTransaction();
+        $clientData->update($all);
+        if ((bool)$clientData === false) {
+            DB::rollback();
+            abort(400, '客户修改失败');
+        }
+        $this->clientHasTags->where('client_id', $clientData->id)->delete();
+        $this->clientHasShops->where('client_id', $clientData->id)->delete();
+        $this->clientHasBrands->where('client_id', $clientData->id)->delete();
+        if (isset($request->tags)) {
+            foreach ($request->tags as $k => $v) {
+                $sql = [
+                    'client_id' => $clientData->id,
+                    'tag_id' => $v['tag_id'],
+                ];
+                $this->clientHasTags->create($sql);
+            }
+        }
+        if (isset($request->brands)) {
+            foreach ($request->brands as $item) {
+                $brandSql = [
+                    'client_id' => $clientData->id,
+                    'brand_id' => $item['brand_id'],
+                ];
+                $this->clientHasBrands->create($brandSql);
+            }
+        }
+        if (isset($request->shops)) {
+            foreach ($request->shops as $items) {
+                $shopSql = [
+                    'client_id' => $clientData->id,
+                    'shop_sn' => $items['shop_sn'],
+                ];
+                $this->clientHasShops->create($shopSql);
+            }
+        }
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+            abort(400, '客户修改失败');
+        }
+        return response($this->client->with('Tags')->with('Shops')->with('Brands')->where('id', $clientData->id)->first(), 201);
+    }
+
+    private function saveClientLog($model, $commit, $request)
+    {
+
         $clientLogSql = [
-            'client_id' => $clientData->id,
+            'client_id' => $model->id,
             'type' => '后台修改',
             'staff_sn' => $request->user()->staff_sn,
             'staff_name' => $request->user()->realname,
@@ -122,52 +172,10 @@ class ClientsService
                     '设备类型' => $this->getPhoneType(),
                     'IP地址' => $request->getClientIp()
                 ],
-            'alteration_content' => $this->getDirtyWithOriginal($clientData->fill($all)),
+            'alteration_content' => $this->getDirtyWithOriginal($model->fill($commit)),
         ];
-        try {
-            DB::beginTransaction();
-            $clientData->update($all);
-            if ((bool)$clientData === false) {
-                DB::rollback();
-                abort(400, '客户修改失败');
-            }
-            $this->clientHasTags->where('client_id', $clientData->id)->delete();
-            $this->clientHasShops->where('client_id', $clientData->id)->delete();
-            $this->clientHasBrands->where('client_id', $clientData->id)->delete();
-            if (isset($request->tags)) {
-                foreach ($request->tags as $k => $v) {
-                    $sql = [
-                        'client_id' => $clientData->id,
-                        'tag_id' => $v['tag_id'],
-                    ];
-                    $this->clientHasTags->create($sql);
-                }
-            }
-            if (isset($request->brands)) {
-                foreach ($request->brands as $item) {
-                    $brandSql = [
-                        'client_id' => $clientData->id,
-                        'brand_id' => $item['brand_id'],
-                    ];
-                    $this->clientHasBrands->create($brandSql);
-                }
-            }
-            if (isset($request->shops)) {
-                foreach ($request->shops as $items) {
-                    $shopSql = [
-                        'client_id' => $clientData->id,
-                        'shop_sn' => $items['shop_sn'],
-                    ];
-                    $this->clientHasShops->create($shopSql);
-                }
-            }
-            $this->clientLogs->create($clientLogSql);
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollback();
-            abort(400, '客户修改失败');
-        }
-        return response($this->client->with('Tags')->with('Shops')->with('Brands')->where('id', $clientData->id)->first(), 201);
+        dd($clientLogSql);
+        $this->clientLogs->create($clientLogSql);
     }
 
     protected function getDirtyWithOriginal($model)
