@@ -62,14 +62,14 @@ class ClientsService
     public function addClient($request)
     {
         $all = $request->all();
-//        try {
-//            DB::beginTransaction();
+        try {
+            DB::beginTransaction();
             $bool = $this->client->create($all);
             if ((bool)$bool === false) {
                 DB::rollback();
                 abort(400, '客户添加失败');
             }
-            if (isset($request->tags)) {
+            if (isset($request->tags ) && $request->tags!= []) {
                 foreach ($request->tags as $k => $v) {
                     $tagSql = [
                         'client_id' => $bool->id,
@@ -78,7 +78,7 @@ class ClientsService
                     $this->clientHasTags->create($tagSql);
                 }
             }
-            if (isset($request->brands)) {
+            if (isset($request->brands) && $request->brands != []) {
                 foreach ($request->brands as $item) {
                     $brandSql = [
                         'client_id' => $bool->id,
@@ -87,7 +87,7 @@ class ClientsService
                     $this->clientHasBrands->create($brandSql);
                 }
             }
-            if (isset($request->shops)) {
+            if (isset($request->shops) && $request->shops != []) {
                 foreach ($request->shops as $items) {
                     $shopSql = [
                         'client_id' => $bool->id,
@@ -96,11 +96,11 @@ class ClientsService
                     $this->clientHasShops->create($shopSql);
                 }
             }
-//            DB::commit();
-//        } catch (\Exception $e) {
-//            DB::rollback();
-//            abort(400, '客户添加失败');
-//        }
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+            abort(400, '客户添加失败');
+        }
         return response()->json($this->client->with('Tags')->with('Shops')->with('Brands')->where('id', $bool->id)->first(), 201);
     }
 
