@@ -69,7 +69,7 @@ class ClientsService
                 DB::rollback();
                 abort(400, '客户添加失败');
             }
-            if (isset($request->tags ) && $request->tags!= []) {
+            if (isset($request->tags ) && $request->tags != []) {
                 foreach ($request->tags as $k => $v) {
                     $tagSql = [
                         'client_id' => $bool->id,
@@ -115,41 +115,41 @@ class ClientsService
 //        $this->saveClientLog($specialHandling, $all, $request);  todo 附表数据待改
         try {
             DB::beginTransaction();
-        $clientData->update($all);
-        if ((bool)$clientData === false) {
-            DB::rollback();
-            abort(400, '客户修改失败');
-        }
-        $this->clientHasTags->where('client_id', $clientData->id)->delete();
-        $this->clientHasShops->where('client_id', $clientData->id)->delete();
-        $this->clientHasBrands->where('client_id', $clientData->id)->delete();
-        if (isset($request->tags) && $request->tags != []) {
-            foreach ($request->tags as $k => $v) {
-                $sql = [
-                    'client_id' => $clientData->id,
-                    'tag_id' => $v['tag_id'],
-                ];
-                $this->clientHasTags->create($sql);
+            $clientData->update($all);
+            if ((bool)$clientData === false) {
+                DB::rollback();
+                abort(400, '客户修改失败');
             }
-        }
-        if (isset($request->brands) && $request->brands != []) {
-            foreach ($request->brands as $item) {
-                $brandSql = [
-                    'client_id' => $clientData->id,
-                    'brand_id' => $item['brand_id'],
-                ];
-                $this->clientHasBrands->create($brandSql);
+            $this->clientHasTags->where('client_id', $clientData->id)->delete();
+            $this->clientHasShops->where('client_id', $clientData->id)->delete();
+            $this->clientHasBrands->where('client_id', $clientData->id)->delete();
+            if (isset($request->tags) && $request->tags != []) {
+                foreach ($request->tags as $k => $v) {
+                    $sql = [
+                        'client_id' => $clientData->id,
+                        'tag_id' => $v['tag_id'],
+                    ];
+                    $this->clientHasTags->create($sql);
+                }
             }
-        }
-        if (isset($request->shops) && $request->shops != []) {
-            foreach ($request->shops as $items) {
-                $shopSql = [
-                    'client_id' => $clientData->id,
-                    'shop_sn' => $items['shop_sn'],
-                ];
-                $this->clientHasShops->create($shopSql);
+            if (isset($request->brands) && $request->brands != []) {
+                foreach ($request->brands as $item) {
+                    $brandSql = [
+                        'client_id' => $clientData->id,
+                        'brand_id' => $item['brand_id'],
+                    ];
+                    $this->clientHasBrands->create($brandSql);
+                }
             }
-        }
+            if (isset($request->shops) && $request->shops != []) {
+                foreach ($request->shops as $items) {
+                    $shopSql = [
+                        'client_id' => $clientData->id,
+                        'shop_sn' => $items['shop_sn'],
+                    ];
+                    $this->clientHasShops->create($shopSql);
+                }
+            }
             DB::commit();
         } catch (\Exception $e) {
             DB::rollback();
