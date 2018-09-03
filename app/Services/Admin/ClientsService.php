@@ -123,7 +123,7 @@ class ClientsService
         $this->clientHasTags->where('client_id', $clientData->id)->delete();
         $this->clientHasShops->where('client_id', $clientData->id)->delete();
         $this->clientHasBrands->where('client_id', $clientData->id)->delete();
-        if (isset($request->tags)) {
+        if (isset($request->tags) && $request->tags != []) {
             foreach ($request->tags as $k => $v) {
                 $sql = [
                     'client_id' => $clientData->id,
@@ -132,7 +132,7 @@ class ClientsService
                 $this->clientHasTags->create($sql);
             }
         }
-        if (isset($request->brands)) {
+        if (isset($request->brands) && $request->brands != []) {
             foreach ($request->brands as $item) {
                 $brandSql = [
                     'client_id' => $clientData->id,
@@ -141,7 +141,7 @@ class ClientsService
                 $this->clientHasBrands->create($brandSql);
             }
         }
-        if (isset($request->shops)) {
+        if (isset($request->shops) && $request->shops != []) {
             foreach ($request->shops as $items) {
                 $shopSql = [
                     'client_id' => $clientData->id,
