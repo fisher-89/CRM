@@ -12,6 +12,10 @@ class Clients extends Model
 
     protected $table = 'clients';
 
+    protected $casts = [
+        'present_address' => 'array',
+    ];
+
     protected $fillable = ['name', 'source_id', 'status', 'gender', 'mobile', 'wechat', 'nation', 'id_card_number',
         'native_place', 'present_address', 'first_cooperation_at', 'vindicator_sn', 'vindicator_name', 'remark'];
 
