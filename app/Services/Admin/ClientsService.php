@@ -62,8 +62,8 @@ class ClientsService
     public function addClient($request)
     {
         $all = $request->all();
-        try {
-            DB::beginTransaction();
+//        try {
+//            DB::beginTransaction();
             $bool = $this->client->create($all);
             if ((bool)$bool === false) {
                 DB::rollback();
@@ -96,11 +96,11 @@ class ClientsService
                     $this->clientHasShops->create($shopSql);
                 }
             }
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollback();
-            abort(400, '客户添加失败');
-        }
+//            DB::commit();
+//        } catch (\Exception $e) {
+//            DB::rollback();
+//            abort(400, '客户添加失败');
+//        }
         return response()->json($this->client->with('Tags')->with('Shops')->with('Brands')->where('id', $bool->id)->first(), 201);
     }
 
