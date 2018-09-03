@@ -121,8 +121,7 @@ class NoteService
             'finished_at' => $request->finished_at,
             'task_result' => $request->task_result,
         ];
-        $noteLogs = $this->getDirtyWithOriginal($note->fill($request->all()));
-        dd($noteLogs);
+        $noteLogs = $this->getDirtyWithOriginal($note->fill($request->all()));//todo 获取附表数据待改
         $note->update($noteSql);
         $this->saveLogs($request, '后台修改', $id, $noteLogs);
         return response()->json($note->where('id', $note->id)->with('Brands')->first(), 201);
