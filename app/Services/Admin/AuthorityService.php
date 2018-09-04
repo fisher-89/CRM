@@ -2,30 +2,38 @@
 
 namespace App\Services\Admin;
 
-use App\Models\ClientGroupDepartments;
+use App\Http\Resources\AuthorityCollection;
 use App\Models\AuthorityGroups;
-use App\Models\ClientGroupStaff;
-use App\Models\NoteGroupStaff;
+use App\Models\AuthGroupHasStaff;
+use App\Models\AuthGroupHasVisibleBrands;
+use App\Models\AuthGroupHasEditableBrands;
 use DB;
 
 class AuthorityService
 {
-    protected $staff;
     protected $groups;
-    protected $noteStaff;
-    protected $departments;
+    protected $staff;
+    protected $editable;
+    protected $visible;
 
-    public function __construct(AuthorityGroups $authorityGroups, ClientGroupStaff $authorityGroupStaff, ClientGroupDepartments $authorityGroupDepartments, NoteGroupStaff $noteGroupStaff)
+    public function __construct(AuthorityGroups $authorityGroups, AuthGroupHasStaff $noteGroupStaff,
+                                AuthGroupHasVisibleBrands $authorityGroupStaff, AuthGroupHasEditableBrands $authorityGroupDepartments)
     {
         $this->groups = $authorityGroups;
-        $this->staff = $authorityGroupStaff;
-        $this->noteStaff = $noteGroupStaff;
-        $this->departments = $authorityGroupDepartments;
+        $this->staff = $noteGroupStaff;
+        $this->editable = $authorityGroupDepartments;
+        $this->visible = $authorityGroupStaff;
     }
 
     public function getList($request)
     {
-        return $this->groups->with('staffs')->with('departments')->with('noteStaff')->filterByQueryString()->withPagination($request->get('pagesize', 10));
+        $list = $this->groups->with(['staffs','editables','visibles'])->filterByQueryString()->withPagination($request->get('pagesize', 10));
+        if (isset($list['data'])) {
+            $list['data'] = new AuthorityCollection(collect($list['data']));
+            return $list;
+        } else {
+            return new AuthorityCollection($list);
+        }
     }
 
     public function addAuth($request)
@@ -39,40 +47,27 @@ class AuthorityService
                     $staffSql = [
                         'authority_group_id' => $group->id,
                         'staff_sn' => $value['staff_sn'],
-                        'staff_name' => $value['staff_name'],
+                        'staff_name'=>$value['staff_name']
                     ];
                     $this->staff->create($staffSql);
                 }
             }
-            if ((bool)$all['departments'] === true) {
-                foreach ($all['departments'] as $k => $v) {
+            if ((bool)$all['editables'] === true) {
+                foreach ($all['editables'] as $k => $v) {
                     $departmentSql = [
                         'authority_group_id' => $group->id,
-                        'department_id' => $v['department_id'],
-                        'department_name' => $v['department_name'],
+                        'brand_id' => $v,
                     ];
-                    $this->departments->create($departmentSql);
+                    $this->editable->create($departmentSql);
                 }
             }
-            if ((bool)$all['notes_staff'] === true) {
-                foreach ($all['notes_staff'] as $ky => $va) {
-                    $oa = app('api')->withRealException()->getStaff($va['staff_sn']);
-                    $clientAuth = AuthorityGroups::where(['auth_type' => 1, 'auth_brand' => $all['auth_brand']])
-                        ->wherehas('staffs', function ($query) use ($request, $va) {
-                            $query->where('staff_sn', $va['staff_sn']);
-                        })->orWhereHas('departments', function ($query) use ($request, $oa) {
-                            $query->where('department_id', $oa['department_id']);
-                        })->first();
-                    if ((bool)$clientAuth === false) {
-                        DB::rollback();
-                        return response('添加失败，请注意是否有客户信息查看权限',400);
-                    }
+            if ((bool)$all['visibles'] === true) {
+                foreach ($all['visibles'] as $ky => $va) {
                     $noteSql = [
                         'authority_group_id' => $group->id,
-                        'staff_sn' => $va['staff_sn'],
-                        'staff_name' => $va['staff_name'],
+                        'brand_id' => $va,
                     ];
-                    $this->noteStaff->create($noteSql);
+                    $this->visible->create($noteSql);
                 }
             }
             DB::commit();
@@ -80,7 +75,10 @@ class AuthorityService
             DB::rollback();
             abort(400, '添加失败');
         }
-        return response()->json($this->groups->with('staffs')->with('departments')->with('noteStaff')->where('id', $group->id)->first(), 201);
+        $data=$this->groups->with('staffs')->where('id', $group->id)->first();
+        $data['editables']=$all['editables'];
+        $data['visibles']=$all['visibles'];
+        return response()->json($data, 201);
     }
 
     public function updateAuth($request)
@@ -107,37 +105,24 @@ class AuthorityService
                     $this->staff->create($staffSql);
                 }
             }
-            if ((bool)$all['departments'] === true) {
-                $this->departments->where('authority_group_id', $id)->delete();
-                foreach ($all['departments'] as $k => $v) {
+            if ((bool)$all['editables'] === true) {
+                $this->editable->where('authority_group_id', $id)->delete();
+                foreach ($all['editables'] as $k => $v) {
                     $departmentSql = [
                         'authority_group_id' => $group->id,
-                        'department_id' => $v['department_id'],
-                        'department_name' => $v['department_name'],
+                        'brand_id' => $v,
                     ];
-                    $this->departments->create($departmentSql);
+                    $this->editable->create($departmentSql);
                 }
             }
-            if ((bool)$all['notes_staff'] === true) {
-                $this->noteStaff->where('authority_group_id', $id)->delete();
-                foreach ($all['notes_staff'] as $ky => $va) {
-                    $oa = app('api')->withRealException()->getStaff($va['staff_sn']);
-                    $clientAuth = AuthorityGroups::where(['auth_type' => 1, 'auth_brand' => $all['auth_brand']])
-                        ->wherehas('staffs', function ($query) use ($request, $va) {
-                            $query->where('staff_sn', $va['staff_sn']);
-                        })->orWhereHas('departments', function ($query) use ($request, $oa) {
-                            $query->where('department_id', $oa['department_id']);
-                        })->first();
-                    if ((bool)$clientAuth === false) {
-                        DB::rollback();
-                        return response('修改失败，请注意是否有客户信息查看权限',400);
-                    }
+            if ((bool)$all['visibles'] === true) {
+                $this->editable->where('authority_group_id', $id)->delete();
+                foreach ($all['visibles'] as $ky => $va) {
                     $noteSql = [
                         'authority_group_id' => $group->id,
-                        'staff_sn' => $va['staff_sn'],
-                        'staff_name' => $va['staff_name'],
+                        'brand_id' => $va,
                     ];
-                    $this->noteStaff->create($noteSql);
+                    $this->visible->create($noteSql);
                 }
             }
             DB::commit();
@@ -145,7 +130,10 @@ class AuthorityService
             DB::rollback();
             abort(400, '修改失败');
         }
-        return response()->json($this->groups->with('staffs')->with('departments')->with('noteStaff')->where('id', $group->id)->first(), 201);
+        $editData=$this->groups->with('staffs')->where('id', $group->id)->first();
+        $editData['editables']=$all['editables'];
+        $editData['visibles']=$all['visibles'];
+        return response()->json($editData, 201);
     }
 
     public function delAuth($request)
@@ -153,9 +141,9 @@ class AuthorityService
         $id = $request->route('id');
         $group = $this->groups->find($id);
         if ((bool)$group === true) {
-            $this->staff->where('authority_group_id', $id)->delete();
-            $this->departments->where('authority_group_id', $id)->delete();
-            $this->noteStaff->where('authority_group_id', $id)->delete();
+//            $this->staff->where('authority_group_id', $id)->delete();
+//            $this->editable->where('authority_group_id', $id)->delete();
+//            $this->visible->where('authority_group_id', $id)->delete();
             $group->delete();
             return response('', 204);
         } else {
