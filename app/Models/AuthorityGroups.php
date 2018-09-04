@@ -12,20 +12,20 @@ class AuthorityGroups extends Model
 
     protected $table = 'authority_groups';
 
-    protected $fillable = ['name','auth_type','auth_brand'];
+    protected $fillable = ['name','description'];
 
     public function staffs()
     {
-        return $this->hasMany(ClientGroupStaff::class,'authority_group_id','id');
+        return $this->hasMany(AuthGroupHasStaff::class,'authority_group_id','id');
     }
 
-    public function departments()
+    public function editables()
     {
-        return $this->hasMany(ClientGroupDepartments::class,'authority_group_id','id');
+        return $this->hasMany(AuthGroupHasEditableBrands::class,'authority_group_id','id');
     }
 
-    public function noteStaff()
+    public function visibles()
     {
-        return $this->hasMany(NoteGroupStaff::class,'authority_group_id','id');
+        return $this->hasMany(AuthGroupHasVisibleBrands::class,'authority_group_id','id');
     }
 }
