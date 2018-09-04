@@ -52,7 +52,7 @@ class ClientLogsController extends Controller
     {
         $staff = ClientLogs::where('id', $request->route('id'))->value('staff_sn');
         if ($request->user()->staff_sn !== $staff) {
-            abort(401, '你没有权限修改');
+            abort(401, '你没有权限操作');
         }
     }
 

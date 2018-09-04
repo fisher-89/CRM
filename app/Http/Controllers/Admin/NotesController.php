@@ -7,7 +7,7 @@ use App\Models\AuthorityGroups;
 use App\Models\ClientHasBrands;
 use App\Models\Clients;
 use App\Models\Nations;
-use App\Models\NoteGroupStaff;
+use App\Models\AuthGroupHasStaff;
 use App\Models\Notes;
 use App\Services\Admin\NoteService;
 use Illuminate\Http\Request;

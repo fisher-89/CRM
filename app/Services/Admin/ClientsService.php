@@ -4,8 +4,8 @@ namespace App\Services\Admin;
 
 use App\Models\AuthorityGroups;
 use App\Http\Resources\ClientsCollection;
-use App\Models\ClientGroupDepartments;
-use App\Models\ClientGroupStaff;
+use App\Models\AuthGroupHasEditableBrands;
+use App\Models\AuthGroupHasVisibleBrands;
 use App\Models\ClientHasBrands;
 use App\Models\ClientHasShops;
 use App\Models\ClientHasTags;
@@ -43,9 +43,14 @@ class ClientsService
         $this->clientHasBrands = $clientHasBrands;
     }
 
-    public function listClient($request)
+    public function listClient($request,$brand)
     {
-        $arr = $this->authDetection($request);
+        foreach ($brand as $key=>$value){
+            foreach ($value['visibles'] as $k=>$v){
+                $arrData[]=$v['brand_id'];
+            }
+        }
+        $arr=isset($arrData) ? $arrData : [];
         $list = $this->client->with('Tags')->with('Shops')->with('Brands')
             ->whereHas('Brands', function ($query) use ($arr) {
                 $query->whereIn('brand_id', $arr);
@@ -234,30 +239,22 @@ class ClientsService
 
     }
 
-    protected function authDetection($request)
-    {
-        $auth = AuthorityGroups::where('auth_type', 1)
-            ->whereHas('staffs', function ($query) use ($request) {
-                $query->where('staff_sn', $request->user()->staff_sn);
-            })->orWhereHas('departments', function ($query) use ($request) {
-                $query->where('department_id', $request->user()->department['id']);
-            })->get()->toArray();
-        $arr = array_column($auth, 'auth_brand');
-        return $arr;
-    }
-
     /**
      * 详细页面
      *
      * @param $id
      * @return mixed
      */
-    public function firstClient($request)
+    public function firstClient($request,$brand)
     {
-        $arr = $this->authDetection($request);
-        return $this->client->where('id', $request->route('id'))
-            ->with('Tags')->with('Brands')->with('Shops')
-            ->whereHas('Brands', function ($query) use ($arr) {
+        foreach ($brand as $key=>$value){
+            foreach ($value['visibles'] as $k=>$v){
+                $arrData[]=$v['brand_id'];
+            }
+        }
+        $arr=isset($arrData) ? $arrData : [];
+        return $this->client->with('Tags')->with('Brands')->with('Shops')
+            ->where('id', $request->route('id'))->whereHas('Brands', function ($query) use ($arr) {
                 $query->whereIn('brand_id', $arr);
             })->first();
     }

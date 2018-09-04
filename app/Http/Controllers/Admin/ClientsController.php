@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\Admin\ClientRequest;
 use App\Models\AuthorityGroups;
-use App\Models\ClientGroupDepartments;
-use App\Models\ClientGroupStaff;
+use App\Models\AuthGroupHasEditableBrands;
+use App\Models\AuthGroupHasVisibleBrands;
 use App\Models\ClientHasBrands;
 use App\Models\Clients;
+use App\Services\Admin\AuthorityService;
 use App\Services\Admin\ClientsService;
 use Illuminate\Http\Request;
 use Excel;
@@ -16,10 +17,11 @@ use Illuminate\Support\Facades\Auth;
 class ClientsController extends Controller
 {
     protected $client;
-
-    public function __construct(ClientsService $clientsService)
+    protected $auth;
+    public function __construct(ClientsService $clientsService,AuthorityService $authorityService)
     {
         $this->client = $clientsService;
+        $this->auth = $authorityService;
     }
 
     /**
@@ -29,8 +31,8 @@ class ClientsController extends Controller
      */
     public function index(Request $request)
     {
-        $this->clientReadingAuth($request);
-        return $this->client->listClient($request);
+        $brand = $this->auth->readingAuth($request->user()->staff_sn);
+        return $this->client->listClient($request,$brand);
     }
 
     /**
@@ -41,7 +43,7 @@ class ClientsController extends Controller
      */
     public function store(ClientRequest $clientRequest)
     {
-        $this->clientActionAuth($clientRequest);
+        $this->auth->actionAuth($clientRequest);
         return $this->client->addClient($clientRequest);
     }
 
@@ -53,7 +55,7 @@ class ClientsController extends Controller
      */
     public function update(ClientRequest $clientRequest)
     {
-        $this->clientActionAuth($clientRequest);
+        $this->auth->actionAuth($clientRequest);
         return $this->client->editClient($clientRequest);
     }
 
@@ -65,21 +67,21 @@ class ClientsController extends Controller
      */
     public function delete(Request $request)
     {
-        $id = $request->route('id');
-        $data = ClientHasBrands::where('client_id', $id)->get();
-        foreach ($data as $item) {
-            $auth = AuthorityGroups::where(['auth_type' => '2', 'auth_brand' => $item['brand_id']])
-                ->whereHas('staffs', function ($query) use ($request) {
-                    $query->where('staff_sn', $request->user()->staff_sn);
-                })->orWhereHas('departments', function ($query) use ($request) {
-                    $query->where('department_id', $request->user()->department['id']);
-                })->first();
-            if ((bool)$auth === true) {
-                return $this->client->delClient($request);
-                break;
-            }
-        }
-        abort(401, '暂无权限');
+        return $this->client->delClient($request);
+//        $id = $request->route('id');
+//        $data = ClientHasBrands::where('client_id', $id)->get();
+//        foreach ($data as $item) {
+//            $auth = AuthorityGroups::whereHas('staffs', function ($query) use ($request) {
+//                    $query->where('staff_sn', $request->user()->staff_sn);
+//                })->WhereHas('editables', function ($query) use ($item) {
+//                    $query->where('brand_id', $item['brand_id']);
+//                })->first();
+//            if ((bool)$auth === true) {
+//                return $this->client->delClient($request);
+//                break;
+//            }
+//        }
+//        abort(401, '暂无权限');
     }
 
     /**
@@ -90,8 +92,8 @@ class ClientsController extends Controller
      */
     public function details(Request $request)
     {
-        $this->clientReadingAuth($request);
-        return $this->client->firstClient($request);
+        $brand = $this->auth->readingAuth($request->user()->staff_sn);
+        return $this->client->firstClient($request,$brand);
     }
 
     public function export(Request $request)
@@ -102,48 +104,6 @@ class ClientsController extends Controller
     public function import(Request $request)
     {
         return $this->client->importClient();
-    }
-
-    /**
-     * 查看权限
-     *
-     * @param $request
-     */
-    protected function clientReadingAuth($request)
-    {
-        $staff = AuthorityGroups::where('auth_type', 1)->whereHas('staffs', function ($query) use ($request) {
-            $query->where('staff_sn', $request->user()->staff_sn);
-        })->orWhereHas('departments', function ($query) use ($request) {
-            $query->where('department_id', $request->user()->department['id']);
-        })->first();
-        if ((bool)$staff === false) {
-            abort(401, '暂无权限');
-        }
-    }
-
-    /**
-     * 操作权限
-     *
-     * @param $request
-     */
-    protected function clientActionAuth($request)
-    {
-        if(empty($request->brands)){
-            abort(404,'未找到的品牌');
-        }
-        foreach ($request->brands as $item) {
-            $auth[] = AuthorityGroups::where(['auth_type' => 2, 'auth_brand' => $item])
-                ->whereHas('staffs', function ($query) use ($request) {
-                    $query->where('staff_sn', $request->user()->staff_sn);
-                })->orWhereHas('departments', function ($query) use ($request) {
-                    $query->where('department_id', $request->user()->department['id']);
-                })->first();
-        }
-        $data = isset($auth) ? $auth : [];
-        $bool = array_filter($data);
-        if ($bool === []) {
-            abort(401, '暂无添加权限');
-        }
     }
 
     /**

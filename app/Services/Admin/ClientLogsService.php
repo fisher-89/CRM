@@ -36,7 +36,7 @@ class ClientLogsService
         }
         $array = isset($data) ? $data : [];
         $arr = array_filter($array);
-        return $this->clientLogs->orderBy('id','desc')->with('clients')
+        return $this->clientLogs->orderBy('id','desc')
             ->whereHas('clients.Brands',function($query)use($arr){
                 $query->whereIn('brand_id',$arr);
             })->filterByQueryString()->withPagination($request->get('pagesize', 10));
@@ -46,24 +46,24 @@ class ClientLogsService
     {
         $log = $this->clientLogs->where('id', $request->route('id'))->first();
         if (false === (bool)$log->alteration_content) {
-            abort(400, '未找到还原数据');
+            abort(404, '未找到还原数据');
         }
-        if (true === (bool)$log->mobile) {
-            $mobile = $this->clients->withTrashed()->where('mobile', $log->mobile)->first();
+        if (true === (bool)$log->alteration_content['mobile']) {
+            $mobile = $this->clients->withTrashed()->where('mobile', $log->alteration_content['mobile']['original'])->first();
             if (true === (bool)$mobile) {
                 abort(400, '还原失败，电话号码冲突');
             }
         }
-        if (true === (bool)$log->id_card_number) {
-            $idCardNumber = $this->clients->withTrashed()->where('id_card_number', $log->id_card_number)->first();
+        if (true === (bool)$log->alteration_content['id_card_number']) {
+            $idCardNumber = $this->clients->withTrashed()->where('id_card_number', $log->alteration_content['id_card_number']['original'])->first();
             if (true === (bool)$idCardNumber) {
                 abort(400, '还原失败，身份证号码冲突');
             }
         }
-        try {
-            DB::beginTransaction();
-            if (true === (bool)$log->alteration_content['tag_id']) {
-                $this->clientHasTags->where('client_id', $log->client_id)->delete();
+//        try {
+//            DB::beginTransaction();
+            if (isset($log->alteration_content['Tags'])) {
+                $this->clientHasTags->whereIn('client_id', $log->alteration_content['Tags'])->delete();
                 foreach ($log->alteration_content['tag_id'] as $value) {
                     $tagSql = [
                         'client_id' => $log->client_id,
@@ -72,8 +72,8 @@ class ClientLogsService
                     $this->clientHasTags->create($tagSql);
                 }
             }
-            if (true === (bool)$log->alteration_content['shop_id']) {
-                $this->clientHasShops->where('client_id', $log->client_id)->delete();
+            if (true === (bool)$log->alteration_content['Shops']) {
+                $this->clientHasShops->whereIn('client_id', $log->alteration_content['Shops'])->delete();
                 foreach ($log->alteration_content['shop_id'] as $items) {
                     $shopSql = [
                         'client_id' => $log->client_id,
@@ -82,8 +82,8 @@ class ClientLogsService
                     $this->clientHasShops->create($shopSql);
                 }
             }
-            if (true === (bool)$log->alteration_content['brand_id']) {
-                $this->clientHasBrands->where('client_id', $log->client_id)->delete();
+            if (true === (bool)$log->alteration_content['Brands']) {
+                $this->clientHasBrands->whereIn('client_id', $log->alteration_content['Brands'])->delete();
                 foreach ($log->alteration_content['brand_id'] as $item) {
                     $brandSql = [
                         'client_id' => $log->client_id,
@@ -115,11 +115,11 @@ class ClientLogsService
                 'alteration_content' => $log->alteration_content
             ];
             $this->clientLogs->create($clientLog);
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollback();
-            abort(400, '还原失败');
-        }
+//            DB::commit();
+//        } catch (\Exception $e) {
+//            DB::rollback();
+//            abort(400, '还原失败');
+//        }
         return (bool)$bool === true ? response($this->clients->find($log->client_id), 201) : abort(400, '还原失败');
     }
 }

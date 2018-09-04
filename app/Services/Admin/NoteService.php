@@ -3,7 +3,7 @@
 namespace App\Services\Admin;
 
 use App\Models\AuthorityGroups;
-use App\Models\NoteGroupStaff;
+use App\Models\AuthGroupHasStaff;
 use App\Models\NoteHasBrand;
 use App\Models\NoteLogs;
 use App\Models\Notes;

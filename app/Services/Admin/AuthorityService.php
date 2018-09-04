@@ -150,4 +150,45 @@ class AuthorityService
             abort(404, '删除失败,未找到数据');
         }
     }
+
+    /**
+     * 查看权限
+     *
+     * @param $request
+     */
+    public function readingAuth($staff)
+    {
+        $staff = AuthorityGroups::whereHas('staffs', function ($query) use ($staff) {
+            $query->where('staff_sn', $staff);
+        })->with('visibles')->get();
+        if ((bool)$staff === false) {
+            abort(401, '暂无权限');
+        }else{
+            return $staff;
+        }
+    }
+
+    /**
+     * 操作权限
+     *
+     * @param $request
+     */
+    public function actionAuth($request)
+    {
+        if(empty($request->brands)){
+            abort(404,'未找到的品牌');
+        }
+        foreach ($request->brands as $item) {
+            $auth[] = AuthorityGroups::whereHas('staffs', function ($query) use ($request) {
+                    $query->where('staff_sn', $request->user()->staff_sn);
+                })->whereHas('editables',function($query)use($item){
+                    $query->where('brand_id',$item);
+            })->first();
+        }
+        $data = isset($auth) ? $auth : [];
+        $bool = array_filter($data);
+        if ($bool === []) {
+            abort(401, '暂无添加权限');
+        }
+    }
 }
