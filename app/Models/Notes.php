@@ -12,7 +12,7 @@ class Notes extends Model
 
     protected $table = 'notes';
 
-    protected $fillable = ['note_type_id', 'client_id', 'name', 'took_place_at', 'recorder_sn','title',
+    protected $fillable = ['note_type_id', 'client_id', 'client_name', 'took_place_at', 'recorder_sn','title',
         'recorder_name', 'content', 'attachments', 'task_deadline', 'finished_at', 'task_result'];
 
     protected $casts = [
