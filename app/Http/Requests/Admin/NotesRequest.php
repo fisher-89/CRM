@@ -29,7 +29,7 @@ class NotesRequest extends FormRequest
         return [
             'note_type_id' => 'required|numeric|exists:note_types,id',
             'client_id' => 'required|numeric|exists:clients,id',
-            'name' => ['required', 'max:10',
+            'client_name' => ['required', 'max:10',
                 function ($attribute, $value, $event) {
                     $name=Clients::where('id',$this->all('client_id'))->value('name');
                     if($value != $name){
@@ -59,7 +59,7 @@ class NotesRequest extends FormRequest
                 }
             ],//定时时间
             'finished_at' => 'date|nullable',
-            'task_result' => 'between:-1,1',
+            'task_result' => 'between:-1,1|nullable',
             'brands'=>'array|required',
             'brands.*.brand_id'=>'numeric'
         ];
@@ -70,7 +70,7 @@ class NotesRequest extends FormRequest
         return [
             'note_type_id' => '事件分类',
             'client_id' => '客户信息',
-            'name' => '名字',
+            'client_name' => '名字',
             'took_place_at' => '事件时间',
             'title' => '标题',
             'content' => '内容',
