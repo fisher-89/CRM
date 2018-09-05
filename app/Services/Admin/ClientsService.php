@@ -204,9 +204,9 @@ class ClientsService
         }
         try {
             DB::beginTransaction();
-            $this->clientHasTags->where('client_id', $id)->delete();
-            $this->clientHasShops->where('client_id', $id)->delete();
-            $this->clientHasBrands->where('client_id', $id)->delete();
+//            $this->clientHasTags->where('client_id', $id)->delete();
+//            $this->clientHasShops->where('client_id', $id)->delete();
+//            $this->clientHasBrands->where('client_id', $id)->delete();
             $client->delete();
             $clientLogSql = [
                 'client_id' => $id,
@@ -227,16 +227,7 @@ class ClientsService
             DB::rollback();
             abort(400, '客户删除失败');
         }
-
         return response('', 204);
-    }
-
-    private function getDirty($request)
-    {
-        $worn = $this->client->find($request->route('id'))->pivot;
-        $arr = $this->client->find($request->route('id'))->pivot->toArray();//
-        $data = $worn->fill($arr);
-
     }
 
     /**

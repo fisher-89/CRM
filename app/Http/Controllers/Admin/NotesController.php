@@ -9,6 +9,7 @@ use App\Models\Clients;
 use App\Models\Nations;
 use App\Models\AuthGroupHasStaff;
 use App\Models\Notes;
+use App\Services\Admin\AuthorityService;
 use App\Services\Admin\NoteService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,10 +18,12 @@ use Illuminate\Validation\Rule;
 class NotesController extends Controller
 {
     protected $note;
+    protected $auth;
 
-    public function __construct(NoteService $noteService)
+    public function __construct(NoteService $noteService,AuthorityService $authorityService)
     {
         $this->note = $noteService;
+        $this->auth = $authorityService;
     }
 
     /**
@@ -79,7 +82,7 @@ class NotesController extends Controller
      */
     public function index(Request $request)
     {
-        $obj = $this->noteReadingAuth($request);
+        $obj = $this->auth->readingAuth($request->user()->staff_sn);
         return $this->note->getList($request, $obj);
     }
 
@@ -91,7 +94,7 @@ class NotesController extends Controller
      */
     public function store(NotesRequest $request)
     {
-//        $this->noteActionAuth($request);
+        $this->auth->actionAuth($request);
         return $this->note->addNote($request);
     }
 
@@ -103,7 +106,7 @@ class NotesController extends Controller
      */
     public function edit(NotesRequest $request)
     {
-        $this->clientEditAuth($request);
+        $this->noteEditAuth($request);
         return $this->note->editNote($request);
     }
 
@@ -115,7 +118,7 @@ class NotesController extends Controller
      */
     public function delete(Request $request)
     {
-        $this->clientEditAuth($request);
+        $this->noteEditAuth($request);
         return $this->note->delNote($request);
     }
 
@@ -127,14 +130,11 @@ class NotesController extends Controller
      */
     public function detailNote(Request $request)
     {
-        $id = $request->route('id');
-        $clientId = Notes::where('id', $id)->value('client_id');
-        $brandId = ClientHasBrands::where('client_id', $clientId)->get();
-        foreach ($brandId as $item){
-            $auth[] = AuthorityGroups::where(['auth_type'=>1,'auth_brand'=>$item->brand_id])
-                ->whereHas('noteStaff', function ($query) use ($request) {
-                $query->where('staff_sn', $request->user()->staff_sn);
-            })->first();
+        $staff = $this->auth->readingAuth($request->user()->staff_sn);
+        foreach ($staff as $item){
+            foreach ($item['visibles'] as $k=>$v){
+                $auth[]=$v['brand_id'];
+            }
         }
         $data = isset($auth) ? $auth : [];
         $bool = array_filter($data);
@@ -142,45 +142,6 @@ class NotesController extends Controller
             abort(401, '暂无权限');
         }else{
             return $this->note->getDetail($request,$bool);
-        }
-    }
-
-    /**
-     * 事件列表查看权限
-     *
-     * @param $request
-     */
-    protected function noteReadingAuth($request)
-    {
-        $noteGroup = AuthorityGroups::where('auth_type', 1)->whereHas('noteStaff', function ($query) use ($request) {
-            $query->where('staff_sn', $request->user()->staff_sn);
-        })->get();
-        if ((bool)$noteGroup->all() === false) {
-            abort(401, '暂无查看权限');
-        } else {
-            return $noteGroup;
-        }
-    }
-
-    /**
-     * 事件操作权限
-     *
-     * @param $request
-     */
-    protected function noteActionAuth($request)
-    {
-        $client = $request->all('client_id');
-        $has = ClientHasBrands::where('client_id', $client)->get();
-        foreach ($has as $item) {
-            $auth[] = AuthorityGroups::where(['auth_type' => 2, 'auth_brand' => $item->brand_id])
-                ->whereHas('noteStaff', function ($query) use ($request) {
-                    $query->where('staff_sn', $request->user()->staff_sn);
-                })->first();
-        }
-        $data = isset($auth) ? $auth : [];
-        $bool = array_filter($data);
-        if ($bool === []) {
-            abort(401, '暂无添加权限');
         }
     }
 
@@ -234,7 +195,7 @@ class NotesController extends Controller
      *
      * @param $request
      */
-    protected function clientEditAuth($request)
+    protected function noteEditAuth($request)
     {
         $recorderSn = Notes::where('id', $request->route('id'))->value('recorder_sn');
         if ($recorderSn != Auth::user()->staff_sn) {

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin;
 
-
 use App\Models\AuthorityGroups;
 use Illuminate\Http\Request;
 
@@ -23,6 +22,6 @@ class AuthBrandController extends Controller
         if ((bool)$data == false) {
             return [];
         }
-        return array_unique( array_filter($data));
+        return array_unique(array_filter($data));
     }
 }

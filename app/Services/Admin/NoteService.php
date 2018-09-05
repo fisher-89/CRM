@@ -2,11 +2,13 @@
 
 namespace App\Services\Admin;
 
+use App\Http\Resources\NoteCollection;
 use App\Models\AuthorityGroups;
 use App\Models\AuthGroupHasStaff;
 use App\Models\NoteHasBrand;
 use App\Models\NoteLogs;
 use App\Models\Notes;
+use DB;
 use App\Models\NoteTypes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -63,39 +65,57 @@ class NoteService
     public function getList($request, $obj)
     {
         foreach ($obj as $item) {
-            $brand_id[] = $item->auth_brand;
+            foreach ($item['visibles'] as $key=>$value){
+                $brand_id[] = $value['brand_id'];
+            }
         }
-        $arr = isset($brand_id) ? $brand_id : [];
-        return $this->noteModel->whereHas('Brands', function ($query) use ($arr) {
+        $arr = isset($brand_id) ?  array_unique(array_filter($brand_id)) : [];
+        $list = $this->noteModel->whereHas('Brands', function ($query) use ($arr) {
             $query->whereIn('brand_id', $arr);
         })->orderBy('id', 'asc')->with('Brands')->filterByQueryString()->withPagination($request->get('pagesize', 10));
+        if (isset($list['data'])) {
+            $list['data'] = new NoteCollection(collect($list['data']));
+            return $list;
+        } else {
+            return new NoteCollection($list);
+        }
     }
 
     public function addNote($request)
     {
-        $note = $this->noteModel;
-        $note->note_type_id = $request->note_type_id;
-        $note->client_id = $request->client_id;
-        $note->name = $request->name;
-        $note->took_place_at = $request->took_place_at;
-        $note->recorder_sn = $request->user()->staff_sn;
-        $note->recorder_name = $request->user()->realname;
-        $note->title = $request->title;
-        $note->content = $request->content;
-        $note->attachments = $this->fileDispose($request);
-        $note->task_deadline = $request->task_deadline;
-        $note->finished_at = $request->finished_at;
-        $note->task_result = $request->task_result;
-        $note->save();
-        foreach ($request->brands as $items) {
-            $brandSql = [
-                'note_id' => $note->id,
-                'brand_id' => $items['brand_id'],
-            ];
-            $this->noteHasBrand->create($brandSql);
-        }
+        try{
+            DB::beginTransaction();
+            $note = $this->noteModel;
+            $note->note_type_id = $request->note_type_id;
+            $note->client_id = $request->client_id;
+            $note->client_name = $request->client_name;
+            $note->took_place_at = $request->took_place_at;
+            $note->recorder_sn = $request->user()->staff_sn;
+            $note->recorder_name = $request->user()->realname;
+            $note->title = $request->title;
+            $note->content = $request->content;
+            $note->attachments = $this->fileDispose($request->attachments);
+            $note->task_deadline = $request->task_deadline;
+            $note->finished_at = $request->finished_at;
+            $note->task_result = $request->task_result;
+            $note->save();
+            foreach ($request->brands as $items) {
+                $brandSql = [
+                    'note_id' => $note->id,
+                    'brand_id' => $items,
+                ];
+                $this->noteHasBrand->create($brandSql);
+            }
 //        $this->saveLogs($request, '后台添加', $note->id, $note);
-        return response()->json($note->where('id', $note->id)->with('Brands')->first(), 201);
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+            abort(400, '事件添加失败');
+        }
+        $data=$note->where('id', $note->id)->first();
+        $data['brands']=$request->brands;
+        return response()->json($data, 201);
     }
 
     public function editNote($request)
@@ -105,26 +125,44 @@ class NoteService
         if (false == (bool)$note) {
             abort(404, '未找到数据');
         }
-        if (true === (bool)$note->attachments) {
-            $this->fileDiscard($note->attachments);
+        try{
+            DB::beginTransaction();
+            if (true === (bool)$note->attachments) {
+                $this->fileDiscard($note->attachments);
+            }
+            $noteSql = [
+                'note_type_id' => $request->note_type_id,
+                'client_id' => $request->client_id,
+                'client_name' => $request->client_name,
+                'took_place_at' => $request->took_place_at,
+                'recorder_sn' => $request->user()->staff_sn,
+                'recorder_name' => $request->user()->realname,
+                'title' => $request->title,
+                'content' => $request->content,
+                'attachments' => $this->fileDispose($request->attachments),
+                'task_deadline' => $request->task_deadline,
+                'finished_at' => $request->finished_at,
+                'task_result' => $request->task_result,
+            ];
+            $noteLogs = $this->getDirtyWithOriginal($note->fill($request->all()));//todo 获取附表数据待改
+            $note->update($noteSql);
+            $this->noteHasBrand->where('note_id',$id)->delete();
+            foreach ($request->brands  as $items){
+                $noteHasBrandSql=[
+                    'note_id'=>$id,
+                    'brand_id'=>$items
+                ];
+                $this->noteHasBrand->create($noteHasBrandSql);
+            }
+            $this->saveLogs($request, '后台修改', $id, $noteLogs);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+            abort(400, '事件添加失败');
         }
-        $noteSql = [
-            'note_type_id' => $request->note_type_id,
-            'client_id' => $request->client_id,
-            'took_place_at' => $request->took_place_at,
-            'recorder_sn' => $request->user()->staff_sn,
-            'recorder_name' => $request->user()->realname,
-            'title' => $request->title,
-            'content' => $request->content,
-            'attachments' => $this->fileDispose($request),
-            'task_deadline' => $request->task_deadline,
-            'finished_at' => $request->finished_at,
-            'task_result' => $request->task_result,
-        ];
-        $noteLogs = $this->getDirtyWithOriginal($note->fill($request->all()));//todo 获取附表数据待改
-        $note->update($noteSql);
-        $this->saveLogs($request, '后台修改', $id, $noteLogs);
-        return response()->json($note->where('id', $note->id)->with('Brands')->first(), 201);
+        $data=$note->where('id', $note->id)->first();
+        $data['brands']=$request->brands;
+        return response()->json($data, 201);
     }
 
     protected function getDirtyWithOriginal($model)
@@ -154,12 +192,8 @@ class NoteService
         return response('', 204);
     }
 
-    public function getDetail($request, $obj)
+    public function getDetail($request, $arr)
     {
-        foreach ($obj as $item) {
-            $brand_id[] = $item->auth_brand;
-        }
-        $arr = isset($brand_id) ? $brand_id : [];
         return $this->noteModel->where('id', $request->route('id'))
             ->whereHas('Brands', function ($query) use ($arr) {
                 $query->whereIn('brand_id', $arr);
@@ -172,9 +206,8 @@ class NoteService
      * @param $request
      * @return array|string
      */
-    public function fileDispose($request)
+    public function fileDispose($file)
     {
-        $file = $request->attachments;
         if ($file == true) {
             try {
                 if (is_array($file)) {

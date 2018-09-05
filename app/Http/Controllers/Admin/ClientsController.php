@@ -67,21 +67,20 @@ class ClientsController extends Controller
      */
     public function delete(Request $request)
     {
-        return $this->client->delClient($request);
-//        $id = $request->route('id');
-//        $data = ClientHasBrands::where('client_id', $id)->get();
-//        foreach ($data as $item) {
-//            $auth = AuthorityGroups::whereHas('staffs', function ($query) use ($request) {
-//                    $query->where('staff_sn', $request->user()->staff_sn);
-//                })->WhereHas('editables', function ($query) use ($item) {
-//                    $query->where('brand_id', $item['brand_id']);
-//                })->first();
-//            if ((bool)$auth === true) {
-//                return $this->client->delClient($request);
-//                break;
-//            }
-//        }
-//        abort(401, '暂无权限');
+        $id = $request->route('id');
+        $data = ClientHasBrands::where('client_id', $id)->get();
+        foreach ($data as $item) {
+            $auth = AuthorityGroups::whereHas('staffs', function ($query) use ($request) {
+                    $query->where('staff_sn', $request->user()->staff_sn);
+                })->WhereHas('editables', function ($query) use ($item) {
+                    $query->where('brand_id', $item['brand_id']);
+                })->first();
+            if ((bool)$auth === true) {
+                return $this->client->delClient($request);
+                break;
+            }
+        }
+        abort(401, '暂无权限');
     }
 
     /**
