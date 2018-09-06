@@ -116,8 +116,7 @@ class ClientsService
         if ((bool)$clientData === false) {
             abort(404, '未找到数据');
         }
-//        $specialHandling = $clientData;
-//        $this->saveClientLog($specialHandling, $all, $request);  todo 附表数据待改
+        $specialHandling = clone $clientData;
         try {
             DB::beginTransaction();
             $clientData->update($all);
@@ -155,6 +154,7 @@ class ClientsService
                     $this->clientHasShops->create($shopSql);
                 }
             }
+            $this->saveClientLog($specialHandling, $all, $request);
             DB::commit();
         } catch (\Exception $e) {
             DB::rollback();
@@ -166,6 +166,8 @@ class ClientsService
     private function saveClientLog($model, $commit, $request)
     {
 
+        $model->fill($commit);
+        $changes = $this->getDirtyWithOriginal($model);
         $clientLogSql = [
             'client_id' => $model->id,
             'type' => '后台修改',
@@ -177,7 +179,7 @@ class ClientsService
                     '设备类型' => $this->getPhoneType(),
                     'IP地址' => $request->getClientIp()
                 ],
-            'alteration_content' => $this->getDirtyWithOriginal($model->fill($commit)),
+            'changes' => $changes,
         ];
         dd($clientLogSql);
         $this->clientLogs->create($clientLogSql);
@@ -219,7 +221,7 @@ class ClientsService
                         '设备类型' => $this->getPhoneType(),
                         'IP地址' => $request->getClientIp()
                     ],
-                'alteration_content' => [],
+                'changes' => [],
             ];
             $this->clientLogs->create($clientLogSql);
             DB::commit();

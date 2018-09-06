@@ -11,10 +11,10 @@ class ClientLogs extends Model
 
     protected $table = 'client_logs';
 
-    protected $fillable = ['client_id', 'type', 'staff_sn', 'staff_name','operation_address', 'alteration_content'];
+    protected $fillable = ['client_id', 'type', 'staff_sn', 'staff_name','operation_address', 'changes'];
 
     protected $casts = [
-        'alteration_content' => 'array',
+        'changes' => 'array',
         'operation_address' => 'array',
     ];
 

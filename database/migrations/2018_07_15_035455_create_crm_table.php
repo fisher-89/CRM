@@ -38,22 +38,13 @@ class CreateCrmTable extends Migration
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('type_id')->comment('分类id');
             $table->char('name',10)->comment('名称');
-            $table->char('describe', 50)->comment('描述');
-            $table->tinyInteger('sort')->comment('排序');
+            $table->char('describe', 50)->comment('描述')->nullable();
+            $table->tinyInteger('sort')->comment('排序')->nullable();
             $table->foreign('type_id')->references('id')->on('tag_types');
             $table->timestamps();
             $table->softDeletes();
         });
 
-        //权限分组
-        Schema::create('authority_groups', function (Blueprint $table) {
-            $table->tinyIncrements('id');
-            $table->char('name',20)->comment('分组名称');
-            $table->tinyInteger('auth_type')->comment('权限类型,1:查看,2:操作')->index();
-            $table->tinyInteger('auth_brand')->comment('权限品牌')->index();
-            $table->timestamps();
-            $table->softDeletes();
-        });
         //客户表
         Schema::create('clients', function (Blueprint $table) {
             $table->increments('id');
@@ -67,7 +58,7 @@ class CreateCrmTable extends Migration
             $table->char('id_card_number', 18)->comment('身份证号码')->unique();
             $table->char('native_place', 8)->comment('籍贯：省份')->default('');
             $table->string('present_address', 150)->comment('现住地址')->default('')->nullable();
-            $table->date('first_cooperation_at')->comment('初次合作时间');
+            $table->date('first_cooperation_at')->comment('初次合作时间')->nullable();
             $table->unsignedMediumInteger('vindicator_sn')->comment('维护人编号')->nullable();
             $table->char('vindicator_name', 10)->comment('维护人姓名')->nullable();
             $table->char('remark', 200)->comment('备注')->nullable();
@@ -105,25 +96,9 @@ class CreateCrmTable extends Migration
             $table->unsignedMediumInteger('staff_sn')->comment('操作人编号')->index();
             $table->char('staff_name', 10)->comment('操作人姓名');
             $table->text('operation_address')->comment('操作地址');
-            $table->text('alteration_content')->comment('变动内容');
+            $table->text('changes')->comment('变动内容');
             $table->timestamps();
             $table->foreign('client_id')->references('id')->on('clients');
-        });
-        //员工分组
-        Schema::create('client_group_staff', function (Blueprint $table) {
-            $table->unsignedTinyInteger('authority_group_id');
-            $table->unsignedMediumInteger('staff_sn')->comment('员工编号')->index();
-            $table->primary(['authority_group_id', 'staff_sn'], 'authority_group_staff_sn');
-            $table->char('staff_name', 10)->comment('员工姓名');
-            $table->foreign('authority_group_id')->references('id')->on('authority_groups');
-        });
-        //部门分组
-        Schema::create('client_group_departments', function (Blueprint $table) {
-            $table->unsignedTinyInteger('authority_group_id');
-            $table->unsignedSmallInteger('department_id')->comment('部门id')->index();
-            $table->primary(['authority_group_id', 'department_id'], 'authority_group_department_id');
-            $table->char('department_name',10)->comment('部门名称');
-            $table->foreign('authority_group_id')->references('id')->on('authority_groups');
         });
     }
 
@@ -134,14 +109,11 @@ class CreateCrmTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('authority_group_departments');
-        Schema::dropIfExists('authority_group_staff');
         Schema::dropIfExists('client_logs');
         Schema::dropIfExists('client_has_shops');
         Schema::dropIfExists('client_has_brands');
         Schema::dropIfExists('client_has_tags');
         Schema::dropIfExists('clients');
-        Schema::dropIfExists('authority_groups');
         Schema::dropIfExists('tags');
         Schema::dropIfExists('tag_types');
         Schema::dropIfExists('nations');

@@ -17,7 +17,7 @@ class CreateAuthTable extends Migration
         Schema::create('authority_groups', function (Blueprint $table) {
             $table->tinyIncrements('id');
             $table->char('name',20)->comment('分组名称');
-            $table->char('description')->comment('描述');
+            $table->char('description',30)->comment('描述')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -53,9 +53,9 @@ class CreateAuthTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('note_group_staff');
-        Schema::dropIfExists('auth');
-        Schema::dropIfExists('authority_group_departments');
-        Schema::dropIfExists('authority_group_staff');
+        Schema::dropIfExists('auth_group_has_staff');
+        Schema::dropIfExists('auth_group_has_editable_brands');
+        Schema::dropIfExists('auth_group_has_visible_brands');
+        Schema::dropIfExists('authority_groups');
     }
 }

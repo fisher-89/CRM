@@ -45,26 +45,26 @@ class ClientLogsService
     public function restoreClient($request)
     {
         $log = $this->clientLogs->where('id', $request->route('id'))->first();
-        if (false === (bool)$log->alteration_content) {
+        if (false === (bool)$log->changes) {
             abort(404, '未找到还原数据');
         }
-        if (true === (bool)$log->alteration_content['mobile']) {
-            $mobile = $this->clients->withTrashed()->where('mobile', $log->alteration_content['mobile']['original'])->first();
+        if (true === (bool)$log->changes['mobile']) {
+            $mobile = $this->clients->withTrashed()->where('mobile', $log->changes['mobile']['original'])->first();
             if (true === (bool)$mobile) {
                 abort(400, '还原失败，电话号码冲突');
             }
         }
-        if (true === (bool)$log->alteration_content['id_card_number']) {
-            $idCardNumber = $this->clients->withTrashed()->where('id_card_number', $log->alteration_content['id_card_number']['original'])->first();
+        if (true === (bool)$log->changes['id_card_number']) {
+            $idCardNumber = $this->clients->withTrashed()->where('id_card_number', $log->changes['id_card_number']['original'])->first();
             if (true === (bool)$idCardNumber) {
                 abort(400, '还原失败，身份证号码冲突');
             }
         }
 //        try {
 //            DB::beginTransaction();
-            if (isset($log->alteration_content['Tags'])) {
-                $this->clientHasTags->whereIn('client_id', $log->alteration_content['Tags'])->delete();
-                foreach ($log->alteration_content['tag_id'] as $value) {
+            if (isset($log->changes['Tags'])) {
+                $this->clientHasTags->whereIn('client_id', $log->changes['Tags'])->delete();
+                foreach ($log->changes['tag_id'] as $value) {
                     $tagSql = [
                         'client_id' => $log->client_id,
                         'tag_id' => $value['id']
@@ -72,9 +72,9 @@ class ClientLogsService
                     $this->clientHasTags->create($tagSql);
                 }
             }
-            if (true === (bool)$log->alteration_content['Shops']) {
-                $this->clientHasShops->whereIn('client_id', $log->alteration_content['Shops'])->delete();
-                foreach ($log->alteration_content['shop_id'] as $items) {
+            if (true === (bool)$log->changes['Shops']) {
+                $this->clientHasShops->whereIn('client_id', $log->changes['Shops'])->delete();
+                foreach ($log->changes['shop_id'] as $items) {
                     $shopSql = [
                         'client_id' => $log->client_id,
                         'shop_id' => $items['id']
@@ -82,9 +82,9 @@ class ClientLogsService
                     $this->clientHasShops->create($shopSql);
                 }
             }
-            if (true === (bool)$log->alteration_content['Brands']) {
-                $this->clientHasBrands->whereIn('client_id', $log->alteration_content['Brands'])->delete();
-                foreach ($log->alteration_content['brand_id'] as $item) {
+            if (true === (bool)$log->changes['Brands']) {
+                $this->clientHasBrands->whereIn('client_id', $log->changes['Brands'])->delete();
+                foreach ($log->changes['brand_id'] as $item) {
                     $brandSql = [
                         'client_id' => $log->client_id,
                         'brand_id' => $item['id']
@@ -100,7 +100,7 @@ class ClientLogsService
                     abort(404, '还原失败，未找到数据');
                 }
             }
-            $bool = $client->update($log->alteration_content);
+            $bool = $client->update($log->changes);
             $clientLog = [
                 'client_id' => $log->client_id,
                 'type' => '还原到第' . $request->route('id') . '数据',
@@ -112,7 +112,7 @@ class ClientLogsService
                         '设备类型' => $this->getPhoneType(),
                         'IP地址' => $request->getClientIp()
                     ],
-                'alteration_content' => $log->alteration_content
+                'changes' => $log->changes
             ];
             $this->clientLogs->create($clientLog);
 //            DB::commit();
