@@ -22,6 +22,6 @@ class AuthBrandController extends Controller
         if ((bool)$data == false) {
             return [];
         }
-        return array_unique(array_filter($data));
+        return array_values(array_unique(array_filter($data)));
     }
 }
