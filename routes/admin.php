@@ -48,6 +48,7 @@ Route::group(['middleware' => 'auth:api'], function (Registrar $admin) {
     $admin->put('notes/{id}', Admin\NotesController::class . '@edit');
     $admin->delete('notes/{id}', Admin\NotesController::class . '@delete');//todo 还没有做废弃文件夹定时清理
     $admin->get('notes/{id}', Admin\NotesController::class . '@detailNote');
+    $admin->get('notes/brand/{id}',Admin\NotesController::class.'@getUserBrands');
     //临时文件存储
     $admin->post('notes/files', Admin\FilesController::class . '@index');
     //客户事件记录

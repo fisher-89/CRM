@@ -43,14 +43,14 @@ class ClientsService
         $this->clientHasBrands = $clientHasBrands;
     }
 
-    public function listClient($request,$brand)
+    public function listClient($request, $brand)
     {
-        foreach ($brand as $key=>$value){
-            foreach ($value['visibles'] as $k=>$v){
-                $arrData[]=$v['brand_id'];
+        foreach ($brand as $key => $value) {
+            foreach ($value['visibles'] as $k => $v) {
+                $arrData[] = $v['brand_id'];
             }
         }
-        $arr=isset($arrData) ? $arrData : [];
+        $arr = isset($arrData) ? $arrData : [];
         $list = $this->client->with('Tags')->with('Shops')->with('Brands')
             ->whereHas('Brands', function ($query) use ($arr) {
                 $query->whereIn('brand_id', $arr);
@@ -74,7 +74,7 @@ class ClientsService
                 DB::rollback();
                 abort(400, '客户添加失败');
             }
-            if (isset($request->tags ) && $request->tags != []) {
+            if (isset($request->tags) && $request->tags != []) {
                 foreach ($request->tags as $k => $v) {
                     $tagSql = [
                         'client_id' => $bool->id,
@@ -117,57 +117,95 @@ class ClientsService
             abort(404, '未找到数据');
         }
         $specialHandling = clone $clientData;
-        try {
-            DB::beginTransaction();
-            $clientData->update($all);
-            if ((bool)$clientData === false) {
-                DB::rollback();
-                abort(400, '客户修改失败');
-            }
-            $this->clientHasTags->where('client_id', $clientData->id)->delete();
-            $this->clientHasShops->where('client_id', $clientData->id)->delete();
-            $this->clientHasBrands->where('client_id', $clientData->id)->delete();
-            if (isset($request->tags) && $request->tags != []) {
-                foreach ($request->tags as $k => $v) {
-                    $sql = [
-                        'client_id' => $clientData->id,
-                        'tag_id' => $v['tag_id'],
-                    ];
-                    $this->clientHasTags->create($sql);
-                }
-            }
-            if (isset($request->brands) && $request->brands != []) {
-                foreach ($request->brands as $item) {
-                    $brandSql = [
-                        'client_id' => $clientData->id,
-                        'brand_id' => $item['brand_id'],
-                    ];
-                    $this->clientHasBrands->create($brandSql);
-                }
-            }
-            if (isset($request->shops) && $request->shops != []) {
-                foreach ($request->shops as $items) {
-                    $shopSql = [
-                        'client_id' => $clientData->id,
-                        'shop_sn' => $items['shop_sn'],
-                    ];
-                    $this->clientHasShops->create($shopSql);
-                }
-            }
-            $this->saveClientLog($specialHandling, $all, $request);
-            DB::commit();
-        } catch (\Exception $e) {
+//        try {
+//            DB::beginTransaction();
+        $this->saveClientLog($specialHandling, $all, $request);
+        $clientData->update($all);
+        if ((bool)$clientData === false) {
             DB::rollback();
             abort(400, '客户修改失败');
         }
+        $this->clientHasTags->where('client_id', $clientData->id)->delete();
+        $this->clientHasShops->where('client_id', $clientData->id)->delete();
+        $this->clientHasBrands->where('client_id', $clientData->id)->delete();
+        if (isset($request->tags) && $request->tags != []) {
+            foreach ($request->tags as $k => $v) {
+                $sql = [
+                    'client_id' => $clientData->id,
+                    'tag_id' => $v['tag_id'],
+                ];
+                $this->clientHasTags->create($sql);
+            }
+        }
+        if (isset($request->brands) && $request->brands != []) {
+            foreach ($request->brands as $item) {
+                $brandSql = [
+                    'client_id' => $clientData->id,
+                    'brand_id' => $item['brand_id'],
+                ];
+                $this->clientHasBrands->create($brandSql);
+            }
+        }
+        if (isset($request->shops) && $request->shops != []) {
+            foreach ($request->shops as $items) {
+                $shopSql = [
+                    'client_id' => $clientData->id,
+                    'shop_sn' => $items['shop_sn'],
+                ];
+                $this->clientHasShops->create($shopSql);
+            }
+        }
+
+//            DB::commit();
+//        } catch (\Exception $e) {
+//            DB::rollback();
+//            abort(400, '客户修改失败');
+//        }
         return response($this->client->with('Tags')->with('Shops')->with('Brands')->where('id', $clientData->id)->first(), 201);
     }
 
     private function saveClientLog($model, $commit, $request)
     {
+        $model=$model->toArray();
+//        $model->fill($commit);
+//        $changes = $this->getDirtyWithOriginal($model);
+        foreach ($model['tags'] as $i) {
+            $tags[] = $i['tag_id'];
+        }
+        $tag = isset($tags) ? $tags : [];
+        $model['tags'] = implode(',', $tag);
 
-        $model->fill($commit);
-        $changes = $this->getDirtyWithOriginal($model);
+        foreach ($model['brands'] as $item) {
+            $brands[] = $item['brand_id'];
+        }
+        $brand = isset($brands) ? $brands : [];
+        $model['brands']  = implode(',', $brand);
+
+        foreach ($model['shops'] as $items) {
+            $shops[] = $items['shop_sn'];
+        }
+        $shop = isset($shops) ? $shops : [];
+        $model['shops'] = implode(',', $shop);
+
+        foreach ($commit['tags'] as $v) {
+            $commitTag[] = $v['tag_id'];
+        }
+        $commitTags = isset($commitTag) ? $commitTag : [];
+        $commit['tags'] = implode(',', $commitTags);
+
+        foreach ($commit['brands'] as $v) {
+            $commitBrand[] = $v['brand_id'];
+        }
+        $commitBrands = isset($commitBrand) ? $commitBrand : [];
+        $commit['brands'] = implode(',', $commitBrands);
+
+        foreach ($commit['shops'] as $v) {
+            $commitshop[] = $v['shop_sn'];
+        }
+        $commitshops = isset($commitshop) ? $commitshop : [];
+        $commit['shops'] = implode(',', $commitshops);
+        $data=array_diff($commit,$model);
+        dd($data);
         $clientLogSql = [
             'client_id' => $model->id,
             'type' => '后台修改',
@@ -179,9 +217,8 @@ class ClientsService
                     '设备类型' => $this->getPhoneType(),
                     'IP地址' => $request->getClientIp()
                 ],
-            'changes' => $changes,
+//            'changes' => $changes,
         ];
-        dd($clientLogSql);
         $this->clientLogs->create($clientLogSql);
     }
 
@@ -238,14 +275,14 @@ class ClientsService
      * @param $id
      * @return mixed
      */
-    public function firstClient($request,$brand)
+    public function firstClient($request, $brand)
     {
-        foreach ($brand as $key=>$value){
-            foreach ($value['visibles'] as $k=>$v){
-                $arrData[]=$v['brand_id'];
+        foreach ($brand as $key => $value) {
+            foreach ($value['visibles'] as $k => $v) {
+                $arrData[] = $v['brand_id'];
             }
         }
-        $arr=isset($arrData) ? $arrData : [];
+        $arr = isset($arrData) ? $arrData : [];
         return $this->client->with('Tags')->with('Brands')->with('Shops')
             ->where('id', $request->route('id'))->whereHas('Brands', function ($query) use ($arr) {
                 $query->whereIn('brand_id', $arr);
