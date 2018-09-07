@@ -10,15 +10,10 @@ class FilesController extends Controller
 {
     public function index(Request $request)
     {
-        if (empty($_FILES['file']))
-            abort(400, '文件接收失败');
         $this->verifyFile($request);
         $files = $request->file('file');
         if (!$files->isValid()) {
             abort(400, '文件上传失败');
-        }
-        if ($files->getClientSize() > 4194304) {
-            abort(400, '文件超4MB');
         }
         return $this->storageName($files, $request->user()->staff_sn);
     }
@@ -32,21 +27,19 @@ class FilesController extends Controller
     private function storageName($file, $staff_sn)
     {
         $exe = $file->getClientOriginalExtension();
-        $fileName = md5(microtime() . $file->getClientOriginalName() . $staff_sn);
-        $bool = Storage::disk('public')->put('temporary/' . $fileName . '.' . $exe,
-            file_get_contents($file->getRealPath()));
-        if ((bool)$bool == false) {
+        $fileName = rand(99, 999) . time() . $staff_sn;
+        $path = Storage::url($file->storeAs('temporary', $fileName . '.' . $exe, 'public'));
+        if ($path == false) {
             abort(400, '文件上传失败');
         }
-        $path = 'http://' . $_SERVER['HTTP_HOST'] . '/storage/temporary/' . $fileName . '.' . $exe;
-        return $path;
+        return url()->asset($path);
     }
 
     private function verifyFile($request)
     {
         $this->validate($request,
             [
-                'file' => 'file|max:4194304|mimes:png,gif,jpeg,txt,pdf,doc,docx'
+                'file' => 'required|file|max:4096|mimes:png,gif,jpeg,txt,pdf,doc,docx'
             ], [], [
                 'file' => '文件'
             ]
