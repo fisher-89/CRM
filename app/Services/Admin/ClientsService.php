@@ -116,10 +116,10 @@ class ClientsService
         if ((bool)$clientData === false) {
             abort(404, '未找到数据');
         }
-        $specialHandling = clone $clientData;
-//        try {
-//            DB::beginTransaction();
-        $this->saveClientLog($specialHandling, $all, $request);
+//        $specialHandling = clone $clientData;
+        try {
+            DB::beginTransaction();
+//        $this->saveClientLog($specialHandling, $all, $request);
         $clientData->update($all);
         if ((bool)$clientData === false) {
             DB::rollback();
@@ -155,12 +155,11 @@ class ClientsService
                 $this->clientHasShops->create($shopSql);
             }
         }
-
-//            DB::commit();
-//        } catch (\Exception $e) {
-//            DB::rollback();
-//            abort(400, '客户修改失败');
-//        }
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+            abort(400, '客户修改失败');
+        }
         return response($this->client->with('Tags')->with('Shops')->with('Brands')->where('id', $clientData->id)->first(), 201);
     }
 
