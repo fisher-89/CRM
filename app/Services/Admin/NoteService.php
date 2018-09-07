@@ -197,7 +197,7 @@ class NoteService
         return $this->noteModel->where('id', $request->route('id'))
             ->whereHas('Brands', function ($query) use ($arr) {
                 $query->whereIn('brand_id', $arr);
-            })->with('noteType')->first();
+            })->with(['noteType','Brands'])->first();
     }
 
     /**
