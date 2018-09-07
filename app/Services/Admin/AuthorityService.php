@@ -188,7 +188,7 @@ class AuthorityService
         $data = isset($auth) ? $auth : [];
         $bool = array_filter($data);
         if ($bool === []) {
-            abort(401, '暂无添加权限');
+            abort(401, '暂无权限');
         }
     }
 }
