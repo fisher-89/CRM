@@ -31,7 +31,7 @@ Route::group(['middleware' => 'auth:api'], function (Registrar $admin) {
     $admin->get('clients/export', Admin\ClientsController::class . '@export');//导出
     $admin->post('clients/import', Admin\ClientsController::class . '@import');//导入 todo  导入人权限品牌验证，合作店铺，合作品牌，合作区域   没弄
 
-    $admin->get('client/brands',Admin\AuthBrandController::class.'@getBrand');
+    $admin->get('clients/brands',Admin\AuthBrandController::class.'@getBrand');
     //民族选择
     $admin->get('nation', Admin\NationController::class . '@index');//获取民族
     $admin->post('nation', Admin\NationController::class . '@store');//todo 临时用接口
