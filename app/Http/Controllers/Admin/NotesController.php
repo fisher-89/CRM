@@ -215,4 +215,10 @@ class NotesController extends Controller
             abort(400,'当前分类被暂用，不能修改');
         }
     }
+
+    public function getUserBrands(Request $request)
+    {
+        $obj=ClientHasBrands::where('client_id',$request->route('id'))->get();
+        return $obj;
+    }
 }
