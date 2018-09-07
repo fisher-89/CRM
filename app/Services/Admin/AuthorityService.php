@@ -16,13 +16,13 @@ class AuthorityService
     protected $editable;
     protected $visible;
 
-    public function __construct(AuthorityGroups $authorityGroups, AuthGroupHasStaff $noteGroupStaff,
-                                AuthGroupHasVisibleBrands $authorityGroupStaff, AuthGroupHasEditableBrands $authorityGroupDepartments)
+    public function __construct(AuthorityGroups $authorityGroups, AuthGroupHasStaff $authGroupHasStaff,
+                                AuthGroupHasVisibleBrands $authGroupHasVisibleBrands, AuthGroupHasEditableBrands $authGroupHasEditableBrands)
     {
         $this->groups = $authorityGroups;
-        $this->staff = $noteGroupStaff;
-        $this->editable = $authorityGroupDepartments;
-        $this->visible = $authorityGroupStaff;
+        $this->staff = $authGroupHasStaff;
+        $this->editable = $authGroupHasEditableBrands;
+        $this->visible = $authGroupHasVisibleBrands;
     }
 
     public function getList($request)
@@ -116,7 +116,7 @@ class AuthorityService
                 }
             }
             if ((bool)$all['visibles'] === true) {
-                $this->editable->where('authority_group_id', $id)->delete();
+                $this->visible->where('authority_group_id', $id)->delete();
                 foreach ($all['visibles'] as $ky => $va) {
                     $noteSql = [
                         'authority_group_id' => $group->id,
