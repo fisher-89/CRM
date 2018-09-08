@@ -35,7 +35,7 @@ class CreateVisitTable extends Migration
             $table->text('attachments')->comment('附件地址（数组）')->nullable();
             $table->dateTime('task_deadline')->comment('任务截至时间')->nullable();
             $table->dateTime('finished_at')->comment('任务完成时间')->nullable();
-            $table->tinyInteger('task_result')->comment('任务结果 -1：失败，1：成功')->default(0);
+            $table->tinyInteger('task_result')->comment('任务结果 -1：失败，1：成功')->nullable();
             $table->timestamps();
             $table->softDeletes();
             $table->foreign('note_type_id')->references('id')->on('note_types');
