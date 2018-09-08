@@ -70,14 +70,18 @@ class ClientLogCollection extends ResourceCollection
                 $brandTow=explode(',',$value[1]);
                 $i=0;
                 $s=0;
-                foreach ($brand as $key => $val) {
+                foreach ($brand as $k => $val) {
                     if ($val['id'] == $brandOne[$i]) {
                         $brandOneArray[] = $val['name'];
-                        $i++;
+                        if(count($brandOne) > $i+1){
+                            $i++;
+                        }
                     }
                     if ($val['id'] == $brandTow[$s]) {
                         $brandTowArray[] = $val['name'];
-                        $s++;
+                        if(count($brandTow) > $s+1){
+                            $s++;
+                        }
                     }
                 }
                 $one=implode('、',isset($brandOneArray) ? $brandOneArray : []);
