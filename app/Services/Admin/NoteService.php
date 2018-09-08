@@ -83,8 +83,8 @@ class NoteService
 
     public function addNote($request)
     {
-        try{
-            DB::beginTransaction();
+//        try{
+//            DB::beginTransaction();
             $note = $this->noteModel;
             $note->note_type_id = $request->note_type_id;
             $note->client_id = $request->client_id;
@@ -108,11 +108,11 @@ class NoteService
             }
 //        $this->saveLogs($request, '后台添加', $note->id, $note);
 
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollback();
-            abort(400, '事件添加失败');
-        }
+//            DB::commit();
+//        } catch (\Exception $e) {
+//            DB::rollback();
+//            abort(400, '事件添加失败');
+//        }
         $data=$note->where('id', $note->id)->first();
         $data['brands']=$request->brands;
         return response()->json($data, 201);
