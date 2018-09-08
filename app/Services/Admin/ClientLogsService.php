@@ -2,6 +2,7 @@
 
 namespace App\Services\Admin;
 
+use App\Http\Resources\ClientLogCollection;
 use App\Models\ClientHasBrands;
 use App\Models\ClientHasShops;
 use App\Models\ClientHasTags;
@@ -32,14 +33,22 @@ class ClientLogsService
     public function getClientLogsList($request,$obj)
     {
         foreach ($obj as $item){
-            $data[]=$item->auth_brand;
+            foreach($item->visibles as $items){
+                $data[]=$items->brand_id;
+            };
         }
         $array = isset($data) ? $data : [];
         $arr = array_filter($array);
-        return $this->clientLogs->orderBy('id','desc')
+        $list=$this->clientLogs->orderBy('id','desc')
             ->whereHas('clients.Brands',function($query)use($arr){
                 $query->whereIn('brand_id',$arr);
             })->filterByQueryString()->withPagination($request->get('pagesize', 10));
+        if (isset($list['data'])) {
+            $list['data'] = new ClientLogCollection(collect($list['data']));
+            return $list;
+        } else {
+            return new ClientLogCollection($list);
+        }
     }
 
     public function restoreClient($request)

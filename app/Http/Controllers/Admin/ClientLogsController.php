@@ -75,11 +75,9 @@ class ClientLogsController extends Controller
     }
     protected function clientReadingAuth($request)
     {
-        $staff = AuthorityGroups::where('auth_type', 1)->whereHas('staffs', function ($query) use ($request) {
+        $staff = AuthorityGroups::whereHas('staffs', function ($query) use ($request) {
             $query->where('staff_sn', $request->user()->staff_sn);
-        })->orWhereHas('departments', function ($query) use ($request) {
-            $query->where('department_id', $request->user()->department['id']);
-        })->get();
+        })->with('visibles')->get();
         if ((bool)$staff === false) {
             abort(401, '暂无权限');
         }
