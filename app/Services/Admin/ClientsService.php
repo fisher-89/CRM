@@ -67,8 +67,8 @@ class ClientsService
     public function addClient($request)
     {
         $all = $request->all();
-        try {
-            DB::beginTransaction();
+//        try {
+//            DB::beginTransaction();
             $bool = $this->client->create($all);
             if ((bool)$bool === false) {
                 DB::rollback();
@@ -101,11 +101,11 @@ class ClientsService
                     $this->clientHasShops->create($shopSql);
                 }
             }
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollback();
-            abort(400, '客户添加失败');
-        }
+//            DB::commit();
+//        } catch (\Exception $e) {
+//            DB::rollback();
+//            abort(400, '客户添加失败');
+//        }
         return response()->json($this->client->with('Tags')->with('Shops')->with('Brands')->where('id', $bool->id)->first(), 201);
     }
 
@@ -117,8 +117,8 @@ class ClientsService
             abort(404, '未找到数据');
         }
 //        $specialHandling = clone $clientData;
-        try {
-            DB::beginTransaction();
+//        try {
+//            DB::beginTransaction();
 //        $this->saveClientLog($specialHandling, $all, $request);
         $clientData->update($all);
         if ((bool)$clientData === false) {
@@ -155,30 +155,31 @@ class ClientsService
                 $this->clientHasShops->create($shopSql);
             }
         }
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollback();
-            abort(400, '客户修改失败');
-        }
+//            DB::commit();
+//        } catch (\Exception $e) {
+//            DB::rollback();
+//            abort(400, '客户修改失败');
+//        }
         return response($this->client->with('Tags')->with('Shops')->with('Brands')->where('id', $clientData->id)->first(), 201);
     }
 
     private function saveClientLog($model, $commit, $request)
     {
-        $model=$model->toArray();
+        $model = $model->toArray();
 //        $model->fill($commit);
 //        $changes = $this->getDirtyWithOriginal($model);
         foreach ($model['tags'] as $i) {
             $tags[] = $i['tag_id'];
         }
         $tag = isset($tags) ? $tags : [];
+
         $model['tags'] = implode(',', $tag);
 
         foreach ($model['brands'] as $item) {
             $brands[] = $item['brand_id'];
         }
         $brand = isset($brands) ? $brands : [];
-        $model['brands']  = implode(',', $brand);
+        $model['brands'] = implode(',', $brand);
 
         foreach ($model['shops'] as $items) {
             $shops[] = $items['shop_sn'];
@@ -199,11 +200,12 @@ class ClientsService
         $commit['brands'] = implode(',', $commitBrands);
 
         foreach ($commit['shops'] as $v) {
-            $commitshop[] = $v['shop_sn'];
+            $commitShop[] = $v['shop_sn'];
         }
-        $commitshops = isset($commitshop) ? $commitshop : [];
-        $commit['shops'] = implode(',', $commitshops);
-        $data=array_diff($commit,$model);
+        $commitShops = isset($commitShop) ? $commitShop : [];
+        $commit['shops'] = implode(',', $commitShops);
+        dd($model);
+        $data = array_diff($model, $commit);
         dd($data);
         $clientLogSql = [
             'client_id' => $model->id,
