@@ -40,7 +40,7 @@ class ClientRequest extends FormRequest
                     return $event('性别不正确');
                 }
             }],
-            'mobile' => ['required', 'max:14', 'min:11',
+            'mobile' => ['required', 'digits:11','regex:/^1[3456789]\d{9}$/',
                 function ($attribute, $value, $event) {
                     $id = $this->route('id');
                     if (isset($id)) {
