@@ -208,19 +208,22 @@ class NoteService
         if ($file == true) {
 //            try {
                 if (is_array($file)) {
+                    $url=[];
                     foreach ($file as $key => $value) {
                         $getFileName = basename($value);
                         $src = '/temporary/' . $getFileName;
                         $dst = '/uploads/' . $getFileName;
-                        Storage::disk('public')->copy($src, $dst);
+                        Storage::disk('public')->move($src, $dst);
+                        $url[]=url('/storage'.$dst);
                     }
-                    return $file;
+                    return $url;
                 } else {
                     $getFileName = basename($file);
                     $src = '/temporary/' . $getFileName;
                     $dst = '/uploads/' . $getFileName;
-                    Storage::disk('public')->copy($src, $dst);
-                    return $file;
+                    Storage::disk('public')->move($src, $dst);
+                    $url=url('/storage'.$dst);
+                    return $url;
                 }
 //            } catch (\Exception $e) {
 //                abort(500, '没找到文件');
