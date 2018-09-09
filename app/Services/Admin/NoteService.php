@@ -206,7 +206,7 @@ class NoteService
     public function fileDispose($file)
     {
         if ($file == true) {
-            try {
+//            try {
                 if (is_array($file)) {
                     foreach ($file as $key => $value) {
                         $getFileName = basename($value);
@@ -226,9 +226,9 @@ class NoteService
 //                    '/storage/uploads/' . $getFileName;
                     return $file;
                 }
-            } catch (\Exception $e) {
-                abort(500, '没找到文件');
-            }
+//            } catch (\Exception $e) {
+//                abort(500, '没找到文件');
+//            }
         }
         return '';
     }
