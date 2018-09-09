@@ -283,7 +283,12 @@ class NoteService
         }
         $note = $this->sort($note);
         $notes['brands'] = implode(',', $note);
-
+        if(is_array($notes['attachments'])){
+            $notes['attachments'] = implode(',', $notes['attachments']);
+        }
+        if(is_array($all['attachments'])){
+            $all['attachments'] = implode(',', $all['attachments']);
+        }
         $al = $this->sort($all['brands']);
         $all['brands'] = implode(',', $al);
         $array = array_diff($all, $notes);
