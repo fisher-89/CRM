@@ -213,8 +213,6 @@ class NoteService
                         $src = '/temporary/' . $getFileName;
                         $dst = '/uploads/' . $getFileName;
                         Storage::disk('public')->copy($src, $dst);
-                        unlink($src);
-//                        $arr[] = '/storage/uploads/' . $getFileName;
                     }
                     return $file;
                 } else {
@@ -222,8 +220,6 @@ class NoteService
                     $src = '/temporary/' . $getFileName;
                     $dst = '/uploads/' . $getFileName;
                     Storage::disk('public')->copy($src, $dst);
-                    unlink($src);
-//                    '/storage/uploads/' . $getFileName;
                     return $file;
                 }
 //            } catch (\Exception $e) {
