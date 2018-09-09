@@ -106,7 +106,7 @@ class NoteService
                 ];
                 $this->noteHasBrand->create($brandSql);
             }
-//        $this->saveLogs($request, '后台添加', $note->id, $note);
+            $this->saveLogs($request, '后台添加', $note->id, $note);
 //            DB::commit();
 //        } catch (\Exception $e) {
 //            DB::rollback();
@@ -143,7 +143,7 @@ class NoteService
                 'finished_at' => $request->finished_at,
                 'task_result' => $request->task_result,
             ];
-            $notes= clone $note;
+            $notes = clone $note;
             $note->update($noteSql);
             $this->noteHasBrand->where('note_id', $id)->delete();
             foreach ($request->brands as $items) {
@@ -153,11 +153,11 @@ class NoteService
                 ];
                 $this->noteHasBrand->create($noteHasBrandSql);
             }
-            $this->saveLogs($request,$notes, '后台修改');
+            $this->saveLogs($request, $notes, '后台修改');
 //            DB::commit();
 //        } catch (\Exception $e) {
 //            DB::rollback();
-//            abort(400, '事件添加失败');
+//            abort(400, '事件修改失败');
 //        }
         $data = $note->where('id', $note->id)->first();
         $data['brands'] = $request->brands;
@@ -207,24 +207,24 @@ class NoteService
     {
         if ($file == true) {
 //            try {
-                if (is_array($file)) {
-                    $url=[];
-                    foreach ($file as $key => $value) {
-                        $getFileName = basename($value);
-                        $src = '/temporary/' . $getFileName;
-                        $dst = '/uploads/' . $getFileName;
-                        Storage::disk('public')->move($src, $dst);
-                        $url[]=url('/storage'.$dst);
-                    }
-                    return $url;
-                } else {
-                    $getFileName = basename($file);
+            if (is_array($file)) {
+                $url = [];
+                foreach ($file as $key => $value) {
+                    $getFileName = basename($value);
                     $src = '/temporary/' . $getFileName;
                     $dst = '/uploads/' . $getFileName;
                     Storage::disk('public')->move($src, $dst);
-                    $url=url('/storage'.$dst);
-                    return $url;
+                    $url[] = $_SERVER['HTTP_HOST'] . '/storage/uploads' . $dst;
                 }
+                return $url;
+            } else {
+                $getFileName = basename($file);
+                $src = '/temporary/' . $getFileName;
+                $dst = '/uploads/' . $getFileName;
+                Storage::disk('public')->move($src, $dst);
+                $url = $_SERVER['HTTP_HOST'] . '/storage/uploads' . $dst;
+                return $url;
+            }
 //            } catch (\Exception $e) {
 //                abort(500, '没找到文件');
 //            }
@@ -259,9 +259,9 @@ class NoteService
 //        }
     }
 
-    protected function saveLogs($request,$notes,$type)
+    protected function saveLogs($request, $notes, $type)
     {
-        $all=$request->all();
+        $all = $request->all();
         $logSql = [
             'note_id' => $request->route('id'),
             'type' => $type,
@@ -272,41 +272,41 @@ class NoteService
                 '设备类型' => $this->getPhoneType(),
                 'IP地址' => $request->getClientIp()
             ],
-            'changes' => $this->dataTransform($all,$notes),
+            'changes' => $this->dataTransform($all, $notes),
         ];
         $this->noteLogsModel->create($logSql);
     }
 
-    private function dataTransform($all,$notes)
+    private function dataTransform($all, $notes)
     {
-        $notes=$notes->toArray();
-        $note=[];
-        foreach ($notes['brands'] as $key=>$value){
-            $note[]=$value['brand_id'];
+        $notes = $notes->toArray();
+        $note = [];
+        foreach ($notes['brands'] as $key => $value) {
+            $note[] = $value['brand_id'];
         }
         $note = $this->sort($note);
         $notes['brands'] = implode(',', $note);
 
         $al = $this->sort($all['brands']);
         $all['brands'] = implode(',', $al);
-        $array = array_diff($all,$notes);
-        foreach ($array as $key=>$value){
-            if($notes[$key] != $all[$key]){
-                $changes[$key]=[$notes[$key], $all[$key]];
+        $array = array_diff($all, $notes);
+        foreach ($array as $key => $value) {
+            if ($notes[$key] != $all[$key]) {
+                $changes[$key] = [$notes[$key], $all[$key]];
             }
-        }dd($changes);
+        }
         return isset($changes) ? $changes : [];
     }
 
     private function sort($arr)
     {
-        $length =count($arr);
-        for($n=0;$n<$length-1;$n++){
-            for($i=0;$i<$length-$n-1;$i++){
-                if($arr[$i]>$arr[$i+1]){
-                    $temp=$arr[$i+1];
-                    $arr[$i+1]=$arr[$i];
-                    $arr[$i]=$temp;
+        $length = count($arr);
+        for ($n = 0; $n < $length - 1; $n++) {
+            for ($i = 0; $i < $length - $n - 1; $i++) {
+                if ($arr[$i] > $arr[$i + 1]) {
+                    $temp = $arr[$i + 1];
+                    $arr[$i + 1] = $arr[$i];
+                    $arr[$i] = $temp;
                 }
             }
         }
