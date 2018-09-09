@@ -65,11 +65,11 @@ class NoteService
     public function getList($request, $obj)
     {
         foreach ($obj as $item) {
-            foreach ($item['visibles'] as $key=>$value){
+            foreach ($item['visibles'] as $key => $value) {
                 $brand_id[] = $value['brand_id'];
             }
         }
-        $arr = isset($brand_id) ?  array_unique(array_filter($brand_id)) : [];
+        $arr = isset($brand_id) ? array_unique(array_filter($brand_id)) : [];
         $list = $this->noteModel->whereHas('Brands', function ($query) use ($arr) {
             $query->whereIn('brand_id', $arr);
         })->orderBy('id', 'asc')->with('Brands')->filterByQueryString()->withPagination($request->get('pagesize', 10));
@@ -83,7 +83,7 @@ class NoteService
 
     public function addNote($request)
     {
-        try{
+        try {
             DB::beginTransaction();
             $note = $this->noteModel;
             $note->note_type_id = $request->note_type_id;
@@ -112,8 +112,8 @@ class NoteService
             DB::rollback();
             abort(400, '事件添加失败');
         }
-        $data=$note->where('id', $note->id)->first();
-        $data['brands']=$request->brands;
+        $data = $note->where('id', $note->id)->first();
+        $data['brands'] = $request->brands;
         return response()->json($data, 201);
     }
 
@@ -124,7 +124,7 @@ class NoteService
         if (false == (bool)$note) {
             abort(404, '未找到数据');
         }
-        try{
+        try {
             DB::beginTransaction();
             if (true === (bool)$note->attachments) {
                 $this->fileDiscard($note->attachments);
@@ -145,11 +145,11 @@ class NoteService
             ];
             $noteLogs = $this->getDirtyWithOriginal($note->fill($request->all()));//todo 获取附表数据待改
             $note->update($noteSql);
-            $this->noteHasBrand->where('note_id',$id)->delete();
-            foreach ($request->brands  as $items){
-                $noteHasBrandSql=[
-                    'note_id'=>$id,
-                    'brand_id'=>$items
+            $this->noteHasBrand->where('note_id', $id)->delete();
+            foreach ($request->brands as $items) {
+                $noteHasBrandSql = [
+                    'note_id' => $id,
+                    'brand_id' => $items
                 ];
                 $this->noteHasBrand->create($noteHasBrandSql);
             }
@@ -159,8 +159,8 @@ class NoteService
             DB::rollback();
             abort(400, '事件添加失败');
         }
-        $data=$note->where('id', $note->id)->first();
-        $data['brands']=$request->brands;
+        $data = $note->where('id', $note->id)->first();
+        $data['brands'] = $request->brands;
         return response()->json($data, 201);
     }
 
@@ -193,10 +193,20 @@ class NoteService
 
     public function getDetail($request, $arr)
     {
-        return $this->noteModel->where('id', $request->route('id'))
+        $data = $this->noteModel->where('id', $request->route('id'))
             ->whereHas('Brands', function ($query) use ($arr) {
                 $query->whereIn('brand_id', $arr);
-            })->with(['noteType','Brands'])->first();
+            })->with(['noteType', 'Brands'])->first();
+        if (!empty($data)) {
+            $data = $data->toArray();
+        }
+        $brand = [];
+        foreach ($data['brands'] as $items) {
+            $brand[] = $items['brand_id'];
+        }
+        $data['brands'] = $brand;
+        return $data;
+
     }
 
     /**
