@@ -210,18 +210,18 @@ class NoteService
                 if (is_array($file)) {
                     foreach ($file as $key => $value) {
                         $getFileName = basename($value);
-                        $src = storage_path() . '/app/public/temporary/' . $getFileName;
-                        $dst = storage_path() . '/app/public/uploads/' . $getFileName;
-                        copy($src, $dst);
+                        $src = '/temporary/' . $getFileName;
+                        $dst = '/uploads/' . $getFileName;
+                        Storage::disk('public')->copy($src, $dst);
                         unlink($src);
 //                        $arr[] = '/storage/uploads/' . $getFileName;
                     }
                     return $file;
                 } else {
                     $getFileName = basename($file);
-                    $src = storage_path() . '/app/public/temporary/' . $getFileName;
-                    $dst = storage_path() . '/app/public/uploads/' . $getFileName;
-                    copy($src, $dst);
+                    $src = '/temporary/' . $getFileName;
+                    $dst = '/uploads/' . $getFileName;
+                    Storage::disk('public')->copy($src, $dst);
                     unlink($src);
 //                    '/storage/uploads/' . $getFileName;
                     return $file;
