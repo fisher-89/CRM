@@ -83,8 +83,8 @@ class NoteService
 
     public function addNote($request)
     {
-        try {
-            DB::beginTransaction();
+//        try {
+//            DB::beginTransaction();
             $note = $this->noteModel;
             $note->note_type_id = $request->note_type_id;
             $note->client_id = $request->client_id;
@@ -107,11 +107,11 @@ class NoteService
                 $this->noteHasBrand->create($brandSql);
             }
 //        $this->saveLogs($request, '后台添加', $note->id, $note);
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollback();
-            abort(400, '事件添加失败');
-        }
+//            DB::commit();
+//        } catch (\Exception $e) {
+//            DB::rollback();
+//            abort(400, '事件添加失败');
+//        }
         $data = $note->where('id', $note->id)->first();
         $data['brands'] = $request->brands;
         return response()->json($data, 201);
@@ -120,12 +120,12 @@ class NoteService
     public function editNote($request)
     {
         $id = $request->id;
-        $note = $this->noteModel->find($id);
+        $note = $this->noteModel->with('Brands')->find($id);
         if (false == (bool)$note) {
             abort(404, '未找到数据');
         }
-        try {
-            DB::beginTransaction();
+//        try {
+//            DB::beginTransaction();
             if (true === (bool)$note->attachments) {
                 $this->fileDiscard($note->attachments);
             }
@@ -143,7 +143,7 @@ class NoteService
                 'finished_at' => $request->finished_at,
                 'task_result' => $request->task_result,
             ];
-            $noteLogs = $this->getDirtyWithOriginal($note->fill($request->all()));//todo 获取附表数据待改
+//            $notes= clone $note;
             $note->update($noteSql);
             $this->noteHasBrand->where('note_id', $id)->delete();
             foreach ($request->brands as $items) {
@@ -153,27 +153,15 @@ class NoteService
                 ];
                 $this->noteHasBrand->create($noteHasBrandSql);
             }
-            $this->saveLogs($request, '后台修改', $id, $noteLogs);
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollback();
-            abort(400, '事件添加失败');
-        }
+//            $this->saveLogs($request->all(),$notes, '后台修改');
+//            DB::commit();
+//        } catch (\Exception $e) {
+//            DB::rollback();
+//            abort(400, '事件添加失败');
+//        }
         $data = $note->where('id', $note->id)->first();
         $data['brands'] = $request->brands;
         return response()->json($data, 201);
-    }
-
-    protected function getDirtyWithOriginal($model)
-    {
-        $dirty = [];
-        foreach ($model->getDirty() as $key => $value) {
-            $dirty[$key] = [
-                'original' => $model->getOriginal($key, ''),
-                'dirty' => $value,
-            ];
-        }
-        return $dirty;
     }
 
     public function delNote($request)
