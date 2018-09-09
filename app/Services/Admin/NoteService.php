@@ -243,13 +243,17 @@ class NoteService
                 $getFileName = basename($value);
                 $src = '/uploads/' . $getFileName;
                 $dst = '/abandon/' . $getFileName;
-                Storage::disk('public')->move($src, $dst);
+                if(Storage::exists($src)){
+                    Storage::disk('public')->move($src, $dst);
+                }
             }
         } else {
             $getFileName = basename($attachments);
             $src = '/uploads/' . $getFileName;
             $dst = '/abandon/' . $getFileName;
-            Storage::disk('public')->move($src, $dst);
+            if(Storage::exists($src)){
+                Storage::disk('public')->move($src, $dst);
+            }
         }
 //        } catch (\Exception $e) {
 //            abort(500, '修改失败');
