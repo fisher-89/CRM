@@ -85,27 +85,27 @@ class NoteService
     {
 //        try {
 //            DB::beginTransaction();
-            $note = $this->noteModel;
-            $note->note_type_id = $request->note_type_id;
-            $note->client_id = $request->client_id;
-            $note->client_name = $request->client_name;
-            $note->took_place_at = $request->took_place_at;
-            $note->recorder_sn = $request->user()->staff_sn;
-            $note->recorder_name = $request->user()->realname;
-            $note->title = $request->title;
-            $note->content = $request->content;
-            $note->attachments = $this->fileDispose($request->attachments);
-            $note->task_deadline = $request->task_deadline;
-            $note->finished_at = $request->finished_at;
-            $note->task_result = $request->task_result;
-            $note->save();
-            foreach ($request->brands as $items) {
-                $brandSql = [
-                    'note_id' => $note->id,
-                    'brand_id' => $items,
-                ];
-                $this->noteHasBrand->create($brandSql);
-            }
+        $note = $this->noteModel;
+        $note->note_type_id = $request->note_type_id;
+        $note->client_id = $request->client_id;
+        $note->client_name = $request->client_name;
+        $note->took_place_at = $request->took_place_at;
+        $note->recorder_sn = $request->user()->staff_sn;
+        $note->recorder_name = $request->user()->realname;
+        $note->title = $request->title;
+        $note->content = $request->content;
+        $note->attachments = $this->fileDispose($request->attachments);
+        $note->task_deadline = $request->task_deadline;
+        $note->finished_at = $request->finished_at;
+        $note->task_result = $request->task_result;
+        $note->save();
+        foreach ($request->brands as $items) {
+            $brandSql = [
+                'note_id' => $note->id,
+                'brand_id' => $items,
+            ];
+            $this->noteHasBrand->create($brandSql);
+        }
 //            DB::commit();
 //        } catch (\Exception $e) {
 //            DB::rollback();
@@ -125,34 +125,34 @@ class NoteService
         }
 //        try {
 //            DB::beginTransaction();
-            if (true === (bool)$note->attachments) {
-                $this->fileDiscard($note->attachments);
-            }
-            $noteSql = [
-                'note_type_id' => $request->note_type_id,
-                'client_id' => $request->client_id,
-                'client_name' => $request->client_name,
-                'took_place_at' => $request->took_place_at,
-                'recorder_sn' => $request->user()->staff_sn,
-                'recorder_name' => $request->user()->realname,
-                'title' => $request->title,
-                'content' => $request->content,
-                'attachments' => $this->fileDispose($request->attachments),
-                'task_deadline' => $request->task_deadline,
-                'finished_at' => $request->finished_at,
-                'task_result' => $request->task_result,
+        if (true === (bool)$note->attachments) {
+            $this->fileDiscard($note->attachments);
+        }
+        $noteSql = [
+            'note_type_id' => $request->note_type_id,
+            'client_id' => $request->client_id,
+            'client_name' => $request->client_name,
+            'took_place_at' => $request->took_place_at,
+            'recorder_sn' => $request->user()->staff_sn,
+            'recorder_name' => $request->user()->realname,
+            'title' => $request->title,
+            'content' => $request->content,
+            'attachments' => $this->fileDispose($request->attachments),
+            'task_deadline' => $request->task_deadline,
+            'finished_at' => $request->finished_at,
+            'task_result' => $request->task_result,
+        ];
+        $notes = clone $note;
+        $note->update($noteSql);
+        $this->noteHasBrand->where('note_id', $id)->delete();
+        foreach ($request->brands as $items) {
+            $noteHasBrandSql = [
+                'note_id' => $id,
+                'brand_id' => $items
             ];
-            $notes = clone $note;
-            $note->update($noteSql);
-            $this->noteHasBrand->where('note_id', $id)->delete();
-            foreach ($request->brands as $items) {
-                $noteHasBrandSql = [
-                    'note_id' => $id,
-                    'brand_id' => $items
-                ];
-                $this->noteHasBrand->create($noteHasBrandSql);
-            }
-            $this->saveLogs($request, $notes, '后台修改');
+            $this->noteHasBrand->create($noteHasBrandSql);
+        }
+        $this->saveLogs($request, $notes, '后台修改');
 //            DB::commit();
 //        } catch (\Exception $e) {
 //            DB::rollback();
@@ -212,7 +212,7 @@ class NoteService
                     $src = '/temporary/' . $getFileName;
                     $dst = '/uploads/' . $getFileName;
                     Storage::disk('public')->move($src, $dst);
-                    $url[] = $_SERVER['HTTP_HOST'] . '/storage' . $dst;
+                    $url[] = 'http://' . $_SERVER['HTTP_HOST'] . '/storage' . $dst;
                 }
                 return $url;
             } else {
@@ -220,7 +220,7 @@ class NoteService
                 $src = '/temporary/' . $getFileName;
                 $dst = '/uploads/' . $getFileName;
                 Storage::disk('public')->move($src, $dst);
-                $url = $_SERVER['HTTP_HOST'] . '/storage' . $dst;
+                $url = 'http://' . $_SERVER['HTTP_HOST'] . '/storage' . $dst;
                 return $url;
             }
 //            } catch (\Exception $e) {
@@ -238,20 +238,20 @@ class NoteService
     private function fileDiscard($attachments)
     {
 //        try {
-            if (is_array($attachments)) {
-                foreach ($attachments as $key => $value) {
-                    $getFileName = basename($value);
-                    $src = '/uploads/' . $getFileName;
-                    $dst = '/abandon/' . $getFileName;
-                    Storage::disk('public')->move($src, $dst);
-//                    $url[]=url('/storage'.$dst);
-                }
-            } else {
-                $getFileName = basename($attachments);
+        if (is_array($attachments)) {
+            foreach ($attachments as $key => $value) {
+                $getFileName = basename($value);
                 $src = '/uploads/' . $getFileName;
                 $dst = '/abandon/' . $getFileName;
                 Storage::disk('public')->move($src, $dst);
+//                    $url[]=url('/storage'.$dst);
             }
+        } else {
+            $getFileName = basename($attachments);
+            $src = '/uploads/' . $getFileName;
+            $dst = '/abandon/' . $getFileName;
+            Storage::disk('public')->move($src, $dst);
+        }
 //        } catch (\Exception $e) {
 //            abort(500, '修改失败');
 //        }
