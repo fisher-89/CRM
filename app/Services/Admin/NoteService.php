@@ -106,7 +106,6 @@ class NoteService
                 ];
                 $this->noteHasBrand->create($brandSql);
             }
-            $this->saveLogs($request, '后台添加', $note->id, $note);
 //            DB::commit();
 //        } catch (\Exception $e) {
 //            DB::rollback();
