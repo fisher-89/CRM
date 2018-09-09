@@ -213,7 +213,7 @@ class NoteService
                     $src = '/temporary/' . $getFileName;
                     $dst = '/uploads/' . $getFileName;
                     Storage::disk('public')->move($src, $dst);
-                    $url[] = $_SERVER['HTTP_HOST'] . '/storage/uploads' . $dst;
+                    $url[] = $_SERVER['HTTP_HOST'] . '/storage' . $dst;
                 }
                 return $url;
             } else {
@@ -221,7 +221,7 @@ class NoteService
                 $src = '/temporary/' . $getFileName;
                 $dst = '/uploads/' . $getFileName;
                 Storage::disk('public')->move($src, $dst);
-                $url = $_SERVER['HTTP_HOST'] . '/storage/uploads' . $dst;
+                $url = $_SERVER['HTTP_HOST'] . '/storage' . $dst;
                 return $url;
             }
 //            } catch (\Exception $e) {
