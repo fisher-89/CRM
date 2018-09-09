@@ -143,7 +143,7 @@ class NoteService
                 'finished_at' => $request->finished_at,
                 'task_result' => $request->task_result,
             ];
-//            $notes= clone $note;
+            $notes= clone $note;
             $note->update($noteSql);
             $this->noteHasBrand->where('note_id', $id)->delete();
             foreach ($request->brands as $items) {
@@ -153,7 +153,7 @@ class NoteService
                 ];
                 $this->noteHasBrand->create($noteHasBrandSql);
             }
-//            $this->saveLogs($request->all(),$notes, '后台修改');
+            $this->saveLogs($request,$notes, '后台修改');
 //            DB::commit();
 //        } catch (\Exception $e) {
 //            DB::rollback();
@@ -175,7 +175,7 @@ class NoteService
             $this->fileDiscard($note->attachments);
         }
         $note->delete();
-        $this->saveLogs($request, '后台删除', $id);
+        $this->saveLogs($request, $note, '后台删除');
         return response('', 204);
     }
 
@@ -198,7 +198,7 @@ class NoteService
     }
 
     /**
-     * w文件处理，返回路径
+     * 文件处理，返回路径
      *
      * @param $request
      * @return array|string
@@ -239,27 +239,31 @@ class NoteService
      */
     private function fileDiscard($attachments)
     {
-        try {
+//        try {
             if (is_array($attachments)) {
                 foreach ($attachments as $key => $value) {
-                    $fileName = basename($value);
-                    copy(storage_path() . '/app/public/uploads/' . $fileName, storage_path() . '/app/public/abandon/' . $fileName);
-                    unlink(storage_path() . '/app/public/uploads/' . $fileName);
+                    $getFileName = basename($value);
+                    $src = '/uploads/' . $getFileName;
+                    $dst = '/abandon/' . $getFileName;
+                    Storage::disk('public')->move($src, $dst);
+//                    $url[]=url('/storage'.$dst);
                 }
             } else {
-                $fileName = basename($attachments);
-                copy(storage_path() . '/app/public/uploads/' . $fileName, storage_path() . '/app/public/abandon/' . $fileName);
-                unlink(storage_path() . '/app/public/uploads/' . $fileName);
+                $getFileName = basename($attachments);
+                $src = '/uploads/' . $getFileName;
+                $dst = '/abandon/' . $getFileName;
+                Storage::disk('public')->move($src, $dst);
             }
-        } catch (\Exception $e) {
-            abort(500, '修改失败');
-        }
+//        } catch (\Exception $e) {
+//            abort(500, '修改失败');
+//        }
     }
 
-    protected function saveLogs($request, $type, $id, $arr = [])
+    protected function saveLogs($request,$notes,$type)
     {
+        $all=$request->all();
         $logSql = [
-            'note_id' => $id,
+            'note_id' => $request->route('id'),
             'type' => $type,
             'staff_sn' => $request->user()->staff_sn,
             'staff_name' => $request->user()->realname,
@@ -268,8 +272,44 @@ class NoteService
                 '设备类型' => $this->getPhoneType(),
                 'IP地址' => $request->getClientIp()
             ],
-            'changes' => $arr,
+            'changes' => $this->dataTransform($all,$notes),
         ];
         $this->noteLogsModel->create($logSql);
+    }
+
+    private function dataTransform($all,$notes)
+    {
+        $notes=$notes->toArray();
+        $note=[];
+        foreach ($notes['brands'] as $key=>$value){
+            $note[]=$value['brand_id'];
+        }
+        $note = $this->sort($note);
+        $notes['brands'] = implode(',', $note);
+
+        $al = $this->sort($all['brands']);
+        $all['brands'] = implode(',', $al);
+        $array = array_diff($all,$notes);
+        foreach ($array as $key=>$value){
+            if($notes[$key] != $all[$key]){
+                $changes[$key]=[$notes[$key], $all[$key]];
+            }
+        }dd($changes);
+        return isset($changes) ? $changes : [];
+    }
+
+    private function sort($arr)
+    {
+        $length =count($arr);
+        for($n=0;$n<$length-1;$n++){
+            for($i=0;$i<$length-$n-1;$i++){
+                if($arr[$i]>$arr[$i+1]){
+                    $temp=$arr[$i+1];
+                    $arr[$i+1]=$arr[$i];
+                    $arr[$i]=$temp;
+                }
+            }
+        }
+        return $arr;
     }
 }
