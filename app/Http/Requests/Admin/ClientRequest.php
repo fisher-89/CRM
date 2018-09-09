@@ -77,6 +77,7 @@ class ClientRequest extends FormRequest
                 'regex:/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/'],
             'native_place' => 'nullable|max:8',
             'present_address' => 'nullable|max:150',
+            'tags'=>'array|nullable',
             'tags.*.tag_id' => ['exists:tags,id', 'numeric', 'nullable'],
             'first_cooperation_at' => 'nullable|date',
             'vindicator_sn' => ['numeric', 'nullable',
@@ -103,6 +104,7 @@ class ClientRequest extends FormRequest
                     return $event('未选择品牌');
                 }
             }],
+            'shops'=>'array|nullable',
             'shops.*.shop_sn' => [
                 'required',
             ]
