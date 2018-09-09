@@ -34,7 +34,8 @@ class NotesController extends Controller
      */
     public function indexType(Request $request)
     {
-        return $this->note->getListType($request);
+        dd($request->url());
+//        return $this->note->getListType($request);
     }
 
     /**
