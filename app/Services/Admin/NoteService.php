@@ -186,14 +186,13 @@ class NoteService
             })->with(['noteType', 'Brands'])->first();
         if (!empty($data)) {
             $data = $data->toArray();
+            $brand = [];
+            foreach ($data['brands'] as $items) {
+                $brand[] = $items['brand_id'];
+            }
+            $data['brands'] = $brand;
+            return $data;
         }
-        $brand = [];
-        foreach ($data['brands'] as $items) {
-            $brand[] = $items['brand_id'];
-        }
-        $data['brands'] = $brand;
-        return $data;
-
     }
 
     /**
