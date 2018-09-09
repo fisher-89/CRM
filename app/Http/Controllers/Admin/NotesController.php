@@ -34,7 +34,7 @@ class NotesController extends Controller
      */
     public function indexType(Request $request)
     {
-        dd($request->getClientIp());
+        dd($request->getHost());
 //        return $this->note->getListType($request);
     }
 
