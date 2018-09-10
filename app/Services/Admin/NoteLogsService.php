@@ -32,7 +32,7 @@ class NoteLogsService
         $list = $this->noteLogsModel->orderBy('id', 'desc')->with('notes')
             ->whereHas('notes.Brands',function ($query)use($arr){
             $query->whereIn('brand_id',$arr);
-        })->filterByQueryString()->withPagination($request->get('pagesize', 10));
+        })->SortByQueryString()->filterByQueryString()->withPagination($request->get('pagesize', 10));
         if (isset($list['data'])) {
             $list['data'] = new NoteLogCollection(collect($list['data']));
             return $list;
