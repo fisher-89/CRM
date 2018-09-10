@@ -12,6 +12,7 @@ use DB;
 use App\Models\NoteTypes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 
 class NoteService
 {
@@ -215,7 +216,7 @@ class NoteService
                     }else{
                         abort(500,'文件未找到');
                     }
-                    $url[] = 'http://' . $_SERVER['HTTP_HOST'] . '/storage' . $dst;
+                    $url[] = URL::previous() . '/storage' . $dst;
                 }
                 return $url;
             } else {
@@ -227,7 +228,7 @@ class NoteService
                 }else{
                     abort(500,'文件未找到');
                 }
-                $url = 'http://' . $_SERVER['HTTP_HOST'] . '/storage' . $dst;
+                $url = URL::previous() . '/storage' . $dst;
                 return $url;
             }
         }
