@@ -13,32 +13,36 @@ class AuthorityController extends Controller
     protected $authority;
 
     public function __construct(AuthorityService $authorityService)
-    {return '☞ ♕ ☜';
+    {
         $this->authority = $authorityService;
     }
 
     public function index(Request $request)
-    {
+    {return $this->str();
         return $this->authority->getList($request);
     }
 
     public function store(Request $request)
-    {
+    {return $this->str();
         $this->storeVerify($request);
         return $this->authority->addAuth($request);
     }
 
     public function edit(Request $request)
-    {
+    {return $this->str();
         $this->editVerify($request);
         return $this->authority->updateAuth($request);
     }
 
     public function delete(Request $request)
-    {
+    {return $this->str();
         return $this->authority->delAuth($request);
     }
 
+    private function str()
+    {
+        return '☞ ♕ ☜';
+    }
     protected function storeVerify($request)
     {
         $this->validate($request,
