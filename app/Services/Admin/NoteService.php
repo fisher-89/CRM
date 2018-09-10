@@ -73,7 +73,8 @@ class NoteService
         $arr = isset($brand_id) ? array_unique(array_filter($brand_id)) : [];
         $list = $this->noteModel->whereHas('Brands', function ($query) use ($arr) {
             $query->whereIn('brand_id', $arr);
-        })->with('Brands')->filterByQueryString()->withPagination($request->get('pagesize', 10));
+        })->with('Brands')->filterByQueryString()->SortByQueryString()
+            ->withPagination($request->get('pagesize', 10));
         if (isset($list['data'])) {
             $list['data'] = new NoteCollection(collect($list['data']));
             return $list;
