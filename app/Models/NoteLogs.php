@@ -22,6 +22,6 @@ class NoteLogs extends Model
 
     public function notes()
     {
-        return $this->hasOne(Notes::class,'id','note_id');
+        return $this->hasOne(Notes::class,'id','note_id')->withTrashed();
     }
 }
