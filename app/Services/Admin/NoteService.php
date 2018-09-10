@@ -204,14 +204,17 @@ class NoteService
     public function fileDispose($file)
     {
         if ($file == true) {
-//            try {
             if (is_array($file)) {
                 $url = [];
                 foreach ($file as $key => $value) {
                     $getFileName = basename($value);
                     $src = '/temporary/' . $getFileName;
                     $dst = '/uploads/' . $getFileName;
-                    Storage::disk('public')->move($src, $dst);
+                    if(Storage::exists($src)) {
+                        Storage::disk('public')->move($src, $dst);
+                    }else{
+                        abort(500,'文件未找到');
+                    }
                     $url[] = 'http://' . $_SERVER['HTTP_HOST'] . '/storage' . $dst;
                 }
                 return $url;
@@ -219,13 +222,14 @@ class NoteService
                 $getFileName = basename($file);
                 $src = '/temporary/' . $getFileName;
                 $dst = '/uploads/' . $getFileName;
-                Storage::disk('public')->move($src, $dst);
+                if(Storage::exists($src)) {
+                    Storage::disk('public')->move($src, $dst);
+                }else{
+                    abort(500,'文件未找到');
+                }
                 $url = 'http://' . $_SERVER['HTTP_HOST'] . '/storage' . $dst;
                 return $url;
             }
-//            } catch (\Exception $e) {
-//                abort(500, '没找到文件');
-//            }
         }
         return '';
     }
