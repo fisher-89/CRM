@@ -26,15 +26,14 @@ class NoteLogCollection extends ResourceCollection
                 "staff_sn" => $data->staff_sn,
                 "staff_name" => $data->staff_name,
                 "operation_address" => $data->operation_address,
-//                "changes" => $this->trans($data->changes),
-                "changes" => $data->changes,
+                "changes" => $this->trans($data->changes),
                 "created_at" => $data->created_at,
                 "updated_at" => $data->updated_at
             ];
         })->toArray();
     }
 
-    private function trans($changes)
+    public function trans($changes)
     {
         foreach ($changes as $key => $value) {
             $value = $this->chineseValue($key, $value);
@@ -43,7 +42,7 @@ class NoteLogCollection extends ResourceCollection
         return isset($data) ? $data : [];
     }
 
-    private function chineseValue($key, $value)
+    public function chineseValue($key, $value)
     {
         switch ($key) {
             case 'note_type_id':
@@ -92,7 +91,7 @@ class NoteLogCollection extends ResourceCollection
         return $value;
     }
 
-    private function chinese($key)
+    public function chinese($key)
     {
         $array = [
             'id' => 'id',
