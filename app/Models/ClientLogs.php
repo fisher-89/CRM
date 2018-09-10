@@ -20,6 +20,6 @@ class ClientLogs extends Model
 
     public function clients()
     {
-        return $this->hasOne(Clients::class, 'id', 'client_id');
+        return $this->hasOne(Clients::class, 'id', 'client_id')->withTrashed();
     }
 }
