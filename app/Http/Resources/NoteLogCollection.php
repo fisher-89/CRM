@@ -26,7 +26,8 @@ class NoteLogCollection extends ResourceCollection
                 "staff_sn" => $data->staff_sn,
                 "staff_name" => $data->staff_name,
                 "operation_address" => $data->operation_address,
-                "changes" => $this->trans($data->changes),
+//                "changes" => $this->trans($data->changes),
+                "changes" => $data->changes,
                 "created_at" => $data->created_at,
                 "updated_at" => $data->updated_at
             ];
