@@ -154,7 +154,7 @@ class NoteService
             ];
             $this->noteHasBrand->create($noteHasBrandSql);
         }
-        $this->saveLogs($request, $notes, '后台修改');
+        $this->saveLogs($request, $notes, '后台修改', '1');
 //            DB::commit();
 //        } catch (\Exception $e) {
 //            DB::rollback();
@@ -212,10 +212,10 @@ class NoteService
                     $getFileName = basename($value);
                     $src = '/temporary/' . $getFileName;
                     $dst = '/uploads/' . $getFileName;
-                    if(Storage::disk('public')->exists($src)) {
+                    if (Storage::disk('public')->exists($src)) {
                         Storage::disk('public')->move($src, $dst);
-                    }else{
-                        abort(500,'文件未找到');
+                    } else {
+                        abort(500, '文件未找到');
                     }
                     $url[] = env('APP_URL') . '/storage' . $dst;
                 }
@@ -224,10 +224,10 @@ class NoteService
                 $getFileName = basename($file);
                 $src = '/temporary/' . $getFileName;
                 $dst = '/uploads/' . $getFileName;
-                if(Storage::disk('public')->exists($src)) {
+                if (Storage::disk('public')->exists($src)) {
                     Storage::disk('public')->move($src, $dst);
-                }else{
-                    abort(500,'文件未找到');
+                } else {
+                    abort(500, '文件未找到');
                 }
                 $url = env('APP_URL') . '/storage' . $dst;
                 return $url;
@@ -249,7 +249,7 @@ class NoteService
                 $getFileName = basename($value);
                 $src = '/uploads/' . $getFileName;
                 $dst = '/abandon/' . $getFileName;
-                if(Storage::exists($src)){
+                if (Storage::exists($src)) {
                     Storage::disk('public')->move($src, $dst);
                 }
             }
@@ -257,7 +257,7 @@ class NoteService
             $getFileName = basename($attachments);
             $src = '/uploads/' . $getFileName;
             $dst = '/abandon/' . $getFileName;
-            if(Storage::exists($src)){
+            if (Storage::exists($src)) {
                 Storage::disk('public')->move($src, $dst);
             }
         }
@@ -266,7 +266,7 @@ class NoteService
 //        }
     }
 
-    protected function saveLogs($request, $notes, $type)
+    protected function saveLogs($request, $notes, $type, $operation = '')
     {
         $all = $request->all();
         $logSql = [
@@ -279,7 +279,7 @@ class NoteService
                 '设备类型' => $this->getPhoneType(),
                 'IP地址' => $request->getClientIp()
             ],
-            'changes' => $this->dataTransform($all, $notes),
+            'changes' => $operation == '' ? [] : $this->dataTransform($all, $notes),
         ];
         $this->noteLogsModel->create($logSql);
     }
@@ -293,10 +293,10 @@ class NoteService
         }
         $note = $this->sort($note);
         $notes['brands'] = implode(',', $note);
-        if(is_array($notes['attachments'])){
+        if (is_array($notes['attachments'])) {
             $notes['attachments'] = implode(',', $notes['attachments']);
         }
-        if(is_array($all['attachments'])){
+        if (is_array($all['attachments'])) {
             $all['attachments'] = implode(',', $all['attachments']);
         }
         $al = $this->sort($all['brands']);
