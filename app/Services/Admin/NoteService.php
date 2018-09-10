@@ -216,7 +216,7 @@ class NoteService
                     }else{
                         abort(500,'文件未找到');
                     }
-                    $url[] = url('/storage' . $dst);
+                    $url[] = env('APP_URL') . '/storage' . $dst;
                 }
                 return $url;
             } else {
@@ -228,7 +228,7 @@ class NoteService
                 }else{
                     abort(500,'文件未找到');
                 }
-                $url = url('/storage' . $dst);
+                $url = env('APP_URL') . '/storage' . $dst;
                 return $url;
             }
         }
