@@ -2,9 +2,11 @@
 
 namespace App\Services\Admin;
 
+use App\Http\Resources\NoteLogCollection;
 use App\Models\NoteLogs;
 use App\Models\Notes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class NoteLogsService
 {
@@ -22,13 +24,21 @@ class NoteLogsService
     public function getList($request,$obj)
     {
         foreach ($obj as $item){
-            $data[]=$item->auth_brand;
+            foreach ($item['visibles'] as $key => $value) {
+                $brandId[] = $value['brand_id'];
+            }
         }
-        $bool = isset($data) ? $data : [] ;
-        $arr = array_filter($bool);
-        return $this->noteLogsModel->orderBy('id', 'desc')->with('notes')->whereHas('notes.clients.Brands',function ($query)use($arr){
+        $arr =  isset($brandId) ? array_unique(array_filter($brandId)) : [];
+        $list = $this->noteLogsModel->orderBy('id', 'desc')->with('notes')
+            ->whereHas('notes.Brands',function ($query)use($arr){
             $query->whereIn('brand_id',$arr);
         })->filterByQueryString()->withPagination($request->get('pagesize', 10));
+        if (isset($list['data'])) {
+            $list['data'] = new NoteLogCollection(collect($list['data']));
+            return $list;
+        } else {
+            return new NoteLogCollection($list);
+        }
     }
 
     /**
@@ -81,17 +91,19 @@ class NoteLogsService
             if (is_array($attachments)) {
                 foreach ($attachments as $key => $value) {
                     $getFileName = basename($value);
-                    $src = storage_path() . '/app/public/abandon/' . $getFileName;
-                    $dst = storage_path() . '/app/public/uploads/' . $getFileName;
-                    copy($src, $dst);
-                    unlink($src);
+                    $src = '/uploads/' . $getFileName;
+                    $dst = '/abandon/' . $getFileName;
+                    if(Storage::exists($src)) {
+                        Storage::disk('public')->move($src, $dst);
+                    }
                 }
             } else {
                 $getFileName = basename($attachments);
-                $src = storage_path() . '/app/public/abandon/' . $getFileName;
-                $dst = storage_path() . '/app/public/uploads/' . $getFileName;
-                copy($src, $dst);
-                unlink($src);
+                $src = '/uploads/' . $getFileName;
+                $dst = '/abandon/' . $getFileName;
+                if(Storage::exists($src)) {
+                    Storage::disk('public')->move($src, $dst);
+                }
             }
         } catch (\Exception $e) {
             abort(500, '附件未找到');
