@@ -18,6 +18,8 @@ class NoteLogs extends Model
         'changes'=>'array',
     ];
 
+    public $timestamps = false;
+
     public function notes()
     {
         return $this->hasOne(Notes::class,'id','note_id');
