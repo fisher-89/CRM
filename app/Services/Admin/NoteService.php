@@ -67,10 +67,10 @@ class NoteService
     {
         foreach ($obj as $item) {
             foreach ($item['visibles'] as $key => $value) {
-                $brand_id[] = $value['brand_id'];
+                $brandId[] = $value['brand_id'];
             }
         }
-        $arr = isset($brand_id) ? array_unique(array_filter($brand_id)) : [];
+        $arr = isset($brandId) ? array_unique(array_filter($brandId)) : [];
         $list = $this->noteModel->whereHas('Brands', function ($query) use ($arr) {
             $query->whereIn('brand_id', $arr);
         })->with('Brands')->filterByQueryString()->SortByQueryString()

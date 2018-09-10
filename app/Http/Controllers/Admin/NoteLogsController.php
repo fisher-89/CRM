@@ -6,6 +6,7 @@ use App\Models\AuthorityGroups;
 use App\Models\Nations;
 use App\Models\NoteLogs;
 use App\Models\Notes;
+use App\Services\Admin\AuthorityService;
 use App\Services\Admin\NoteLogsService;
 use Illuminate\Http\Request;
 
@@ -14,9 +15,10 @@ class NoteLogsController extends Controller
     protected $noteLogsService;
     protected $noteLogsModel;
     protected $noteModel;
-
-    public function __construct(NoteLogsService $noteLogsService,NoteLogs $noteLogs,Notes $notes)
+    protected $auth;
+    public function __construct(NoteLogsService $noteLogsService,NoteLogs $noteLogs,Notes $notes,AuthorityService $authorityService)
     {
+        $this->auth=$authorityService;
         $this->noteModel = $notes;
         $this->noteLogsModel = $noteLogs;
         $this->noteLogsService = $noteLogsService;
@@ -45,12 +47,11 @@ class NoteLogsController extends Controller
 
     protected function noteReadingAuth($request)
     {
-        $staff = AuthorityGroups ::where('auth_type', 1)->whereHas('noteStaff', function ($query) use ($request) {
-            $query->where('staff_sn', $request->user()->staff_sn);
-        })->get();
+        $staff = $this->auth->readingAuth($request->user()->staff_sn);
         if ((bool)$staff === false) {
             abort(401, '暂无权限');
+        }else{
+            return $staff;
         }
-        return $staff;
     }
 }

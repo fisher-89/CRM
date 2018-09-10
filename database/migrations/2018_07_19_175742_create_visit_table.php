@@ -27,7 +27,7 @@ class CreateVisitTable extends Migration
             $table->unsignedSmallInteger('note_type_id')->comment('类型');
             $table->unsignedInteger('client_id')->comment('客户id')->index();
             $table->char('client_name',10)->comment('客户姓名')->index();
-            $table->dateTime('took_place_at')->comment('发生时间');
+            $table->date('took_place_at')->comment('发生时间');
             $table->unsignedMediumInteger('recorder_sn')->comment('记录人编号')->index();
             $table->char('recorder_name',10)->comment('记录人姓名');
             $table->char('title',20)->comment('标题');
