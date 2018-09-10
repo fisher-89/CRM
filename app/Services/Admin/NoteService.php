@@ -211,7 +211,7 @@ class NoteService
                     $getFileName = basename($value);
                     $src = '/temporary/' . $getFileName;
                     $dst = '/uploads/' . $getFileName;
-                    if(Storage::exists($src)) {
+                    if(Storage::disk('public')->exists($src)) {
                         Storage::disk('public')->move($src, $dst);
                     }else{
                         abort(500,'文件未找到');
@@ -223,7 +223,7 @@ class NoteService
                 $getFileName = basename($file);
                 $src = '/temporary/' . $getFileName;
                 $dst = '/uploads/' . $getFileName;
-                if(Storage::exists($src)) {
+                if(Storage::disk('public')->exists($src)) {
                     Storage::disk('public')->move($src, $dst);
                 }else{
                     abort(500,'文件未找到');
