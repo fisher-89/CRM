@@ -46,10 +46,10 @@ class NoteLogCollection extends ResourceCollection
     {
         switch ($key) {
             case 'note_type_id':
-                return [NoteTypes::where('id', $value[0])->first(), NoteTypes::where('id', $value[1])->first()];
+                return [NoteTypes::where('id', $value[0])->value('name'), NoteTypes::where('id', $value[1])->value('name')];
                 break;
             case 'client_id':
-                return [Clients::where('id', $value[0])->first(), Clients::where('id', $value[1])->first()];
+                return [Clients::where('id', $value[0])->value('name'), Clients::where('id', $value[1])->value('name')];
                 break;
             case 'task_result':
                 foreach ($value as $item) {
