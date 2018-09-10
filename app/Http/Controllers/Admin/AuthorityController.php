@@ -13,7 +13,7 @@ class AuthorityController extends Controller
     protected $authority;
 
     public function __construct(AuthorityService $authorityService)
-    {
+    {return '☞ ♕ ☜';
         $this->authority = $authorityService;
     }
 
