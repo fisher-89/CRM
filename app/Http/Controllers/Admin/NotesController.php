@@ -199,7 +199,7 @@ class NotesController extends Controller
     {
         $recorderSn = Notes::where('id', $request->route('id'))->value('recorder_sn');
         if ($recorderSn != Auth::user()->staff_sn) {
-            abort(401, '暂无权限');
+            abort(401, '暂无权限,只能操作本人添加的数据');
         }
     }
 
