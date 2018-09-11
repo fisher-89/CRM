@@ -27,7 +27,7 @@ class AuthorityService
 
     public function getList($request)
     {
-        $list = $this->groups->with(['staffs','editables','visibles'])->filterByQueryString()->withPagination($request->get('pagesize', 10));
+        $list = $this->groups->with(['staffs','editables','visibles'])->filterByQueryString()->SortByQueryString()->withPagination($request->get('pagesize', 10));
         if (isset($list['data'])) {
             $list['data'] = new AuthorityCollection(collect($list['data']));
             return $list;

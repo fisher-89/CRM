@@ -54,7 +54,7 @@ class ClientsService
         $list = $this->client->with('Tags')->with('Shops')->with('Brands')
             ->whereHas('Brands', function ($query) use ($arr) {
                 $query->whereIn('brand_id', $arr);
-            })->filterByQueryString()->withPagination($request->get('pagesize', 10));
+            })->filterByQueryString()->SortByQueryString()->withPagination($request->get('pagesize', 10));
         return $list;
 //        if (isset($list['data'])) {
 //            $list['data'] = new ClientsCollection(collect($list['data']));

@@ -16,7 +16,7 @@ class SourceService
 
     public function indexList(Request $request)
     {
-        return $this->source->orderBy('sort','asc')->filterByQueryString()->withPagination($request->get('pagesize', 10));
+        return $this->source->SortByQueryString()->filterByQueryString()->withPagination($request->get('pagesize', 10));
     }
 
     public function addSource(Request $request)

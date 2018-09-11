@@ -21,7 +21,7 @@ class TagService
 
     public function listType(Request $request)
     {
-        return $this->tagType->orderBy('sort','asc')->filterByQueryString()->withPagination($request->get('pagesize', 10));
+        return $this->tagType->SortByQueryString()->filterByQueryString()->withPagination($request->get('pagesize', 10));
     }
 
     public function addType(Request $request)
