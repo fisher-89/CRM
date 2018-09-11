@@ -29,13 +29,13 @@ class AuthorityController extends Controller
     }
 
     public function edit(Request $request)
-    {abort(500,'暂停使用');
+    {
         $this->editVerify($request);
         return $this->authority->updateAuth($request);
     }
 
     public function delete(Request $request)
-    {abort(500,'暂停使用');
+    {
         return $this->authority->delAuth($request);
     }
 
