@@ -106,6 +106,7 @@ class NotesController extends Controller
      */
     public function edit(NotesRequest $request)
     {
+        abort(500,'接口暂停使用');
         $this->noteEditAuth($request);
         return $this->note->editNote($request);
     }
