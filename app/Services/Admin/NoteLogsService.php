@@ -30,7 +30,7 @@ class NoteLogsService
         }
         $arr =  isset($brandId) ? array_unique(array_filter($brandId)) : [];
         $list = $this->noteLogsModel->orderBy('id', 'desc')->with('notes')
-            ->whereHas('notes.Brands',function ($query)use($arr){
+            ->whereHas('notes.brands',function ($query)use($arr){
             $query->whereIn('brand_id',$arr);
         })->SortByQueryString()->filterByQueryString()->withPagination($request->get('pagesize', 10));
         if (isset($list['data'])) {
