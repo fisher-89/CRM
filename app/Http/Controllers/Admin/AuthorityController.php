@@ -49,7 +49,7 @@ class AuthorityController extends Controller
                 'editables.*' => 'numeric',
                 'staffs' => 'array|required',
                 'staffs.*.staff_sn' => 'numeric|digits:6|required',
-                'staffs.*.staff_name' => 'max:10',
+                'staffs.*.staff_name' => 'max:10|required',
             ], [], [
                 'name' => '分组名称',
                 'description' => '描述',
@@ -69,8 +69,9 @@ class AuthorityController extends Controller
                 'description' => 'max:30',
                 'visibles.*' => 'numeric',
                 'editables.*' => 'numeric',
-                'staffs.*.staff_sn' => 'numeric|digits:6',
-                'staffs.*.staff_name' => 'max:10',
+                'staffs' => 'array|required',
+                'staffs.*.staff_sn' => 'numeric|digits:6|required',
+                'staffs.*.staff_name' => 'max:10|required',
             ], [], [
                 'name' => '分组名称',
                 'description' => '描述',
