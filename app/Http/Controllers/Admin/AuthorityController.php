@@ -70,14 +70,14 @@ class AuthorityController extends Controller
 
     protected function editVerify($request)
     {
-        $editables = $request->all('editables');
+        $editables = $request->editables;
         $this->validate($request,
             [
                 'name' => ['required', 'max:20', Rule::unique('authority_groups', 'name')->whereNotIn('id', explode(' ', $request->route('id'))),],
                 'description' => 'max:30',
                 'visibles.*' => 'numeric',
                 'visibles' => ['array', function ($attribute, $value, $event) use ($editables) {
-                    if ($value == [] || $editables == []) {
+                    if ($value == [] && $editables == []) {
                         return $event('操作权限和查看权限必选其一');
                     }
                 }],
