@@ -29,7 +29,7 @@ class Notes extends Model
         return $this->hasOne(NoteTypes::class,'id','note_type_id');
     }
 
-    public function Brands()
+    public function brands()
     {
         return $this->hasMany(NoteHasBrand::class,'note_id','id');
     }

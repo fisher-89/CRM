@@ -71,9 +71,9 @@ class NoteService
             }
         }
         $arr = isset($brandId) ? array_unique(array_filter($brandId)) : [];
-        $list = $this->noteModel->whereHas('Brands', function ($query) use ($arr) {
+        $list = $this->noteModel->whereHas('brands', function ($query) use ($arr) {
             $query->whereIn('brand_id', $arr);
-        })->with('Brands')->filterByQueryString()->SortByQueryString()
+        })->with('brands')->filterByQueryString()->SortByQueryString()
             ->withPagination($request->get('pagesize', 10));
         if (isset($list['data'])) {
             $list['data'] = new NoteCollection(collect($list['data']));
@@ -121,7 +121,7 @@ class NoteService
     public function editNote($request)
     {
         $id = $request->id;
-        $note = $this->noteModel->with('Brands')->find($id);
+        $note = $this->noteModel->with('brands')->find($id);
         if (false == (bool)$note) {
             abort(404, '未找到数据');
         }
@@ -183,9 +183,9 @@ class NoteService
     public function getDetail($request, $arr)
     {
         $data = $this->noteModel->where('id', $request->route('id'))
-            ->whereHas('Brands', function ($query) use ($arr) {
+            ->whereHas('brands', function ($query) use ($arr) {
                 $query->whereIn('brand_id', $arr);
-            })->with(['noteType', 'Brands'])->first();
+            })->with(['noteType', 'brands'])->first();
         if (!empty($data)) {
             $data = $data->toArray();
             $brand = [];

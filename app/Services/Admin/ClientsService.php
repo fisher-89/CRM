@@ -51,8 +51,8 @@ class ClientsService
             }
         }
         $arr = isset($arrData) ? $arrData : [];
-        $list = $this->client->with('Tags')->with('Shops')->with('Brands')
-            ->whereHas('Brands', function ($query) use ($arr) {
+        $list = $this->client->with('tags')->with('shops')->with('brands')
+            ->whereHas('brands', function ($query) use ($arr) {
                 $query->whereIn('brand_id', $arr);
             })->filterByQueryString()->SortByQueryString()->withPagination($request->get('pagesize', 10));
         return $list;
@@ -106,13 +106,13 @@ class ClientsService
             DB::rollback();
             abort(400, '客户添加失败');
         }
-        return response()->json($this->client->with('Tags')->with('Shops')->with('Brands')->where('id', $bool->id)->first(), 201);
+        return response()->json($this->client->with('tags')->with('shops')->with('brands')->where('id', $bool->id)->first(), 201);
     }
 
     public function editClient($request)
     {
         $all = $request->all();
-        $clientData = $this->client->with('Tags')->with('Shops')->with('Brands')->find($request->route('id'));
+        $clientData = $this->client->with('tags')->with('shops')->with('brands')->find($request->route('id'));
         if ((bool)$clientData === false) {
             abort(404, '未找到数据');
         }
@@ -166,7 +166,7 @@ class ClientsService
 //            DB::rollback();
 //            abort(400, '客户修改失败');
 //        }
-        return response($this->client->with('Tags')->with('Shops')->with('Brands')->where('id', $clientData->id)->first(), 201);
+        return response($this->client->with('tags')->with('shops')->with('brands')->where('id', $clientData->id)->first(), 201);
     }
 
     private function saveClientLog($model, $commit, $request)
@@ -313,8 +313,8 @@ class ClientsService
             }
         }
         $arr = isset($arrData) ? $arrData : [];
-        return $this->client->with('Tags')->with('Brands')->with('Shops')
-            ->where('id', $request->route('id'))->whereHas('Brands', function ($query) use ($arr) {
+        return $this->client->with('tags')->with('brands')->with('shops')
+            ->where('id', $request->route('id'))->whereHas('brands', function ($query) use ($arr) {
                 $query->whereIn('brand_id', $arr);
             })->first();
     }
@@ -345,8 +345,8 @@ class ClientsService
             abort(400, '传递无效参数');
         }
         $arr = $this->authDetection($request);
-        $client = $this->client->with('source')->with('Tags')->with('Brands')->with('Shops')
-            ->whereHas('Brands', function ($query) use ($arr) {
+        $client = $this->client->with('source')->with('tags')->with('brands')->with('shops')
+            ->whereHas('brands', function ($query) use ($arr) {
                 $query->whereIn('brand_id', $arr);
             })->filterByQueryString()->withPagination();
         if (false == (bool)$client) {
@@ -358,7 +358,7 @@ class ClientsService
             '备注'];
         foreach ($client as $k => $v) {
             $eventTop[] = [$v['name'], $v['source']['name'], $this->transform($v['status']), $v['gender'], $v['mobile'],
-                $v['wechat'], $v['nation'], $v['id_card_number'], $v['Tags'] ? $this->transTags($v['Tags']) : '', $v['native_place'],
+                $v['wechat'], $v['nation'], $v['id_card_number'], $v['tags'] ? $this->transTags($v['tags']) : '', $v['native_place'],
                 $v['present_address'], $v['first_cooperation_at'], $v['vindicator_sn'] . ',' . $v['vindicator_name'], $v['remark']
             ];
         }
