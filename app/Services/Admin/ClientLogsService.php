@@ -113,7 +113,7 @@ class ClientLogsService
                 abort(404, '还原失败，未找到数据');
             }
         }
-        $bool = $client->update($log->changes);//执行
+        $bool = $client->update($changes);//执行
         $clientLog = [
             'client_id' => $log->client_id,
             'type' => '还原到第' . $request->route('id') . '数据',
