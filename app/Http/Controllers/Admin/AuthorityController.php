@@ -41,11 +41,18 @@ class AuthorityController extends Controller
 
     protected function storeVerify($request)
     {
+        $editables = $request->editables;
         $this->validate($request,
             [
                 'name' => ['required', 'max:20', Rule::unique('authority_groups', 'name')],
                 'description' => 'max:30',
                 'visibles.*' => 'numeric',
+                'visibles' => ['array', function ($attribute, $value, $event) use ($editables) {
+                    if ($value == [] &&  $editables == []) {
+                        return $event('操作权限和查看权限必选其一');
+                    }
+                }],
+                'editables' => 'array',
                 'editables.*' => 'numeric',
                 'staffs' => 'array|required',
                 'staffs.*.staff_sn' => 'numeric|digits:6|required',
@@ -63,11 +70,18 @@ class AuthorityController extends Controller
 
     protected function editVerify($request)
     {
+        $editables = $request->all('editables');
         $this->validate($request,
             [
                 'name' => ['required', 'max:20', Rule::unique('authority_groups', 'name')->whereNotIn('id', explode(' ', $request->route('id'))),],
                 'description' => 'max:30',
                 'visibles.*' => 'numeric',
+                'visibles' => ['array', function ($attribute, $value, $event) use ($editables) {
+                    if ($value == [] || $editables == []) {
+                        return $event('操作权限和查看权限必选其一');
+                    }
+                }],
+                'editables' => 'array',
                 'editables.*' => 'numeric',
                 'staffs' => 'array|required',
                 'staffs.*.staff_sn' => 'numeric|digits:6|required',
