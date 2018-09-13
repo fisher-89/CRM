@@ -17,25 +17,24 @@ class ClientsCollection extends ResourceCollection
     {
 //        return parent::toArray($request);
         return $this->collection->map(function ($data) {
-            foreach ($data->tags as $item){
-                $tags[]=$item['tag_id'];
-            }
-            foreach ($data->shops as $items){
-                $shop[]=$items['shop_id'];
-            }
-            foreach ($data->brands as $i){
-                $brand[]=$i['brand_id'];
-            }
+//            foreach ($data->tags as $item){
+//                $tags[]=$item['tag_id'];
+//            }
+//            foreach ($data->shops as $items){
+//                $shop[]=$items['shop_id'];
+//            }
+//            foreach ($data->brands as $i){
+//                $brand[]=$i['brand_id'];
+//            }
             return [
                 "id"=> $data->id,
                 "name"=> $data->name,
                 "source_id"=> $data->source_id,
                 "status"=> $data->status,
                 "gender"=> $data->gender,
-                "mobile"=> $data->mobile,
+                "mobile"=> $this->mobile($data->mobile),
                 "wechat"=> $data->wechat,
                 "nation"=> $data->nation,
-                "id_card_number"=> $data->id_card_number,
                 "native_place"=> $data->native_place,
                 "present_address"=> $data->present_address,
                 "first_cooperation_at"=> $data->first_cooperation_at,
@@ -45,10 +44,16 @@ class ClientsCollection extends ResourceCollection
                 "created_at"=> $data->created_at->format('Y-m-d H:i:s'),
                 "updated_at"=> $data->updated_at->format('Y-m-d H:i:s'),
                 "deleted_at"=> $data->deleted_at,
-                "tags"=> $tags,
-                "shops"=> $shop,
-                "brands"=> $brand
+                "tags"=> $data->tags,
+                "shops"=> $data->shops,
+                "brands"=> $data->brands
             ];
         })->toArray();
     }
+
+    public function mobile($mobile)
+    {
+        return preg_replace("/(\d{3})\d\d(\d{2})/","\$1****\$3",$mobile);
+    }
+
 }
