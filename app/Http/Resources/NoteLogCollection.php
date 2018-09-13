@@ -27,8 +27,8 @@ class NoteLogCollection extends ResourceCollection
                 "staff_name" => $data->staff_name,
                 "operation_address" => $data->operation_address,
                 "changes" => $this->trans($data->changes),
-                "created_at" => $data->created_at,
-                "updated_at" => $data->updated_at
+                "created_at" => $data->created_at->format('Y-m-d H:i:s'),
+                "updated_at" => $data->updated_at->format('Y-m-d H:i:s')
             ];
         })->toArray();
     }
