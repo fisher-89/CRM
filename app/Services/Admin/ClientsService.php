@@ -53,15 +53,14 @@ class ClientsService
         $arr = isset($arrData) ? $arrData : [];
         $list = $this->client->with('tags')->with('shops')->with('brands')
             ->whereHas('brands', function ($query) use ($arr) {
-                $query->whereIn('brand_id', $arr);
+//                $query->whereIn('brand_id', $arr);
             })->filterByQueryString()->SortByQueryString()->withPagination($request->get('pagesize', 10));
-        return $list;
-//        if (isset($list['data'])) {
-//            $list['data'] = new ClientsCollection(collect($list['data']));
-//            return $list;
-//        } else {
-//            return new ClientsCollection($list);
-//        }
+        if (isset($list['data'])) {
+            $list['data'] = new ClientsCollection(collect($list['data']));
+            return $list;
+        } else {
+            return new ClientsCollection($list);
+        }
     }
 
     public function addClient($request)
