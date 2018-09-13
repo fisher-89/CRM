@@ -116,7 +116,7 @@ class ClientLogsService
         $bool = $client->update($changes);//执行
         $clientLog = [
             'client_id' => $log->client_id,
-            'type' => '还原到第' . $request->route('id') . '数据',
+            'type' => '还原到序号:' . $request->route('id') . '数据',
             'staff_sn' => $request->user()->staff_sn,
             'staff_name' => $request->user()->realname,
             'operation_address' =>
