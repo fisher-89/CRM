@@ -61,13 +61,21 @@ class ClientLogsService
         if (isset($changes['mobile'])) {
             $mobile = $this->clients->withTrashed()->where('mobile', $changes['mobile'])->whereNotIn('id',$log->client_id)->first();
             if (true === (bool)$mobile) {
-                abort(400, '还原失败，电话号码冲突');
+                if($mobile->deleted_at == true){
+                    abort(400, '还原失败，电话号码冲突,冲突id为:'.$mobile->id.',经检测该数据已被删除，请联系管理员');
+                }else{
+                    abort(400, '还原失败，电话号码冲突,冲突id为:'.$mobile->id);
+                }
             }
         }
         if (isset($changes['id_card_number'])) {
             $idCardNumber = $this->clients->withTrashed()->where('id_card_number', $changes['id_card_number'])->whereNotIn('id',$log->client_id)->first();
             if (true === (bool)$idCardNumber) {
-                abort(400, '还原失败，身份证号码冲突');
+                if($idCardNumber->deleted_at == true){
+                    abort(400, '还原失败，身份证号码冲突,冲突id为:'.$idCardNumber->id.',经检测该数据已被删除，请联系管理员');
+                }else{
+                    abort(400, '还原失败，身份证号码冲突,冲突id为:'.$idCardNumber->id);
+                }
             }
         }
 //        try {
