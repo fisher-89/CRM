@@ -30,7 +30,8 @@ class ClientLogCollection extends ResourceCollection
                 "operation_address" => $data->operation_address,
                 "changes" => $this->trans($data->changes),
                 "created_at" => $data->created_at->format('Y-m-d H:i:s'),
-                "updated_at" => $data->updated_at->format('Y-m-d H:i:s')
+                "updated_at" => $data->updated_at->format('Y-m-d H:i:s'),
+                "clients"=>$data->clients,
             ];
         })->toArray();
     }
