@@ -97,7 +97,7 @@ class CreateCrmTable extends Migration
             $table->char('staff_name', 10)->comment('操作人姓名');
             $table->text('operation_address')->comment('操作地址');
             $table->text('changes')->comment('变动内容');
-            $table->tinyInteger('identifying')->comment('标识');
+            $table->tinyInteger('identifying')->comment('标识')->default(0);
             $table->unsignedBigInteger('log_id')->comment('标识id');
             $table->timestamps();
             $table->foreign('client_id')->references('id')->on('clients');
