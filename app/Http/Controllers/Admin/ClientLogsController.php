@@ -70,6 +70,9 @@ class ClientLogsController extends Controller
         if($logs->restore_sn != 1){
             abort(400,'错误操作');
         }
+        if($logs->changes == []){
+            abort(400,'错误操作');
+        }
     }
     protected function clientReadingAuth($request)
     {
