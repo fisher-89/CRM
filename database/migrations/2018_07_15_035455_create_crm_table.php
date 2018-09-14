@@ -97,8 +97,8 @@ class CreateCrmTable extends Migration
             $table->char('staff_name', 10)->comment('操作人姓名');
             $table->text('operation_address')->comment('操作地址');
             $table->text('changes')->comment('变动内容');
-            $table->char('restore_sn',10)->comment('还原人编号')->default()->unique();
-            $table->dateTime('restore_time')->comment('还原时间')->default()->unique();
+            $table->mediumInteger('restore_sn')->comment('还原人编号')->unique();
+            $table->dateTime('restore_time')->comment('还原时间')->unique();
             $table->timestamps();
             $table->foreign('client_id')->references('id')->on('clients');
             $table->foreign('log_id')->references('id')->on('client_logs');
