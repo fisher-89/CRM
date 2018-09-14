@@ -45,16 +45,16 @@ class ClientsService
 
     public function listClient($request, $brand)
     {
-        foreach ($brand as $key => $value) {
-            foreach ($value['visibles'] as $k => $v) {
-                $arrData[] = $v['brand_id'];
-            }
-        }
-        $arr = isset($arrData) ? $arrData : [];
+//        foreach ($brand as $key => $value) {
+//            foreach ($value['visibles'] as $k => $v) {
+//                $arrData[] = $v['brand_id'];
+//            }
+//        }
+//        $arr = isset($arrData) ? $arrData : [];
         $list = $this->client->with('tags')->with('shops')->with('brands')
-            ->whereHas('brands', function ($query) use ($arr) {
-//                $query->whereIn('brand_id', $arr);
-            })->filterByQueryString()->SortByQueryString()->withPagination($request->get('pagesize', 10));
+//            ->whereHas('brands', function ($query) use ($arr) {
+//                $query->whereIn('brand_id', $arr);})
+            ->filterByQueryString()->SortByQueryString()->withPagination($request->get('pagesize', 10));
         if (isset($list['data'])) {
             $list['data'] = new ClientsCollection(collect($list['data']));
             return $list;
@@ -232,7 +232,7 @@ class ClientsService
                     'IP地址' => $request->getClientIp()
                 ],
             'changes' => isset($changes) ? $changes : [],
-            'restore_sn' => $this->identifying($model->id),
+            'restore_sn' => $this->identifying($model['id']),
             'restore_time' => null,
         ];
         $this->clientLogs->create($clientLogSql);
@@ -240,7 +240,7 @@ class ClientsService
 
     protected function identifying($id)
     {
-        $log=$this->clientLogs->where('client_id',$id)->whereNotIn('restore',['0'])->orderBy('id','desc')->first();
+        $log=$this->clientLogs->where('client_id',$id)->whereNotIn('restore_sn',['0'])->orderBy('id','desc')->first();
         if($log == true){
             $logSql=[
                 'restore_sn'=>0,
