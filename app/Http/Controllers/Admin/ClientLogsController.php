@@ -63,15 +63,13 @@ class ClientLogsController extends Controller
      */
     protected function last($id)
     {
-//        $clientId = ClientLogs::where('id', $id)->value('client_id');
-//        $logs = ClientLogs::orderBy('id', 'desc')->where('client_id', $clientId)->first();
         $logs = ClientLogs::find($id);
         if (strstr($logs->type,'还原') || strstr($logs->type,'删除')) {
             abort(400,'错误操作');
         }
-//        if ($logs->id != $id) {
-//            abort(401, '无法操作之前数据');
-//        }
+        if($logs->restore_sn != 1){
+            abort(400,'错误操作');
+        }
     }
     protected function clientReadingAuth($request)
     {

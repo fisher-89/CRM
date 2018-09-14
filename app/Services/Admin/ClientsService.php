@@ -232,10 +232,24 @@ class ClientsService
                     'IP地址' => $request->getClientIp()
                 ],
             'changes' => isset($changes) ? $changes : [],
+            'restore_sn' => $this->identifying($model->id),
+            'restore_time' => null,
         ];
         $this->clientLogs->create($clientLogSql);
     }
 
+    protected function identifying($id)
+    {
+        $log=$this->clientLogs->where('client_id',$id)->whereNotIn('restore',['0'])->orderBy('id','desc')->first();
+        if($log == true){
+            $logSql=[
+                'restore_sn'=>0,
+                'restore_time'=>null
+            ];
+            $log->update($logSql);
+        }
+        return 1;
+    }
     protected function getDirtyWithOriginal($model)
     {
         $dirty = [];
@@ -288,6 +302,8 @@ class ClientsService
                         'IP地址' => $request->getClientIp()
                     ],
                 'changes' => [],
+                'identifying'=>0,
+                'log_id'=>'',
             ];
             $this->clientLogs->create($clientLogSql);
             DB::commit();

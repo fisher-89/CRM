@@ -123,19 +123,10 @@ class ClientLogsService
         }
         $bool = $client->update($changes);//执行
         $clientLog = [
-            'client_id' => $log->client_id,
-            'type' => '还原到序号:' . $request->route('id') . '数据',
-            'staff_sn' => $request->user()->staff_sn,
-            'staff_name' => $request->user()->realname,
-            'operation_address' =>
-                [
-                    '电话号码' => $this->getOperation(),
-                    '设备类型' => $this->getPhoneType(),
-                    'IP地址' => $request->getClientIp()
-                ],
-            'changes' => []
+            'restore_sn' => $request->user()->staff_sn,
+            'restore_time' => date('Y-m-d H:i:s'),
         ];
-        $this->clientLogs->create($clientLog);
+        $this->clientLogs->update($clientLog);
 //            DB::commit();
 //        } catch (\Exception $e) {
 //            DB::rollback();
