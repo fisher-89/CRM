@@ -118,48 +118,48 @@ class ClientsService
         $specialHandling = clone $clientData;
 //        try {
 //            DB::beginTransaction();
-            $clientData->update($all);
-            if ((bool)$clientData === false) {
-                DB::rollback();
-                abort(400, '客户修改失败');
-            }
-            $this->clientHasTags->where('client_id', $clientData->id)->delete();
-            $this->clientHasShops->where('client_id', $clientData->id)->delete();
-            $this->clientHasBrands->where('client_id', $clientData->id)->delete();
-            if (isset($request->tags)) {
-                if($request->tags != []){
-                    foreach ($request->tags as $k => $v) {
-                        $sql = [
-                            'client_id' => $clientData->id,
-                            'tag_id' => $v['tag_id'],
-                        ];
-                        $this->clientHasTags->create($sql);
-                    }
+        $clientData->update($all);
+        if ((bool)$clientData === false) {
+            DB::rollback();
+            abort(400, '客户修改失败');
+        }
+        $this->clientHasTags->where('client_id', $clientData->id)->delete();
+        $this->clientHasShops->where('client_id', $clientData->id)->delete();
+        $this->clientHasBrands->where('client_id', $clientData->id)->delete();
+        if (isset($request->tags)) {
+            if ($request->tags != []) {
+                foreach ($request->tags as $k => $v) {
+                    $sql = [
+                        'client_id' => $clientData->id,
+                        'tag_id' => $v['tag_id'],
+                    ];
+                    $this->clientHasTags->create($sql);
                 }
             }
-            if (isset($request->brands)) {
-                if($request->brands != []){
-                    foreach ($request->brands as $item) {
-                        $brandSql = [
-                            'client_id' => $clientData->id,
-                            'brand_id' => $item['brand_id'],
-                        ];
-                        $this->clientHasBrands->create($brandSql);
-                    }
+        }
+        if (isset($request->brands)) {
+            if ($request->brands != []) {
+                foreach ($request->brands as $item) {
+                    $brandSql = [
+                        'client_id' => $clientData->id,
+                        'brand_id' => $item['brand_id'],
+                    ];
+                    $this->clientHasBrands->create($brandSql);
                 }
             }
-            if (isset($request->shops)) {
-                if($request->shops != []){
-                    foreach ($request->shops as $items) {
-                        $shopSql = [
-                            'client_id' => $clientData->id,
-                            'shop_sn' => $items['shop_sn'],
-                        ];
-                        $this->clientHasShops->create($shopSql);
-                    }
+        }
+        if (isset($request->shops)) {
+            if ($request->shops != []) {
+                foreach ($request->shops as $items) {
+                    $shopSql = [
+                        'client_id' => $clientData->id,
+                        'shop_sn' => $items['shop_sn'],
+                    ];
+                    $this->clientHasShops->create($shopSql);
                 }
             }
-            $this->saveClientLog($specialHandling, $all, $request);
+        }
+        $this->saveClientLog($specialHandling, $all, $request);
 //            DB::commit();
 //        } catch (\Exception $e) {
 //            DB::rollback();
@@ -205,7 +205,7 @@ class ClientsService
             $commitBrand[] = $v['brand_id'];
         }
         $commitBrands = isset($commitBrand) ? $commitBrand : [];
-        $commitBrands =$this->sort($commitBrands);
+        $commitBrands = $this->sort($commitBrands);
         $commit['brands'] = implode(',', $commitBrands);
 
         foreach ($commit['shops'] as $v) {
@@ -214,10 +214,10 @@ class ClientsService
         $commitShops = isset($commitShop) ? $commitShop : [];
         $commitShops = $this->sort($commitShops);
         $commit['shops'] = implode(',', $commitShops);
-        $array = array_diff($commit,$model);
-        foreach ($array as $key=>$value){
-            if($model[$key] != $commit[$key]){
-                $changes[$key]=[$model[$key], $commit[$key]];
+        $array = array_diff($commit, $model);
+        foreach ($array as $key => $value) {
+            if ($model[$key] != $commit[$key]) {
+                $changes[$key] = [$model[$key], $commit[$key]];
             }
         }
         $clientLogSql = [
@@ -240,16 +240,17 @@ class ClientsService
 
     protected function identifying($id)
     {
-        $log=$this->clientLogs->where('client_id',$id)->whereNotIn('restore_sn',['0'])->orderBy('id','desc')->first();
-        if($log == true){
-            $logSql=[
-                'restore_sn'=>0,
-                'restore_time'=>null
+        $log = $this->clientLogs->where('client_id', $id)->whereNotIn('restore_sn', ['0'])->orderBy('id', 'desc')->first();
+        if ($log == true) {
+            $logSql = [
+                'restore_sn' => 0,
+                'restore_time' => null
             ];
             $log->update($logSql);
         }
         return 1;
     }
+
     protected function getDirtyWithOriginal($model)
     {
         $dirty = [];
@@ -264,13 +265,13 @@ class ClientsService
 
     private function sort($arr)
     {
-        $length =count($arr);
-        for($n=0;$n<$length-1;$n++){
-            for($i=0;$i<$length-$n-1;$i++){
-                if($arr[$i]>$arr[$i+1]){
-                    $temp=$arr[$i+1];
-                    $arr[$i+1]=$arr[$i];
-                    $arr[$i]=$temp;
+        $length = count($arr);
+        for ($n = 0; $n < $length - 1; $n++) {
+            for ($i = 0; $i < $length - $n - 1; $i++) {
+                if ($arr[$i] > $arr[$i + 1]) {
+                    $temp = $arr[$i + 1];
+                    $arr[$i + 1] = $arr[$i];
+                    $arr[$i] = $temp;
                 }
             }
         }
@@ -302,8 +303,8 @@ class ClientsService
                         'IP地址' => $request->getClientIp()
                     ],
                 'changes' => [],
-                'identifying'=>0,
-                'log_id'=>'',
+                'identifying' => 0,
+                'log_id' => '',
             ];
             $this->clientLogs->create($clientLogSql);
             DB::commit();

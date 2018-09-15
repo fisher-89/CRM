@@ -59,22 +59,22 @@ class ClientLogsService
         }
         $changes = $this->dataDispose($log->changes);
         if (isset($changes['mobile'])) {
-            $mobile = $this->clients->withTrashed()->where('mobile', $changes['mobile'])->whereNotIn('id',$log->client_id)->first();
+            $mobile = $this->clients->withTrashed()->where('mobile', $changes['mobile'])->whereNotIn('id', explode(',', $log->client_id))->first();
             if (true === (bool)$mobile) {
-                if($mobile->deleted_at == true){
-                    abort(400, '还原失败，电话号码冲突,冲突id为:'.$mobile->id.',经检测该数据已被删除，请联系管理员');
-                }else{
-                    abort(400, '还原失败，电话号码冲突,冲突id为:'.$mobile->id);
+                if ($mobile->deleted_at == true) {
+                    abort(400, '还原失败，电话号码冲突,冲突id为:' . $mobile->id . ',经检测该数据已被删除，请联系管理员');
+                } else {
+                    abort(400, '还原失败，电话号码冲突,冲突id为:' . $mobile->id);
                 }
             }
         }
         if (isset($changes['id_card_number'])) {
-            $idCardNumber = $this->clients->withTrashed()->where('id_card_number', $changes['id_card_number'])->whereNotIn('id',$log->client_id)->first();
+            $idCardNumber = $this->clients->withTrashed()->where('id_card_number', $changes['id_card_number'])->whereNotIn('id', explode(',', $log->client_id))->first();
             if (true === (bool)$idCardNumber) {
-                if($idCardNumber->deleted_at == true){
-                    abort(400, '还原失败，身份证号码冲突,冲突id为:'.$idCardNumber->id.',经检测该数据已被删除，请联系管理员');
-                }else{
-                    abort(400, '还原失败，身份证号码冲突,冲突id为:'.$idCardNumber->id);
+                if ($idCardNumber->deleted_at == true) {
+                    abort(400, '还原失败，身份证号码冲突,冲突id为:' . $idCardNumber->id . ',经检测该数据已被删除，请联系管理员');
+                } else {
+                    abort(400, '还原失败，身份证号码冲突,冲突id为:' . $idCardNumber->id);
                 }
             }
         }
@@ -82,7 +82,7 @@ class ClientLogsService
 //            DB::beginTransaction();
         if (isset($changes['tags'])) {
             $this->clientHasTags->where('client_id', $log->client_id)->delete();
-            $tags=explode(',',$changes['tags']);
+            $tags = explode(',', $changes['tags']);
             foreach ($tags as $value) {
                 $tagSql = [
                     'client_id' => $log->client_id,
@@ -93,7 +93,7 @@ class ClientLogsService
         }
         if (isset($changes['shops'])) {
             $this->clientHasShops->where('client_id', $log->client_id)->delete();
-            $shop=explode(',',$changes['shops']);
+            $shop = explode(',', $changes['shops']);
             foreach ($shop as $items) {
                 $shopSql = [
                     'client_id' => $log->client_id,
@@ -104,7 +104,7 @@ class ClientLogsService
         }
         if (isset($changes['brands'])) {
             $this->clientHasBrands->where('client_id', $log->client_id)->delete();
-            $brands=explode(',',$changes['brands']);
+            $brands = explode(',', $changes['brands']);
             foreach ($brands as $item) {
                 $brandSql = [
                     'client_id' => $log->client_id,
@@ -126,7 +126,15 @@ class ClientLogsService
             'restore_sn' => $request->user()->staff_sn,
             'restore_time' => date('Y-m-d H:i:s'),
         ];
-        $this->clientLogs->update($clientLog);
+        $log->update($clientLog);
+        $logs = $this->clientLogs->orderBy('id', 'desc')->where('restore_sn', 0)->whereNotIn('changes', ['[]'])->first();
+        if ($logs == true) {
+            $logSql = [
+                'restore_sn' => 1,
+                'restore_time' => null
+            ];
+            $logs->update($logSql);
+        }
 //            DB::commit();
 //        } catch (\Exception $e) {
 //            DB::rollback();

@@ -26,8 +26,8 @@ class ClientLogsController extends Controller
      */
     public function index(Request $request)
     {
-        $obj=$this->clientReadingAuth($request);
-        return $this->logs->getClientLogsList($request,$obj);
+        $obj = $this->clientReadingAuth($request);
+        return $this->logs->getClientLogsList($request, $obj);
     }
 
     /**
@@ -57,23 +57,22 @@ class ClientLogsController extends Controller
     }
 
     /**
-     * 倒数第二条  待确定要不要取倒数第二条，取第二条逻辑：先全部倒数拿出来，用循环i=2 就可以拿到id
-     * 还原最后一条bug，当最后一条数据是删除数据，无法还原，也无法还原之前的数据
      * @param $request
      */
     protected function last($id)
     {
         $logs = ClientLogs::find($id);
-        if (strstr($logs->type,'还原') || strstr($logs->type,'删除')) {
-            abort(400,'错误操作');
+        if (strstr($logs->type, '还原') || strstr($logs->type, '删除')) {
+            abort(400, '错误操作:选择类型错误');
         }
-        if($logs->restore_sn != 1){
-            abort(400,'错误操作');
+        if ($logs->restore_sn != 1) {
+            abort(400, '错误操作:无法还原该数据');
         }
-        if($logs->changes == []){
-            abort(400,'错误操作');
+        if ($logs->changes == []) {
+            abort(400, '错误操作:未找到还原数据');
         }
     }
+
     protected function clientReadingAuth($request)
     {
         $staff = AuthorityGroups::whereHas('staffs', function ($query) use ($request) {
