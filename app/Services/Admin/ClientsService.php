@@ -246,6 +246,7 @@ class ClientsService
             $logSql = [
                 'status' => 0,
                 'restore_sn' => null,
+                'restore_name' => null,
                 'restore_at' => null
             ];
             $log->update($logSql);

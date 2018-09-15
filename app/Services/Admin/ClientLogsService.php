@@ -126,6 +126,7 @@ class ClientLogsService
         $clientLog = [
             'status' => 2,
             'restore_sn' => $request->user()->staff_sn,
+            'restore_name' => $request->user()->realname,
             'restore_at' => date('Y-m-d H:i:s'),
         ];
         $log->update($clientLog);
@@ -134,6 +135,7 @@ class ClientLogsService
             $logSql = [
                 'status' => 1,
                 'restore_sn' => null,
+                'restore_name' => null,
                 'restore_at' => null
             ];
             $logs->update($logSql);

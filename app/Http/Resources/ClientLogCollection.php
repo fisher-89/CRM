@@ -31,6 +31,7 @@ class ClientLogCollection extends ResourceCollection
                 "changes" => $this->trans($data->changes),
                 "status" => $data->status,
                 "restore_sn" => $data->restore_sn,
+                "restore_name" => $data->restore_name,
                 "restore_at" => $data->restore_at,
                 "created_at" => $data->created_at->format('Y-m-d H:i:s'),
                 "updated_at" => $data->updated_at->format('Y-m-d H:i:s'),
