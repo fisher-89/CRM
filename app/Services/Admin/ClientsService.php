@@ -303,7 +303,7 @@ class ClientsService
                         'IP地址' => $request->getClientIp()
                     ],
                 'changes' => [],
-                'identifying' => 0,
+                'identifying' => '-1',
                 'log_id' => '',
             ];
             $this->clientLogs->create($clientLogSql);
