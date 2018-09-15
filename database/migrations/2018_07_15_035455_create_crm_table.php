@@ -99,6 +99,7 @@ class CreateCrmTable extends Migration
             $table->text('changes')->comment('变动内容');
             $table->tinyInteger('status')->comment('状态');
             $table->mediumInteger('restore_sn')->comment('还原人编号')->unique();
+            $table->char('restore_name',10)->comment('还原人姓名')->unique();
             $table->dateTime('restore_at')->comment('还原时间')->unique();
             $table->timestamps();
             $table->foreign('client_id')->references('id')->on('clients');
