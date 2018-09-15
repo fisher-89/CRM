@@ -33,7 +33,7 @@ class ClientLogCollection extends ResourceCollection
                 "restore_time" => $data->restore_time,
                 "created_at" => $data->created_at->format('Y-m-d H:i:s'),
                 "updated_at" => $data->updated_at->format('Y-m-d H:i:s'),
-                "clients"=>$data->clients,
+                "clients" => $data->clients,
             ];
         })->toArray();
     }
@@ -67,34 +67,26 @@ class ClientLogCollection extends ResourceCollection
                 }
                 return isset($status) ? $status : [];
                 break;
-            case 'brands';
+            case 'brands':
                 $brand = app('api')->getBrands($value);
-                $brandOne=explode(',',$value[0]);
-                $brandTow=explode(',',$value[1]);
-                $i=0;
-                $s=0;
+                $brandOne = explode(',', $value[0]);
+                $brandTow = explode(',', $value[1]);
                 foreach ($brand as $k => $val) {
-                    if ($val['id'] == $brandOne[$i]) {
+                    if (in_array($val['id'],$brandOne)) {
                         $brandOneArray[] = $val['name'];
-                        if(count($brandOne) > $i+1){
-                            $i++;
-                        }
                     }
-                    if ($val['id'] == $brandTow[$s]) {
+                    if (in_array($val['id'],$brandTow)) {
                         $brandTowArray[] = $val['name'];
-                        if(count($brandTow) > $s+1){
-                            $s++;
-                        }
                     }
                 }
-                $one=implode('、',isset($brandOneArray) ? $brandOneArray : []);
-                $tow=implode('、',isset($brandTowArray) ? $brandTowArray : []);
-                return [$one,$tow];
+                $one = implode('、', isset($brandOneArray) ? $brandOneArray : []);
+                $tow = implode('、', isset($brandTowArray) ? $brandTowArray : []);
+                return [$one, $tow];
                 break;
-            case 'tags';
+            case 'tags':
                 return [Tags::where('id', $value[0])->value('name'), Tags::where('id', $value[1])->value('name')];
                 break;
-            case 'shops';
+            case 'shops':
                 return [];
                 break;
         }
