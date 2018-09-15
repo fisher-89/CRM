@@ -56,7 +56,7 @@ class TagService
     {
         return $this->tags
 //            ->with('tagType')
-            ->orderBy('sort','asc')->filterByQueryString()->withPagination($request->get('pagesize', 10));
+            ->SortByQueryString()->filterByQueryString()->withPagination($request->get('pagesize', 10));
     }
 
     public function tagStore($request)
