@@ -39,7 +39,7 @@ class ClientLogsController extends Controller
     public function restore(Request $request)
     {
         $this->authority($request);
-        $this->last($request->route('id'));
+        $this->last($request->route('id'));dd(456);
         return $this->logs->restoreClient($request);
     }
 
@@ -50,8 +50,9 @@ class ClientLogsController extends Controller
      */
     protected function authority($request)
     {
-        $staff = ClientLogs::where('id', $request->route('id'))->value('staff_sn');
-        if ($request->user()->staff_sn !== $staff) {
+//        $staff = ClientLogs::where('id', $request->route('id'))->value('staff_sn');
+        $OA = $request->user()->authorities['oa'];
+        if (!in_array('186',$OA)) {
             abort(401, '你没有权限操作');
         }
     }
