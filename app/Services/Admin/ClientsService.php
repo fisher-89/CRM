@@ -303,8 +303,8 @@ class ClientsService
                         'IP地址' => $request->getClientIp()
                     ],
                 'changes' => [],
-                'identifying' => '-1',
-                'log_id' => '',
+                'restore_sn' => '-1',
+                'restore_time' => null,
             ];
             $this->clientLogs->create($clientLogSql);
             DB::commit();
