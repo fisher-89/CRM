@@ -39,7 +39,7 @@ class ClientLogsController extends Controller
     public function restore(Request $request)
     {
         $this->authority($request);
-        $this->last($request->route('id'));dd(456);
+        $this->last($request->route('id'));
         return $this->logs->restoreClient($request);
     }
 
