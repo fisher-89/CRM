@@ -240,7 +240,7 @@ class ClientsService
 
     protected function identifying($id)
     {
-        $log = $this->clientLogs->where('client_id', $id)->whereNotIn('restore_sn', ['0'])->orderBy('id', 'desc')->first();
+        $log = $this->clientLogs->where('client_id', $id)->where('restore_sn', 1)->orderBy('id', 'desc')->first();
         if ($log == true) {
             $logSql = [
                 'restore_sn' => 0,
