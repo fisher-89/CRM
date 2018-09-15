@@ -39,10 +39,10 @@ class ClientLogsService
         }
         $array = isset($data) ? $data : [];
         $arr = array_filter($array);
-        $list = $this->clientLogs->orderBy('id', 'desc')->with('clients.brands')
+        $list = $this->clientLogs->with('clients.brands')
             ->whereHas('clients.brands', function ($query) use ($arr) {
                 $query->whereIn('brand_id', $arr);
-            })->filterByQueryString()->withPagination($request->get('pagesize', 10));
+            })->SortByQueryString()->filterByQueryString()->withPagination($request->get('pagesize', 10));
         if (isset($list['data'])) {
             $list['data'] = new ClientLogCollection(collect($list['data']));
             return $list;
