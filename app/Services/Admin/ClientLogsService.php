@@ -53,7 +53,8 @@ class ClientLogsService
 
     public function restoreClient($request)
     {
-        $log = $this->clientLogs->where('id', $request->route('id'))->first();
+        $id = $request->route('id');
+        $log = $this->clientLogs->where('id', $id)->first();
         if (false === (bool)$log->changes) {
             abort(404, '未找到还原数据');
         }
@@ -123,15 +124,17 @@ class ClientLogsService
         }
         $bool = $client->update($changes);//执行
         $clientLog = [
+            'status' => 2,
             'restore_sn' => $request->user()->staff_sn,
-            'restore_time' => date('Y-m-d H:i:s'),
+            'restore_at' => date('Y-m-d H:i:s'),
         ];
         $log->update($clientLog);
-        $logs = $this->clientLogs->orderBy('id', 'desc')->where('restore_sn', 0)->whereNotIn('changes', ['[]'])->first();
+        $logs = $this->clientLogs->orderBy('id', 'desc')->where('status', 0)->whereNotIn('changes', ['[]'])->first();
         if ($logs == true) {
             $logSql = [
-                'restore_sn' => 1,
-                'restore_time' => null
+                'status' => 1,
+                'restore_sn' => null,
+                'restore_at' => null
             ];
             $logs->update($logSql);
         }
@@ -140,7 +143,8 @@ class ClientLogsService
 //            DB::rollback();
 //            abort(400, '还原失败');
 //        }
-        return (bool)$bool === true ? response($this->clients->find($log->client_id), 201) : abort(400, '还原失败');
+        $data = $this->clientLogs->where('id',$id)->with('clients.brands')->first();
+        return (bool)$bool === true ? response($data, 201) : abort(400, '还原失败');
     }
 
     protected function dataDispose($changes)

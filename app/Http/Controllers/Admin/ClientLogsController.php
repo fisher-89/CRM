@@ -66,7 +66,7 @@ class ClientLogsController extends Controller
         if (strstr($logs->type, '还原') || strstr($logs->type, '删除')) {
             abort(400, '错误操作:选择类型错误');
         }
-        if ($logs->restore_sn != 1) {
+        if ($logs->status != 1) {
             abort(400, '错误操作:无法还原该数据');
         }
         if ($logs->changes == []) {

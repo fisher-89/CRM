@@ -232,19 +232,21 @@ class ClientsService
                     'IP地址' => $request->getClientIp()
                 ],
             'changes' => isset($changes) ? $changes : [],
-            'restore_sn' => $this->identifying($model['id']),
-            'restore_time' => null,
+            'status' => $this->identifying($model['id']),
+            'restore_sn' => null,
+            'restore_at' => null,
         ];
         $this->clientLogs->create($clientLogSql);
     }
 
     protected function identifying($id)
     {
-        $log = $this->clientLogs->where('client_id', $id)->where('restore_sn', 1)->orderBy('id', 'desc')->first();
+        $log = $this->clientLogs->where('client_id', $id)->where('status', 1)->orderBy('id', 'desc')->first();
         if ($log == true) {
             $logSql = [
-                'restore_sn' => 0,
-                'restore_time' => null
+                'status' => 0,
+                'restore_sn' => null,
+                'restore_at' => null
             ];
             $log->update($logSql);
         }
@@ -304,7 +306,7 @@ class ClientsService
                     ],
                 'changes' => [],
                 'restore_sn' => '-1',
-                'restore_time' => null,
+                'restore_at' => null,
             ];
             $this->clientLogs->create($clientLogSql);
             DB::commit();
