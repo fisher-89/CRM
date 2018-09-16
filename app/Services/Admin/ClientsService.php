@@ -214,6 +214,7 @@ class ClientsService
         $commitShops = isset($commitShop) ? $commitShop : [];
         $commitShops = $this->sort($commitShops);
         $commit['shops'] = implode(',', $commitShops);
+        dd($commit, $model);
         $array = array_diff($commit, $model);
         foreach ($array as $key => $value) {
             if ($model[$key] != $commit[$key]) {
