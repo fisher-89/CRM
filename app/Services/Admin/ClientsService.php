@@ -214,7 +214,12 @@ class ClientsService
         $commitShops = isset($commitShop) ? $commitShop : [];
         $commitShops = $this->sort($commitShops);
         $commit['shops'] = implode(',', $commitShops);
-        dd($commit, $model);
+        if ($model['present_address'] != []) {
+            $model['present_address'] = json_encode($model['present_address']);
+        }
+        if ($commit['present_address'] != []) {
+            $commit['present_address'] = json_encode($commit['present_address']);
+        }
         $array = array_diff($commit, $model);
         foreach ($array as $key => $value) {
             if ($model[$key] != $commit[$key]) {
