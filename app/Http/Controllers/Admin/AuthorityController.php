@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\AuthGroupHasEditableBrands;
 use App\Models\AuthGroupHasVisibleBrands;
+use App\Models\AuthorityGroups;
 use App\Services\Admin\AuthorityService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -30,7 +31,7 @@ class AuthorityController extends Controller
 
     public function edit(Request $request)
     {
-        $this->editVerify($request);
+        $this->editVerify($request);dd('ping');
         return $this->authority->updateAuth($request);
     }
 
@@ -41,7 +42,7 @@ class AuthorityController extends Controller
 
     protected function storeVerify($request)
     {
-        $editables = $request->editables;
+        $editables = $request->editables;$visibles = $request->visibles;
         $this->validate($request,
             [
                 'name' => ['required', 'max:20', Rule::unique('authority_groups', 'name')],
@@ -49,10 +50,17 @@ class AuthorityController extends Controller
                 'visibles.*' => 'numeric',
                 'visibles' => ['array', function ($attribute, $value, $event) use ($editables) {
                     if ($value == [] &&  $editables == []) {
-                        return $event('操作权限和查看权限必选其一');
+                        return $event('查看权限必选');
                     }
                 }],
-                'editables' => 'array',
+                'editables' => ['array',
+                    function($attribute, $value, $event)use($visibles){
+                        $diff = array_diff($value,$visibles);
+                        if($diff != []){
+                            $event('品牌ID:'.implode('、',$diff).'没有查看权限');
+                        };
+                    }
+                    ],
                 'editables.*' => 'numeric',
                 'staffs' => 'array|required',
                 'staffs.*.staff_sn' => 'numeric|digits:6|required',
@@ -70,18 +78,27 @@ class AuthorityController extends Controller
 
     protected function editVerify($request)
     {
-        $editables = $request->editables;
+        $id = $request->route('id');
+        $visibles = $request->visibles;
         $this->validate($request,
             [
-                'name' => ['required', 'max:20', Rule::unique('authority_groups', 'name')->whereNotIn('id', explode(' ', $request->route('id'))),],
+                'name' => ['required', 'max:20', Rule::unique('authority_groups', 'name')
+                    ->whereNotIn('id', explode(' ', $id)),],
                 'description' => 'max:30',
                 'visibles.*' => 'numeric',
-                'visibles' => ['array', function ($attribute, $value, $event) use ($editables) {
-                    if ($value == [] && $editables == []) {
-                        return $event('操作权限和查看权限必选其一');
+                'visibles' => ['array', function ($attribute, $value, $event){
+                    if ($value == []) {
+                        return $event('查看权限必选');
                     }
                 }],
-                'editables' => 'array',
+                'editables' => ['array',
+                    function($attribute, $value, $event)use($visibles){
+                        $diff = array_diff($value,$visibles);
+                        if($diff != []){
+                            $event('品牌ID:'.implode('、',$diff).'没有查看权限');
+                        };
+                    }
+                ],
                 'editables.*' => 'numeric',
                 'staffs' => 'array|required',
                 'staffs.*.staff_sn' => 'numeric|digits:6|required',
