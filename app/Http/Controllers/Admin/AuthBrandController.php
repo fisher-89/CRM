@@ -24,4 +24,22 @@ class AuthBrandController extends Controller
         }
         return array_values(array_unique(array_filter($data)));
     }
+
+    public function getBrandVisible(Request $request)
+    {
+        $staffSn = $request->user()->staff_sn;
+        $obj = AuthorityGroups::whereHas('staffs', function ($query) use ($staffSn) {
+            $query->where('staff_sn', $staffSn);
+        })->with('visibles')->get();
+        foreach ($obj as $k => $v) {
+            foreach ($v['visibles'] as $key => $value) {
+                $authData[] = $value['brand_id'];
+            }
+        }
+        $data = isset($authData) ? $authData : [];
+        if ((bool)$data == false) {
+            return [];
+        }
+        return array_values(array_unique(array_filter($data)));
+    }
 }
