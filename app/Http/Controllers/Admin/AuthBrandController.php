@@ -9,6 +9,11 @@ class AuthBrandController extends Controller
 {
     public function getBrand(Request $request)
     {
+        return ['editable'=>$this->getBrandEditable($request),'visible'=>$this->getBrandVisible($request)];
+    }
+
+    public function getBrandEditable($request)
+    {
         $staffSn = $request->user()->staff_sn;
         $obj = AuthorityGroups::whereHas('staffs', function ($query) use ($staffSn) {
             $query->where('staff_sn', $staffSn);
@@ -25,7 +30,7 @@ class AuthBrandController extends Controller
         return array_values(array_unique(array_filter($data)));
     }
 
-    public function getBrandVisible(Request $request)
+    public function getBrandVisible($request)
     {
         $staffSn = $request->user()->staff_sn;
         $obj = AuthorityGroups::whereHas('staffs', function ($query) use ($staffSn) {
