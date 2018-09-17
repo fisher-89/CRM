@@ -171,8 +171,6 @@ class ClientsService
     private function saveClientLog($model, $commit, $request)
     {
         $model = $model->toArray();
-//        $model->fill($commit);
-//        $changes = $this->getDirtyWithOriginal($model);dd($changes);
         foreach ($model['tags'] as $i) {
             $tags[] = $i['tag_id'];
         }
