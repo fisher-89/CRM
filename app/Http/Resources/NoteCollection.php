@@ -33,8 +33,8 @@ class NoteCollection extends ResourceCollection
                 "task_deadline"=> $data->task_deadline,
                 "finished_at"=> $data->finished_at,
                 "task_result"=> $data->task_result,
-                "created_at"=> $data->created_at->format('Y-m-d H:i:s'),
-                "updated_at"=> $data->updated_at->format('Y-m-d H:i:s'),
+                "created_at"=> $data->created_at == null ? null : $data->created_at->format('Y-m-d H:i:s'),
+                "updated_at"=> $data->updated_at == null ? null : $data->updated_at->format('Y-m-d H:i:s'),
                 "deleted_at"=> $data->deleted_at,
                 "brands"=> isset($brand) ? $brand :[],
             ];
