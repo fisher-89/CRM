@@ -53,7 +53,15 @@ class ClientLogCollection extends ResourceCollection
     {
         switch ($key) {
             case 'source_id':
-                return [Source::where('id', $value[0])->value('name'), Source::where('id', $value[1])->value('name')];
+                $source = [];
+                foreach (explode(',', $value[0]) as $k => $sou) {
+                    $source[] = Source::where('id', $sou)->value('name');
+                }
+                $source1 = [];
+                foreach (explode(',', $value[1]) as $key => $sour) {
+                    $source1[] = Source::where('id', $sour)->value('name');
+                }
+                return [implode('、', $source), implode('、', $source1)];
                 break;
             case 'status':
                 foreach ($value as $item) {
@@ -74,10 +82,10 @@ class ClientLogCollection extends ResourceCollection
                 $brandOne = explode(',', $value[0]);
                 $brandTow = explode(',', $value[1]);
                 foreach ($brand as $k => $val) {
-                    if (in_array($val['id'],$brandOne)) {
+                    if (in_array($val['id'], $brandOne)) {
                         $brandOneArray[] = $val['name'];
                     }
-                    if (in_array($val['id'],$brandTow)) {
+                    if (in_array($val['id'], $brandTow)) {
                         $brandTowArray[] = $val['name'];
                     }
                 }
@@ -86,7 +94,15 @@ class ClientLogCollection extends ResourceCollection
                 return [$one, $tow];
                 break;
             case 'tags':
-                return [Tags::where('id', $value[0])->value('name'), Tags::where('id', $value[1])->value('name')];
+                $name = [];
+                foreach (explode(',', $value[0]) as $k => $v) {
+                    $name[] = Tags::where('id', $v)->value('name');
+                }
+                $name1 = [];
+                foreach (explode(',', $value[1]) as $key => $val) {
+                    $name1[] = Tags::where('id', $val)->value('name');
+                }
+                return [implode('、', $name), implode('、', $name1)];
                 break;
             case 'shops':
                 return [];
