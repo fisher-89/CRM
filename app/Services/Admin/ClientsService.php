@@ -221,10 +221,14 @@ class ClientsService
         $model['source_id']=(string)$model['source_id'];
         $model['status']=(string)$model['status'];
         $array = array_diff_assoc($commit, $model);
+        $changes = [];
         foreach ($array as $key => $value) {
             if ($model[$key] != $commit[$key]) {
                 $changes[$key] = [$model[$key], $commit[$key]];
             }
+        }
+        if($changes['present_address'] != []){
+            $changes['present_address'] = json_decode($changes['present_address']);
         }
         $clientLogSql = [
             'client_id' => $model['id'],
