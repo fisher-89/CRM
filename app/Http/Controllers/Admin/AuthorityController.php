@@ -57,7 +57,14 @@ class AuthorityController extends Controller
                     function($attribute, $value, $event)use($visibles){
                         $diff = array_diff($value,$visibles);
                         if($diff != []){
-                            $event('品牌ID:'.implode('、',$diff).'没有查看权限');
+                            $brand = app('api')->getBrands($diff);
+                            $name = [];
+                            foreach ($brand as $key=>$value){
+                                if(in_array($value['id'],$diff)){
+                                    $name[]=$value['name'];
+                                }
+                            }
+                            $event('品牌:'.implode('、',$name).'没有查看权限');
                         };
                     }
                     ],
@@ -95,7 +102,14 @@ class AuthorityController extends Controller
                     function($attribute, $value, $event)use($visibles){
                         $diff = array_diff($value,$visibles);
                         if($diff != []){
-                            $event('品牌ID:'.implode('、',$diff).'没有查看权限');
+                            $brand = app('api')->getBrands($diff);
+                            $name = [];
+                            foreach ($brand as $key=>$value){
+                                if(in_array($value['id'],$diff)){
+                                    $name[]=$value['name'];
+                                }
+                            }
+                            $event('品牌:'.implode('、',$name).'没有查看权限');
                         };
                     }
                 ],
