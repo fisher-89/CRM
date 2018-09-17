@@ -212,10 +212,10 @@ class ClientsService
         $commitShops = isset($commitShop) ? $commitShop : [];
         $commitShops = $this->sort($commitShops);
         $commit['shops'] = implode(',', $commitShops);
-        if ($model['present_address'] != []) {
+        if (isset($model['present_address'])) {
             $model['present_address'] = json_encode($model['present_address']);
         }
-        if ($commit['present_address'] != []) {
+        if (isset($commit['present_address'])) {
             $commit['present_address'] = json_encode($commit['present_address']);
         }
         $model['source_id'] = (string)$model['source_id'];
