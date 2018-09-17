@@ -218,8 +218,8 @@ class ClientsService
         if ($commit['present_address'] != []) {
             $commit['present_address'] = json_encode($commit['present_address']);
         }
-        $model['source_id']=(string)$model['source_id'];
-        $model['status']=(string)$model['status'];
+        $model['source_id'] = (string)$model['source_id'];
+        $model['status'] = (string)$model['status'];
         $array = array_diff_assoc($commit, $model);
         $changes = [];
         foreach ($array as $key => $value) {
@@ -227,7 +227,7 @@ class ClientsService
                 $changes[$key] = [$model[$key], $commit[$key]];
             }
         }
-        if($changes['present_address'] != []){
+        if ($changes['present_address'] != []) {
             $changes['present_address'][0] = json_decode($changes['present_address'][0]);
             $changes['present_address'][1] = json_decode($changes['present_address'][1]);
         }
