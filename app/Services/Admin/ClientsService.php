@@ -227,7 +227,7 @@ class ClientsService
                 $changes[$key] = [$model[$key], $commit[$key]];
             }
         }
-        if ($changes['present_address'] != []) {
+        if (isset($changes['present_address'])) {
             $changes['present_address'][0] = json_decode($changes['present_address'][0]);
             $changes['present_address'][1] = json_decode($changes['present_address'][1]);
         }
