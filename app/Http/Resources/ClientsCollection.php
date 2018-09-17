@@ -15,17 +15,7 @@ class ClientsCollection extends ResourceCollection
      */
     public function toArray($request)
     {
-//        return parent::toArray($request);
         return $this->collection->map(function ($data) {
-//            foreach ($data->tags as $item){
-//                $tags[]=$item['tag_id'];
-//            }
-//            foreach ($data->shops as $items){
-//                $shop[]=$items['shop_id'];
-//            }
-//            foreach ($data->brands as $i){
-//                $brand[]=$i['brand_id'];
-//            }
             return [
                 "id"=> $data->id,
                 "name"=> $data->name,
