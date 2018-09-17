@@ -31,7 +31,7 @@ class AuthorityController extends Controller
 
     public function edit(Request $request)
     {
-        $this->editVerify($request);dd('ping');
+        $this->editVerify($request);
         return $this->authority->updateAuth($request);
     }
 
