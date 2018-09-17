@@ -37,7 +37,7 @@ class NotesRequest extends FormRequest
                     }
                 }
             ],
-            'took_place_at' => 'required|date',
+            'took_place_at' => ['required','date','before_or_equal:'.date('Y-m-d H:i:s')],
             'title' => 'required|max:20',
             'content' => 'required',
             'attachments' => 'nullable',//附件
