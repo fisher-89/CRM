@@ -228,7 +228,8 @@ class ClientsService
             }
         }
         if($changes['present_address'] != []){
-            $changes['present_address'] = json_decode($changes['present_address']);
+            $changes['present_address'][0] = json_decode($changes['present_address'][0]);
+            $changes['present_address'][1] = json_decode($changes['present_address'][1]);
         }
         $clientLogSql = [
             'client_id' => $model['id'],
