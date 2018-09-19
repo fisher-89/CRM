@@ -13,6 +13,7 @@ use App\Services\Admin\ClientsService;
 use Illuminate\Http\Request;
 use Excel;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ClientsController extends Controller
 {
@@ -56,6 +57,7 @@ class ClientsController extends Controller
     public function update(ClientRequest $clientRequest)
     {
         $this->auth->actionAuth($clientRequest);
+        $this->nameVerify($clientRequest->route('id'));
         return $this->client->editClient($clientRequest);
     }
 
@@ -95,6 +97,14 @@ class ClientsController extends Controller
         return $this->client->firstClient($request,$brand);
     }
 
+    public function nameVerify($id)
+    {
+        $at = DB::table('clients')->where('id', $id)->value('created_at');
+        $days = date('Y-m-d:H:i:s', strtotime('-7 days')) < $at;
+        if($days === false){
+            abort(500,'客户姓名不能修改');
+        };
+    }
     public function export(Request $request)
     {
         return $this->client->exportClient($request);
