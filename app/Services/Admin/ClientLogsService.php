@@ -90,7 +90,6 @@ class ClientLogsService
                         'client_id' => $log->client_id,
                         'tag_id' => $value
                     ];
-                    dd($tagSql );
                     $this->clientHasTags->create($tagSql);
                 }
             }
