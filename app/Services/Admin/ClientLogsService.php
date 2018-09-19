@@ -83,35 +83,42 @@ class ClientLogsService
 //            DB::beginTransaction();
         if (isset($changes['tags'])) {
             $this->clientHasTags->where('client_id', $log->client_id)->delete();
-            $tags = explode(',', $changes['tags']);
-            foreach ($tags as $value) {
-                $tagSql = [
-                    'client_id' => $log->client_id,
-                    'tag_id' => $value
-                ];
-                $this->clientHasTags->create($tagSql);
+            if((bool)$changes['tags'] === true){
+                $tags = explode(',', $changes['tags']);
+                foreach ($tags as $value) {
+                    $tagSql = [
+                        'client_id' => $log->client_id,
+                        'tag_id' => $value
+                    ];
+                    dd($tagSql );
+                    $this->clientHasTags->create($tagSql);
+                }
             }
         }
         if (isset($changes['shops'])) {
             $this->clientHasShops->where('client_id', $log->client_id)->delete();
-            $shop = explode(',', $changes['shops']);
-            foreach ($shop as $items) {
-                $shopSql = [
-                    'client_id' => $log->client_id,
-                    'shop_sn' => $items
-                ];
-                $this->clientHasShops->create($shopSql);
+            if((bool) $changes['shops'] === true){
+                $shop = explode(',', $changes['shops']);
+                foreach ($shop as $items) {
+                    $shopSql = [
+                        'client_id' => $log->client_id,
+                        'shop_sn' => $items
+                    ];
+                    $this->clientHasShops->create($shopSql);
+                }
             }
         }
         if (isset($changes['brands'])) {
             $this->clientHasBrands->where('client_id', $log->client_id)->delete();
-            $brands = explode(',', $changes['brands']);
-            foreach ($brands as $item) {
-                $brandSql = [
-                    'client_id' => $log->client_id,
-                    'brand_id' => $item
-                ];
-                $this->clientHasBrands->create($brandSql);
+            if((bool)$changes['brands'] === true){
+                $brands = explode(',', $changes['brands']);
+                foreach ($brands as $item) {
+                    $brandSql = [
+                        'client_id' => $log->client_id,
+                        'brand_id' => $item
+                    ];
+                    $this->clientHasBrands->create($brandSql);
+                }
             }
         }
         $client = $this->clients->find($log->client_id);
