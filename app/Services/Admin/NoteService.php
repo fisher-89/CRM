@@ -73,6 +73,8 @@ class NoteService
         $arr = isset($brandId) ? array_unique(array_filter($brandId)) : [];
         $list = $this->noteModel->whereHas('brands', function ($query) use ($arr) {
             $query->whereIn('brand_id', $arr);
+        })->whereHas('clients',function($query){
+            $query->where('deleted_at',null);
         })->with('brands')->filterByQueryString()->SortByQueryString()
             ->withPagination($request->get('pagesize', 10));
         if (isset($list['data'])) {

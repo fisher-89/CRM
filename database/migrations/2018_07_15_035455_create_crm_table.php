@@ -30,7 +30,7 @@ class CreateCrmTable extends Migration
             $table->smallIncrements('id');
             $table->string('name')->comment('分类名称');
             $table->char('color', 7)->comment('样式颜色');
-            $table->tinyInteger('sort')->comment('排序');
+            $table->tinyInteger('sort')->comment('排序')->default(99);
             $table->timestamps();
         });
         //标签

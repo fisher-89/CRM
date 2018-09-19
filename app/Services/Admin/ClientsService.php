@@ -242,12 +242,14 @@ class ClientsService
                     '设备类型' => $this->getPhoneType(),
                     'IP地址' => $request->getClientIp()
                 ],
-            'changes' => isset($changes) ? $changes : [],
+            'changes' => $changes,
             'status' => $this->identifying($model['id']),
             'restore_sn' => null,
             'restore_at' => null,
         ];
-        $this->clientLogs->create($clientLogSql);
+        if($changes != []){
+            $this->clientLogs->create($clientLogSql);
+        }
     }
 
     protected function identifying($id)
@@ -317,7 +319,9 @@ class ClientsService
                         'IP地址' => $request->getClientIp()
                     ],
                 'changes' => [],
-                'restore_sn' => '-1',
+                'status' => '-1',
+                'restore_sn' => null,
+                'restore_name' => null,
                 'restore_at' => null,
             ];
             $this->clientLogs->create($clientLogSql);

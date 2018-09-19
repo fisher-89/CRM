@@ -28,7 +28,7 @@ class NotesRequest extends FormRequest
     {
         return [
             'note_type_id' => 'required|numeric|exists:note_types,id',
-            'client_id' => 'required|numeric|exists:clients,id',
+            'client_id' => ['required','numeric','exists:clients,id'],
             'client_name' => ['required', 'max:10',
                 function ($attribute, $value, $event) {
                     $name=Clients::where('id',$this->all('client_id'))->value('name');

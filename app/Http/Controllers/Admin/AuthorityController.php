@@ -64,7 +64,7 @@ class AuthorityController extends Controller
                                     $name[]=$value['name'];
                                 }
                             }
-                            $event('品牌:'.implode('、',$name).'没有查看权限');
+                            $event('可查看品牌需添加:'.implode('、',$name));
                         };
                     }
                     ],
@@ -109,7 +109,7 @@ class AuthorityController extends Controller
                                     $name[]=$value['name'];
                                 }
                             }
-                            $event('品牌:'.implode('、',$name).'没有查看权限');
+                            $event('可查看品牌需添加:'.implode('、',$name));
                         };
                     }
                 ],

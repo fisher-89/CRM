@@ -94,7 +94,7 @@ class NotesController extends Controller
      */
     public function store(NotesRequest $request)
     {
-        $this->auth->actionAuth($request);
+//        $this->auth->actionAuth($request);
         return $this->note->addNote($request);
     }
 

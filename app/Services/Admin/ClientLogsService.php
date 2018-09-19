@@ -63,9 +63,9 @@ class ClientLogsService
             $mobile = $this->clients->withTrashed()->where('mobile', $changes['mobile'])->whereNotIn('id', explode(',', $log->client_id))->first();
             if (true === (bool)$mobile) {
                 if ($mobile->deleted_at == true) {
-                    abort(400, '还原失败，电话号码冲突,冲突id为:' . $mobile->id . ',经检测该数据已被删除，请联系管理员');
+                    abort(400, '还原失败，电话号码与姓名为:' . $mobile->name . '的电话号码冲突了,经检测该数据已被删除，请联系管理员');
                 } else {
-                    abort(400, '还原失败，电话号码冲突,冲突id为:' . $mobile->id);
+                    abort(400, '还原失败，电话号码与姓名为:' . $mobile->name . '的电话号码冲突');
                 }
             }
         }
@@ -73,9 +73,9 @@ class ClientLogsService
             $idCardNumber = $this->clients->withTrashed()->where('id_card_number', $changes['id_card_number'])->whereNotIn('id', explode(',', $log->client_id))->first();
             if (true === (bool)$idCardNumber) {
                 if ($idCardNumber->deleted_at == true) {
-                    abort(400, '还原失败，身份证号码冲突,冲突id为:' . $idCardNumber->id . ',经检测该数据已被删除，请联系管理员');
+                    abort(400, '还原失败，身份证号码与姓名为:' . $idCardNumber->name . '的身份证号码冲突了,经检测该数据已被删除，请联系管理员');
                 } else {
-                    abort(400, '还原失败，身份证号码冲突,冲突id为:' . $idCardNumber->id);
+                    abort(400, '还原失败，身份证号码与姓名为:' . $idCardNumber->name);
                 }
             }
         }
