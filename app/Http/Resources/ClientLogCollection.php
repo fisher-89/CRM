@@ -28,7 +28,7 @@ class ClientLogCollection extends ResourceCollection
                 "staff_name" => $data->staff_name == null ? '' : $data->staff_name,
                 "operation_address" => $data->operation_address == null ? '' : $data->operation_address,
                 "changes" => $this->trans($data->changes),
-                "status" => $data->status == null ? '' : $data->status,
+                "status" => $data->status,
                 "restore_sn" => $data->restore_sn == null ? '' : $data->restore_sn,
                 "restore_name" => $data->restore_name == null ? '' : $data->restore_name,
                 "restore_at" => $data->restore_at == null ? '' : $data->restore_at,
