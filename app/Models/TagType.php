@@ -5,11 +5,11 @@ namespace App\Models;
 use App\Models\Traits\ListScopes;
 use Illuminate\Database\Eloquent\Model;
 
-//use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TagType extends Model
 {
-    use ListScopes;
+    use ListScopes,SoftDeletes;
 
     protected $table = 'tag_types';
 
