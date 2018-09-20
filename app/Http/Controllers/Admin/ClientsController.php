@@ -57,7 +57,7 @@ class ClientsController extends Controller
     public function update(ClientRequest $clientRequest)
     {
         $this->auth->actionAuth($clientRequest);
-        $this->nameVerify($clientRequest->route('id'),$clientRequest->name);dd(456);
+        $this->nameVerify($clientRequest->route('id'),$clientRequest->name);
         return $this->client->editClient($clientRequest);
     }
 
