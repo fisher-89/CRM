@@ -33,7 +33,7 @@ class NotesRequest extends FormRequest
                 function ($attribute, $value, $event) {
                     $name=Clients::where('id',$this->all('client_id'))->value('name');
                     if($value != $name){
-                        return $event('名字不正确');
+                        return $event('姓名和客户信息列表姓名不匹配');
                     }
                 }
             ],
