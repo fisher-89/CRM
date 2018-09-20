@@ -99,7 +99,7 @@ class ClientsController extends Controller
 
     public function nameVerify($id,$name)
     {
-        $value = DB::table('clients')->where('id', $id)->get();
+        $value = DB::table('clients')->where('id', $id)->first();
         $days = date('Y-m-d:H:i:s', strtotime('-7 days')) < $value['created_at'];
         $dname = $name == $value['name'];
         if($days === false && $dname === false){
