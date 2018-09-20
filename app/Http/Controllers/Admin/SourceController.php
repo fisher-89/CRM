@@ -38,7 +38,7 @@ class SourceController extends Controller
     {
         $client = Clients::where('source_id',$request->route('id'))->first();
         if($client == true){
-            abort(400,'删除失败：存在关联关系');
+            abort(400,'删除失败：该条记录被使用');
         }
         return $this->source->delSource($request);
     }
