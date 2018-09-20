@@ -103,7 +103,6 @@ class CreateCrmTable extends Migration
             $table->dateTime('restore_at')->comment('还原时间')->unique();
             $table->timestamps();
             $table->foreign('client_id')->references('id')->on('clients');
-            $table->foreign('log_id')->references('id')->on('client_logs');
         });
     }
 
