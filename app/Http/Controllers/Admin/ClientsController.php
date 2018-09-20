@@ -82,6 +82,9 @@ class ClientsController extends Controller
                 break;
             }
         }
+        if($request->user()->staff_sn == 999999){
+            $this->client->delClient($request);
+        }
         abort(401, '暂无权限');
     }
 
