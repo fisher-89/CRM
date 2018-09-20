@@ -32,6 +32,7 @@ class CreateCrmTable extends Migration
             $table->char('color', 7)->comment('样式颜色');
             $table->tinyInteger('sort')->comment('排序')->default(99);
             $table->timestamps();
+            $table->softDeletes();
         });
         //标签
         Schema::create('tags', function (Blueprint $table) {
