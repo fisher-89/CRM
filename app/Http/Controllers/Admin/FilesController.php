@@ -20,7 +20,7 @@ class FilesController extends Controller
 
     /**
      * 保存文件  返回路径
-     *
+     *http://112.74.177.132:8003/storage/temporary/5501537407988119462.jpg
      * @param $dir
      * @return string
      */
@@ -32,7 +32,7 @@ class FilesController extends Controller
         if ($path == false) {
             abort(400, '文件上传失败');
         }
-        return url()->asset($path);
+        return config('app.url') . '/storage/temporary/' . $fileName . '.' . $exe;
     }
 
     private function verifyFile($request)
