@@ -245,6 +245,7 @@ class ClientsService
             'changes' => $changes,
             'status' => $this->identifying($model['id']),
             'restore_sn' => null,
+            'restore_name' => null,
             'restore_at' => null,
         ];
         if($changes != []){
