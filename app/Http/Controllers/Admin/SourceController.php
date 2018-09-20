@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Clients;
 use App\Services\Admin\SourceService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -35,6 +36,10 @@ class SourceController extends Controller
 
     public function delete(Request $request)
     {
+        $client = Clients::where('source_id',$request->route('id'))->first();
+        if($client == true){
+            abort(400,'删除失败：存在关联关系');
+        }
         return $this->source->delSource($request);
     }
 
