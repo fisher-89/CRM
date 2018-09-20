@@ -62,7 +62,7 @@ class TagController extends Controller
     {
         $tags = Tags::where('type_id',$request->route('id'))->first();
         if($tags == true){
-            abort(400,'删除失败，存在关联关系');
+            abort(400,'删除失败，分类被使用');
         }
         return $this->tagService->delType($request);
     }
