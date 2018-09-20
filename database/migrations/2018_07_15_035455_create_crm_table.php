@@ -16,7 +16,7 @@ class CreateCrmTable extends Migration
         Schema::create('source', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->char('name', 10)->comment('来源名称');
-            $table->text('describe')->comment('来源描述');
+            $table->text('describe')->comment('来源描述')->nullable();
             $table->tinyInteger('sort')->comment('排序')->default(99);
         });
         //民族
