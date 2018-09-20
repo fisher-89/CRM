@@ -20,23 +20,39 @@ class AuthorityController extends Controller
 
     public function index(Request $request)
     {
+        $OA = $request->user()->authorities['oa'];
+        if (!in_array('183',$OA)) {
+            abort(401, '你没有权限操作');
+        }
         return $this->authority->getList($request);
     }
 
     public function store(Request $request)
     {
+        $OA = $request->user()->authorities['oa'];
+        if (!in_array('183',$OA)) {
+            abort(401, '你没有权限操作');
+        }
         $this->storeVerify($request);
         return $this->authority->addAuth($request);
     }
 
     public function edit(Request $request)
     {
+        $OA = $request->user()->authorities['oa'];
+        if (!in_array('183',$OA)) {
+            abort(401, '你没有权限操作');
+        }
         $this->editVerify($request);
         return $this->authority->updateAuth($request);
     }
 
     public function delete(Request $request)
     {
+        $OA = $request->user()->authorities['oa'];
+        if (!in_array('183',$OA)) {
+            abort(401, '你没有权限操作');
+        }
         return $this->authority->delAuth($request);
     }
 

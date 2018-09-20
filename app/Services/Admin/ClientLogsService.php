@@ -122,6 +122,10 @@ class ClientLogsService
         }
         $client = $this->clients->find($log->client_id);
         if (false === (bool)$client) {
+            $OA = $request->user()->authorities['oa'];
+            if (!in_array('191',$OA)) {
+                abort(401, '抱歉，该数据已被删除，且你没有已删除数据还原权限');
+            }
             $this->clients->where('id', $log->client_id)->restore();
             $client = $this->clients->find($log->client_id);
             if (false === (bool)$client) {

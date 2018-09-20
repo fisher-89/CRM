@@ -34,6 +34,10 @@ class NotesController extends Controller
      */
     public function indexType(Request $request)
     {
+        $OA = $request->user()->authorities['oa'];
+        if (!in_array('189',$OA)) {
+            abort(401, '你没有权限操作');
+        }
         return $this->note->getListType($request);
     }
 
@@ -45,6 +49,10 @@ class NotesController extends Controller
      */
     public function storeType(Request $request)
     {
+        $OA = $request->user()->authorities['oa'];
+        if (!in_array('189',$OA)) {
+            abort(401, '你没有权限操作');
+        }
         $this->storeVerify($request);
         return $this->note->addNoteType($request);
     }
@@ -57,6 +65,10 @@ class NotesController extends Controller
      */
     public function editType(Request $request)
     {
+        $OA = $request->user()->authorities['oa'];
+        if (!in_array('189',$OA)) {
+            abort(401, '你没有权限操作');
+        }
         $this->verifyEmploy($request);
         $this->editVerify($request);
         return $this->note->editNoteType($request);
@@ -70,6 +82,10 @@ class NotesController extends Controller
      */
     public function deleteType(Request $request)
     {
+        $OA = $request->user()->authorities['oa'];
+        if (!in_array('189',$OA)) {
+            abort(401, '你没有权限操作');
+        }
         $this->verifyEmploy($request);
         return $this->note->delNoteType($request);
     }
@@ -82,6 +98,10 @@ class NotesController extends Controller
      */
     public function index(Request $request)
     {
+        $OA = $request->user()->authorities['oa'];
+        if (!in_array('181',$OA)) {
+            abort(401, '你没有权限操作');
+        }
         $obj = $this->auth->readingAuth($request->user()->staff_sn);
         return $this->note->getList($request, $obj);
     }
@@ -95,6 +115,10 @@ class NotesController extends Controller
     public function store(NotesRequest $request)
     {
 //        $this->auth->actionAuth($request);
+        $OA = $request->user()->authorities['oa'];
+        if (!in_array('182',$OA)) {
+            abort(401, '你没有权限操作');
+        }
         return $this->note->addNote($request);
     }
 
@@ -119,6 +143,10 @@ class NotesController extends Controller
      */
     public function delete(Request $request)
     {
+        $OA = $request->user()->authorities['oa'];
+        if (!in_array('185',$OA)) {
+            abort(401, '你没有权限操作');
+        }
         $this->noteEditAuth($request);
         return $this->note->delNote($request);
     }
@@ -131,6 +159,10 @@ class NotesController extends Controller
      */
     public function detailNote(Request $request)
     {
+        $OA = $request->user()->authorities['oa'];
+        if (!in_array('181',$OA)) {
+            abort(401, '你没有权限操作');
+        }
         $staff = $this->auth->readingAuth($request->user()->staff_sn);
         foreach ($staff as $item){
             foreach ($item['visibles'] as $k=>$v){

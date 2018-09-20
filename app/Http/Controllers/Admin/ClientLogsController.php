@@ -26,6 +26,10 @@ class ClientLogsController extends Controller
      */
     public function index(Request $request)
     {
+        $OA = $request->user()->authorities['oa'];
+        if (!in_array('184',$OA)) {
+            abort(401, '你没有权限操作');
+        }
         $obj = $this->clientReadingAuth($request);
         return $this->logs->getClientLogsList($request, $obj);
     }

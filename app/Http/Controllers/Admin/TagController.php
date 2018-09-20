@@ -25,6 +25,10 @@ class TagController extends Controller
      */
     public function indexType(Request $request)
     {
+        $OA = $request->user()->authorities['oa'];
+        if (!in_array('180',$OA)) {
+            abort(401, '你没有权限操作');
+        }
         return $this->tagService->listType($request);
     }
 
@@ -36,6 +40,10 @@ class TagController extends Controller
      */
     public function storeType(Request $request)
     {
+        $OA = $request->user()->authorities['oa'];
+        if (!in_array('180',$OA)) {
+            abort(401, '你没有权限操作');
+        }
         $this->storeVerify($request);
         return $this->tagService->addType($request);
     }
@@ -48,6 +56,10 @@ class TagController extends Controller
      */
     public function updateType(Request $request)
     {
+        $OA = $request->user()->authorities['oa'];
+        if (!in_array('180',$OA)) {
+            abort(401, '你没有权限操作');
+        }
         $this->updateVerify($request);
         return $this->tagService->editType($request);
     }
@@ -60,6 +72,10 @@ class TagController extends Controller
      */
     public function deleteType(Request $request)
     {
+        $OA = $request->user()->authorities['oa'];
+        if (!in_array('180',$OA)) {
+            abort(401, '你没有权限操作');
+        }
         $tags = Tags::where('type_id',$request->route('id'))->first();
         if($tags == true){
             abort(400,'删除失败，分类被使用');
@@ -116,6 +132,10 @@ class TagController extends Controller
      */
     public function index(Request $request)
     {
+        $OA = $request->user()->authorities['oa'];
+        if (!in_array('179',$OA)) {
+            abort(401, '你没有权限操作');
+        }
         return $this->tagService->tagList($request);
     }
 
@@ -127,6 +147,10 @@ class TagController extends Controller
      */
     public function store(Request $request)
     {
+        $OA = $request->user()->authorities['oa'];
+        if (!in_array('179',$OA)) {
+            abort(401, '你没有权限操作');
+        }
         $this->tagStoreVerify($request);
         return $this->tagService->tagStore($request);
     }
@@ -139,6 +163,10 @@ class TagController extends Controller
      */
     public function update(Request $request)
     {
+        $OA = $request->user()->authorities['oa'];
+        if (!in_array('179',$OA)) {
+            abort(401, '你没有权限操作');
+        }
         $this->tagUpdateVerify($request);
         return $this->tagService->tagEdit($request);
     }
@@ -151,12 +179,16 @@ class TagController extends Controller
      */
     public function delete(Request $request)
     {
+        $OA = $request->user()->authorities['oa'];
+        if (!in_array('179',$OA)) {
+            abort(401, '你没有权限操作');
+        }
         return $this->tagService->tagDel($request);
     }
 
     /**
      * 标签添加验证
-     *
+     * 191
      * @param $request
      */
     protected function tagStoreVerify($request)
