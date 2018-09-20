@@ -57,7 +57,7 @@ class ClientsController extends Controller
     public function update(ClientRequest $clientRequest)
     {
         $this->auth->actionAuth($clientRequest);
-        $this->nameVerify($clientRequest->route('id'),$clientRequest->name);
+        $this->nameVerify($clientRequest->route('id'),$clientRequest->name);dd(456);
         return $this->client->editClient($clientRequest);
     }
 
@@ -100,8 +100,8 @@ class ClientsController extends Controller
     public function nameVerify($id,$name)
     {
         $value = DB::table('clients')->where('id', $id)->first();
-        $days = date('Y-m-d:H:i:s', strtotime('-7 days')) < $value['created_at'];
-        $dname = $name == $value['name'];
+        $days = date('Y-m-d:H:i:s', strtotime('-7 days')) < $value->created_at;
+        $dname = $name == $value->name;
         if($days === false && $dname === false){
             abort(500,'客户姓名不能修改');
         };
