@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Tags;
 use App\Services\Admin\TagService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -59,6 +60,10 @@ class TagController extends Controller
      */
     public function deleteType(Request $request)
     {
+        $tags = Tags::where('type_id',$request->route('id'))->first();
+        if($tags == true){
+            abort(400,'删除失败，存在关联关系');
+        }
         return $this->tagService->delType($request);
     }
 
