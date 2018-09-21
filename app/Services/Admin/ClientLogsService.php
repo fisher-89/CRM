@@ -169,7 +169,7 @@ class ClientLogsService
     }
 
     public function restoreClientDelete($request,$client_id)
-    {
+    {dd(123);
         $id = $request->route('id');
         $client = $this->clients->find($client_id);
         $log = $this->clientLogs->where('id', $id)->first();
@@ -187,7 +187,7 @@ class ClientLogsService
         $clientLog = [
             'status' => 2,
             'restore_sn' => $request->user()->staff_sn,
-            'restore_name' => $request->user()->realname,
+            'restore_name' => $request->user()->realname,// todo 上一条呆还原没有回复
             'restore_at' => date('Y-m-d H:i:s'),
         ];
         $log->update($clientLog);
