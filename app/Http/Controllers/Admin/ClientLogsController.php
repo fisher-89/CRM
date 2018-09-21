@@ -67,10 +67,10 @@ class ClientLogsController extends Controller
     protected function last($id)
     {
         $logs = ClientLogs::find($id);
-        if (strstr($logs->type, '还原') || strstr($logs->type, '删除')) {
+        if (strstr($logs->type, '还原')) {
             abort(400, '错误操作:选择类型错误');
         }
-        if ($logs->status != 1) {
+        if ($logs->status != 1 && $logs->status != '-1') {
             abort(400, '错误操作:无法还原该数据');
         }
         if ($logs->changes == []) {
