@@ -255,7 +255,7 @@ class ClientsService
 
     protected function identifying($id)
     {
-        $log = $this->clientLogs->where('client_id', $id)->where('status', 1)->orderBy('id', 'desc')->first();
+        $log = $this->clientLogs->where('client_id', $id)->whereIn('status', ['1','-1'])->orderBy('id', 'desc')->first();
         if ($log == true) {
             $logSql = [
                 'status' => 0,
@@ -308,6 +308,7 @@ class ClientsService
 //            $this->clientHasShops->where('client_id', $id)->delete();
 //            $this->clientHasBrands->where('client_id', $id)->delete();
             $client->delete();
+            $this->identifying($id);
             $clientLogSql = [
                 'client_id' => $id,
                 'type' => '后台删除',
