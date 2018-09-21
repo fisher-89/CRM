@@ -308,7 +308,7 @@ class ClientsService
 //            $this->clientHasShops->where('client_id', $id)->delete();
 //            $this->clientHasBrands->where('client_id', $id)->delete();
             $client->delete();
-
+            $this->identifying($id);
             $clientLogSql = [
                 'client_id' => $id,
                 'type' => '后台删除',
@@ -335,10 +335,6 @@ class ClientsService
         return response('', 204);
     }
 
-    protected function delIdentifying($id)
-    {
-        $this->clientLogs->where()->orderBy('id','desc')->first();
-    }
     /**
      * 详细页面
      *
