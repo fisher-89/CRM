@@ -83,7 +83,7 @@ class ClientLogsService
 //            DB::beginTransaction();
         if (isset($changes['tags'])) {
             $this->clientHasTags->where('client_id', $log->client_id)->delete();
-            if((bool)$changes['tags'] === true){
+            if ((bool)$changes['tags'] === true) {
                 $tags = explode(',', $changes['tags']);
                 foreach ($tags as $value) {
                     $tagSql = [
@@ -96,7 +96,7 @@ class ClientLogsService
         }
         if (isset($changes['shops'])) {
             $this->clientHasShops->where('client_id', $log->client_id)->delete();
-            if((bool) $changes['shops'] === true){
+            if ((bool)$changes['shops'] === true) {
                 $shop = explode(',', $changes['shops']);
                 foreach ($shop as $items) {
                     $shopSql = [
@@ -109,7 +109,7 @@ class ClientLogsService
         }
         if (isset($changes['brands'])) {
             $this->clientHasBrands->where('client_id', $log->client_id)->delete();
-            if((bool)$changes['brands'] === true){
+            if ((bool)$changes['brands'] === true) {
                 $brands = explode(',', $changes['brands']);
                 foreach ($brands as $item) {
                     $brandSql = [
@@ -123,7 +123,7 @@ class ClientLogsService
         $client = $this->clients->find($log->client_id);
         if (false === (bool)$client) {
             $OA = $request->user()->authorities['oa'];
-            if (!in_array('191',$OA)) {
+            if (!in_array('191', $OA)) {
                 abort(401, '抱歉，该数据已被删除，且你没有已删除数据还原权限');
             }
             $this->clients->where('id', $log->client_id)->restore();
@@ -155,7 +155,7 @@ class ClientLogsService
 //            DB::rollback();
 //            abort(400, '还原失败');
 //        }
-        $data = $this->clientLogs->where('id',$id)->with('clients.brands')->first();
+        $data = $this->clientLogs->where('id', $id)->with('clients.brands')->first();
         return (bool)$bool === true ? response($data, 201) : abort(400, '还原失败');
     }
 
@@ -168,14 +168,14 @@ class ClientLogsService
         return $k;
     }
 
-    public function restoreClientDelete($request,$client_id)
+    public function restoreClientDelete($request, $client_id)
     {
         $id = $request->route('id');
         $client = $this->clients->find($client_id);
         $log = $this->clientLogs->where('id', $id)->first();
         if (false === (bool)$client) {
             $OA = $request->user()->authorities['oa'];
-            if (!in_array('191',$OA)) {
+            if (!in_array('191', $OA)) {
                 abort(401, '抱歉，该数据已被删除，且你没有已删除数据还原权限');
             }
             $this->clients->where('id', $client_id)->restore();
@@ -187,7 +187,7 @@ class ClientLogsService
         $clientLog = [
             'status' => 2,
             'restore_sn' => $request->user()->staff_sn,
-            'restore_name' => $request->user()->realname,// todo 上一条呆还原没有回复
+            'restore_name' => $request->user()->realname,
             'restore_at' => date('Y-m-d H:i:s'),
         ];
         $log->update($clientLog);
@@ -201,7 +201,7 @@ class ClientLogsService
             ];
             $logs->update($logSql);
         }
-        $data = $this->clientLogs->where('id',$id)->with('clients.brands')->first();
+        $data = $this->clientLogs->where('id', $id)->with('clients.brands')->first();
         return (bool)$log === true ? response($data, 201) : abort(400, '还原失败');
     }
 }
