@@ -169,7 +169,7 @@ class ClientLogsService
     }
 
     public function restoreClientDelete($request,$client_id)
-    {abort(400,'测试');
+    {
         $id = $request->route('id');
         $client = $this->clients->find($client_id);
         $log = $this->clientLogs->where('id', $id)->first();
