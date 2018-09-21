@@ -73,9 +73,9 @@ class ClientLogsController extends Controller
         if ($logs->status != 1 && $logs->status != '-1') {
             abort(400, '错误操作:无法还原该数据');
         }
-        if ($logs->changes == []) {
-            abort(400, '错误操作:未找到还原数据');
-        }
+//        if ($logs->changes == []) {
+//            abort(400, '错误操作:未找到还原数据');
+//        }
     }
 
     protected function clientReadingAuth($request)
