@@ -167,4 +167,31 @@ class ClientLogsService
         }
         return $k;
     }
+
+    public function restoreClientDelete($request,$client_id)
+    {
+        $id = $request->route('id');
+        $client = $this->clients->find($client_id);
+        $log = $this->clientLogs->where('id', $id)->first();
+        if (false === (bool)$client) {
+            $OA = $request->user()->authorities['oa'];
+            if (!in_array('191',$OA)) {
+                abort(401, '抱歉，该数据已被删除，且你没有已删除数据还原权限');
+            }
+            $this->clients->where('id', $client_id)->restore();
+            $client = $this->clients->find($client_id);
+            if (false === (bool)$client) {
+                abort(404, '还原失败，未找到数据');
+            }
+        }
+        $clientLog = [
+            'status' => 2,
+            'restore_sn' => $request->user()->staff_sn,
+            'restore_name' => $request->user()->realname,
+            'restore_at' => date('Y-m-d H:i:s'),
+        ];
+        $log->update($clientLog);
+        $data = $this->clientLogs->where('id',$id)->with('clients.brands')->first();
+        return (bool)$log === true ? response($data, 201) : abort(400, '还原失败');
+    }
 }

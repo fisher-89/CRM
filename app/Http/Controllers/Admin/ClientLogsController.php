@@ -42,8 +42,12 @@ class ClientLogsController extends Controller
      */
     public function restore(Request $request)
     {
+        $logs = ClientLogs::find($request->route('id'));
         $this->authority($request);
-        $this->last($request->route('id'));
+        $this->last($logs);
+        if (strstr($logs->type, '删除') || $logs->status == '-1') {
+            return $this->logs->restoreClientDelete($request,$logs->client_id);
+        }
         return $this->logs->restoreClient($request);
     }
 
@@ -64,9 +68,8 @@ class ClientLogsController extends Controller
     /**
      * @param $request
      */
-    protected function last($id)
+    protected function last($logs)
     {
-        $logs = ClientLogs::find($id);
         if (strstr($logs->type, '还原')) {
             abort(400, '错误操作:选择类型错误');
         }
