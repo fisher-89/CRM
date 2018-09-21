@@ -169,7 +169,7 @@ class ClientLogsService
     }
 
     public function restoreClientDelete($request,$client_id)
-    {dd(123);
+    {abort(400,'测试');
         $id = $request->route('id');
         $client = $this->clients->find($client_id);
         $log = $this->clientLogs->where('id', $id)->first();
@@ -191,6 +191,16 @@ class ClientLogsService
             'restore_at' => date('Y-m-d H:i:s'),
         ];
         $log->update($clientLog);
+        $logs = $this->clientLogs->orderBy('id', 'desc')->where('status', 0)->whereNotIn('changes', ['[]'])->first();
+        if ($logs == true) {
+            $logSql = [
+                'status' => 1,
+                'restore_sn' => null,
+                'restore_name' => null,
+                'restore_at' => null
+            ];
+            $logs->update($logSql);
+        }
         $data = $this->clientLogs->where('id',$id)->with('clients.brands')->first();
         return (bool)$log === true ? response($data, 201) : abort(400, '还原失败');
     }
