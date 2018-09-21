@@ -98,7 +98,7 @@ class CreateCrmTable extends Migration
             $table->char('staff_name', 10)->comment('操作人姓名');
             $table->text('operation_address')->comment('操作地址');
             $table->text('changes')->comment('变动内容');
-            $table->tinyInteger('status')->comment('状态');
+            $table->tinyInteger('status')->comment('状态 -1:已删除,0:锁定,1:可还原,2:已还原');
             $table->mediumInteger('restore_sn')->comment('还原人编号')->nullable();
             $table->char('restore_name',10)->comment('还原人姓名')->nullable();
             $table->dateTime('restore_at')->comment('还原时间')->nullable();
