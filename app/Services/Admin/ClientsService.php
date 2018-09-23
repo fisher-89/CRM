@@ -377,7 +377,7 @@ class ClientsService
     }
 
 //导出
-    public function exportClient($request,$brand)
+    public function exportClient($request, $brand)
     {
         $all = $request->all();
         if (array_key_exists('page', $all) || array_key_exists('pagesize', $all)) {
@@ -400,7 +400,7 @@ class ClientsService
         $eventTop[] = ['姓名', '客户来源', '客户状态', '客户品牌', '性别', '电话', '微信', '民族', '身份证号码', '标签',
             '籍贯', '首次合作时间', '维护人编号', '备注'];
         foreach ($client as $k => $v) {
-            $eventTop[] = [$v['name'], $v['source']['name'], $this->transform($v['status']), $this->transBrand($v['brands'],$brand) ,
+            $eventTop[] = [$v['name'], $v['source']['name'], $this->transform($v['status']), $this->transBrand($v['brands'], $brand),
                 $v['gender'], $v['mobile'], $v['wechat'], $v['nation'], $v['id_card_number'],
                 $v['tags'] ? $this->transTags($v['tags']) : '', $v['native_place'], $v['first_cooperation_at'],
                 $v['vindicator_sn'] . ',' . $v['vindicator_name'], $v['remark']
@@ -413,20 +413,21 @@ class ClientsService
         })->export('xlsx');
     }
 
-    protected function transBrand($obj,$brand)
+    protected function transBrand($obj, $brand)
     {
         $data = [];
         $brands = [];
-        foreach ($obj as $items){
-            $data[]= $items['brand_id'];
+        foreach ($obj as $items) {
+            $data[] = $items['brand_id'];
         }
-        foreach ($brand as $key=>$value){
-            if(in_array($value['id'],$data)){
+        foreach ($brand as $key => $value) {
+            if (in_array($value['id'], $data)) {
                 $brands[] = $value['name'];
             }
         }
-        return implode(',',$brands);
+        return implode(',', $brands);
     }
+
 //导入  todo  导入人权限品牌验证，合作店铺，合作品牌，合作区域   没弄
     public function importClient()
     {
@@ -439,10 +440,11 @@ class ClientsService
             $matter = $matter->getSheet();
             $res = $matter->toArray();
         });
+        $brand = app('api')->getBrands([1, 2]);
         for ($i = 1; $i < count($res); $i++) {
             $err = [];
             $l = $i + 1;
-            if (count($res[$i]) != 15) {
+            if (count($res[$i]) != 14) {
                 $err['序号:' . $l][] = '文件布局错误';
             }
             if (strlen($res[$i][0]) > 10) {
@@ -459,55 +461,74 @@ class ClientsService
                     $err[$res[$i][0]][] = '未找到的客户来源';
                 }
             }
-            if (strlen($res[$i][2]) < 3) {
+            if (strlen($res[$i][2]) < 4) {
                 $err['序号:' . $l][] = '未知的客户状态';
-            } else if ($res[$i][2] == '待合作' || $res[$i][2] == '已合作' || $res[$i][2] == '合作完毕') {
+            } else if ($res[$i][2] == '潜在客户' || $res[$i][2] == '合作中' || $res[$i][2] == '合作完毕'|| $res[$i][2] == '黑名单' ) {
                 if ($this->strTransNum($res[$i][2]) === false) {
                     $err[$res[$i][2]][] = '未知的客户状态';
                 }
             } else {
                 $err[$res[$i][2]][] = '未知的客户状态';
             }
-            if ($res[$i][3] != '男' && $res[$i][3] != '女') {
-                $err[$res[$i][3]][] = '未知的性别';
+            if ($res[$i][3] == '') {
+                $err[$res[$i][3]] = '客户品牌不能为空';
             }
-            if (empty($res[$i][4])) {
+            $data = explode(',', $res[$i][3]);
+            $brandId = [];
+            foreach ($brand as $item) {
+                if (in_array($item['name'], $data)) {
+                    $brandId[] = $item['id'];
+                }
+            }
+            if (count($brandId) < count($data)) {
+                $err[$res[$i][3]] = '合作品牌名字个别错误';
+            }
+            if ($brandId == []) {
+                $err[$res[$i][3]] = '合作品牌名字全部错误';
+            }
+            if ($res[$i][4] != '男' && $res[$i][4] != '女') {
+                $err[$res[$i][4]][] = '未知的性别';
+            }
+            if (empty($res[$i][5])) {
                 $err['序号:' . $res[$l]] = '电话必须填写';
             } else {
-                if (!is_numeric($res[$i][4])) {
-                    $err[$res[$i][4]][] = '电话必须是数字';
+                if (!is_numeric($res[$i][5])) {
+                    $err[$res[$i][5]][] = '电话必须是数字';
                 }
-                if (strlen($res[$i][4]) < 11 || strlen($res[$i][4]) > 14) {
-                    $err[$res[$i][4]][] = '电话号码位数不正确';
+                if (strlen($res[$i][5]) < 11) {
+                    $err[$res[$i][5]][] = '电话号码位数不正确';
                 }
-                $mobile = $this->client->where('mobile', $res[$i][4])->first();
+                if(preg_match('/^1[3456789]\d{9}$/',$res[$i][5])){
+                    $err[$res[$i][5]][] = '电话号码格式错误';
+                }
+                $mobile = $this->client->where('mobile', $res[$i][5])->first();
                 if (true === (bool)$mobile) {
-                    $err[$res[$i][4]][] = '电话号码已存在';
+                    $err[$res[$i][5]][] = '电话号码已存在';
                 }
             }
-            if (isset($res[$i][5]) || strlen($res[$i][5]) > 20) {
-                $res[$i][5][] = '微信号过长';
+            if (isset($res[$i][6]) || strlen($res[$i][6]) > 20) {
+                $res[$i][6] = '微信号过长';
             }
-            if (strlen($res[$i][6]) > 15) {
-                $err[$res[$i][6]][] = '民族过长';
+            if (strlen($res[$i][7]) > 15) {
+                $err[$res[$i][7]][] = '民族过长';
             } else {
-                $nations = $this->nations->where('name', $res[$i][6])->first();
+                $nations = $this->nations->where('name', $res[$i][7])->first();
                 if ($nations == false) {
-                    $err[$res[$i][6]][] = '未知的民族';
+                    $err[$res[$i][7]][] = '未知的民族';
                 }
             }
             if (!preg_match('/^[1-9][0-9]{5}(19|20)[0-9]{2}((01|03|05|07|08|10|12)(0[1-9]|[1-2][0-9]|31)|(04|06|09|11)(0[1-9]|[1-2][0-9]|30)|02(0[1-9]|[1-2][0-9]))[0-9]{3}([0-9]|x|X)$/', $res[$i][7])) {
-                $err[$res[$i][7]][] = '错误的身份证号码';
+                $err[$res[$i][8]][] = '错误的身份证号码';
             } else {
-                $card = $this->client->where('id_card_number', $res[$i][7])->first();
+                $card = $this->client->where('id_card_number', $res[$i][8])->first();
                 if ((bool)$card === true) {
-                    $err[$res[$i][7]][] = '身份证号码已存在';
+                    $err[$res[$i][8]][] = '身份证号码已存在';
                 }
             }
-            if (empty($res[$i][8])) {
+            if (empty($res[$i][9])) {
                 $err['序号:' . $res[$l]][] = '标签不能为空';
             } else {
-                $arr = explode(',', $res[$i][8]);
+                $arr = explode(',', $res[$i][9]);
                 $e = [];
                 $n = 0;
                 foreach ($arr as $item) {
@@ -520,22 +541,20 @@ class ClientsService
                 }
                 $tags = isset($e) ? implode(',', $e) : '';
                 if (true === (bool)$tags) {
-                    $err[$res[$i][8]] = '第' . $tags . '标签未找到';
+                    $err[$res[$i][9]] = '第' . $tags . '标签未找到';
                 }
             }
-            if (empty($res[$i][9])) {
+            if (empty($res[$i][10])) {
                 $err['序号:' . $res[$l]][] = '籍贯不能为空';
-            } else if (strlen($res[$i][9]) > 8) {
-                $err[$res[$i][9]][] = '籍贯过长,只需省份';
+            } else if (strlen($res[$i][10]) > 8) {
+                $err[$res[$i][10]][] = '籍贯过长,只需省份';
             }
-            if (strlen($res[$i][10]) > 50) {
-                $err[$res[$i][10]][] = '现住地址过长';
-            }
+
             if (strtotime($res[$i][11]) == false) {
-                $err['序号：' . $l][] = '必须是时间格式';
+                $err['序号：' . $l][] = '首次合作时间必须是时间格式';
             }
-            if (!is_numeric($res[$i][11]) == false) {
-                $err[$res[$i][11]][] = '维护人编号必须数字';
+            if (!is_numeric($res[$i][12]) == false) {
+                $err[$res[$i][12]][] = '维护人编号必须数字';
             } else {
                 try {
                     $oaData = app('api')->withRealException()->getStaff($res[$i][12]);
@@ -571,9 +590,18 @@ class ClientsService
             $this->client->remark = $res[$i][13];
             $this->client->save();
             foreach ($a as $val) {
-                $this->clientHasTags->client_id = $this->client->id;
-                $this->clientHasTags->tag_id = $val;
-                $this->clientHasTags->save();
+                $tagSql=[
+                    'client_id'=> $this->client->id,
+                    'tag_id' => $val,
+                ];
+                $this->clientHasTags->create($tagSql);
+            }
+            foreach($brandId as $v){
+                $brandSql=[
+                    'client_id' => $this->client->id,
+                    'brand_id' => $v,
+                ];
+                $this->clientHasBrands->create($brandSql);
             }
             if ($this->client == true) {
                 $success[] = $this->client;
@@ -587,9 +615,10 @@ class ClientsService
     protected function strTransNum($str)
     {
         $arr = [
-            '待合作' => '0',
-            '已合作' => '1',
-            '合作完毕' => '-1',
+            '黑名单' => '-1',
+            '潜在客户' => '0',
+            '合作中' => '1',
+            '合作完毕' => '2',
         ];
         if ($arr[$str] === false) {
             return false;
