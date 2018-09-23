@@ -109,7 +109,7 @@ class ClientsController extends Controller
         if (!in_array('177',$OA)) {
             abort(401, '你没有权限操作');
         }
-        $brand = $this->auth->readingAuth($request->user()->staff_sn);dd($brand);
+        $brand = $this->auth->readingAuth($request->user()->staff_sn);
         if($request->user()->staff_sn == 999999){
             $brand=$this->auth->userAuthentication();
         }
