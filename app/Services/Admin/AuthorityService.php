@@ -158,11 +158,6 @@ class AuthorityService
      */
     public function readingAuth($staff)
     {
-        if($staff == 999999){
-            return [
-                1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
-            ];
-        }
         $staff = AuthorityGroups::whereHas('staffs', function ($query) use ($staff) {
             $query->where('staff_sn', $staff);
         })->with('visibles')->get();
@@ -193,9 +188,76 @@ class AuthorityService
         $data = isset($auth) ? $auth : [];
         $bool = array_filter($data);
         if ($bool === []) {
-            if($request->user()->staff_sn != 999999){
-                abort(401, '暂无权限');
-            }
+             abort(401, '暂无权限');
         }
+    }
+
+    public function userAuthentication()
+    {
+        return [
+            "id"=> 1,
+            "name"=> "",
+            "description"=> "",
+            "created_at"=> "",
+            "updated_at"=> "",
+            "visibles"=> [
+                [
+                    "authority_group_id"=> 1,
+                    "brand_id"=> 1
+                ],
+                [
+                    "authority_group_id"=> 1,
+                    "brand_id"=> 2
+                ],
+                [
+                    "authority_group_id"=> 1,
+                    "brand_id"=> 3
+                ],
+                [
+                    "authority_group_id"=> 1,
+                    "brand_id"=> 4
+                ],
+                [
+                    "authority_group_id"=> 1,
+                    "brand_id"=> 5
+                ],
+                [
+                    "authority_group_id"=> 1,
+                    "brand_id"=> 6
+                ],
+                [
+                    "authority_group_id"=> 1,
+                    "brand_id"=> 7
+                ],
+                [
+                    "authority_group_id"=> 1,
+                    "brand_id"=> 8
+                ],
+                [
+                    "authority_group_id"=> 1,
+                    "brand_id"=> 9
+                ],
+                [
+                    "authority_group_id"=> 1,
+                    "brand_id"=> 10
+                ],
+                [
+                    "authority_group_id"=> 1,
+                    "brand_id"=> 11
+                ],
+                [
+                    "authority_group_id"=> 1,
+                    "brand_id"=> 12
+                ],
+                [
+                    "authority_group_id"=> 1,
+                    "brand_id"=> 13
+                ],
+                [
+                    "authority_group_id"=> 1,
+                    "brand_id"=> 14
+                ]
+            ]
+        ];
     }
 }
