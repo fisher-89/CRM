@@ -33,7 +33,7 @@ class ClientLogsService
     public function getClientLogsList($request, $obj)
     {
         foreach ($obj as $item) {
-            foreach ($item->visibles as $items) {
+            foreach ($item['visibles'] as $items) {
                 $data[] = $items->brand_id;
             };
         }
