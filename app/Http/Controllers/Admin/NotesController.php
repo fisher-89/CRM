@@ -20,7 +20,7 @@ class NotesController extends Controller
     protected $note;
     protected $auth;
 
-    public function __construct(NoteService $noteService,AuthorityService $authorityService)
+    public function __construct(NoteService $noteService, AuthorityService $authorityService)
     {
         $this->note = $noteService;
         $this->auth = $authorityService;
@@ -35,7 +35,7 @@ class NotesController extends Controller
     public function indexType(Request $request)
     {
         $OA = $request->user()->authorities['oa'];
-        if (!in_array('189',$OA)) {
+        if (!in_array('189', $OA)) {
             abort(401, '你没有权限操作');
         }
         return $this->note->getListType($request);
@@ -50,7 +50,7 @@ class NotesController extends Controller
     public function storeType(Request $request)
     {
         $OA = $request->user()->authorities['oa'];
-        if (!in_array('189',$OA)) {
+        if (!in_array('189', $OA)) {
             abort(401, '你没有权限操作');
         }
         $this->storeVerify($request);
@@ -66,7 +66,7 @@ class NotesController extends Controller
     public function editType(Request $request)
     {
         $OA = $request->user()->authorities['oa'];
-        if (!in_array('189',$OA)) {
+        if (!in_array('189', $OA)) {
             abort(401, '你没有权限操作');
         }
         $this->verifyEmploy($request);
@@ -83,7 +83,7 @@ class NotesController extends Controller
     public function deleteType(Request $request)
     {
         $OA = $request->user()->authorities['oa'];
-        if (!in_array('189',$OA)) {
+        if (!in_array('189', $OA)) {
             abort(401, '你没有权限操作');
         }
         $this->verifyEmploy($request);
@@ -99,11 +99,11 @@ class NotesController extends Controller
     public function index(Request $request)
     {
         $OA = $request->user()->authorities['oa'];
-        if (!in_array('181',$OA)) {
+        if (!in_array('181', $OA)) {
             abort(401, '你没有权限操作');
         }
         $obj = $this->auth->readingAuth($request->user()->staff_sn);
-        if($request->user()->staff_sn == 999999){
+        if ($request->user()->staff_sn == 999999) {
             $obj = $this->auth->userAuthentication();
         }
         return $this->note->getList($request, $obj);
@@ -119,7 +119,7 @@ class NotesController extends Controller
     {
 //        $this->auth->actionAuth($request);
         $OA = $request->user()->authorities['oa'];
-        if (!in_array('182',$OA)) {
+        if (!in_array('182', $OA)) {
             abort(401, '你没有权限操作');
         }
         return $this->note->addNote($request);
@@ -133,7 +133,7 @@ class NotesController extends Controller
      */
     public function edit(NotesRequest $request)
     {
-        abort(500,'接口暂停使用');
+        abort(500, '接口暂停使用');
         $this->noteEditAuth($request);
         return $this->note->editNote($request);
     }
@@ -147,7 +147,7 @@ class NotesController extends Controller
     public function delete(Request $request)
     {
         $OA = $request->user()->authorities['oa'];
-        if (!in_array('185',$OA)) {
+        if (!in_array('185', $OA)) {
             abort(401, '你没有权限操作');
         }
         $this->noteEditAuth($request);
@@ -163,21 +163,21 @@ class NotesController extends Controller
     public function detailNote(Request $request)
     {
         $OA = $request->user()->authorities['oa'];
-        if (!in_array('181',$OA)) {
+        if (!in_array('181', $OA)) {
             abort(401, '你没有权限操作');
         }
         $staff = $this->auth->readingAuth($request->user()->staff_sn);
-        foreach ($staff as $item){
-            foreach ($item['visibles'] as $k=>$v){
-                $auth[]=$v['brand_id'];
+        foreach ($staff as $item) {
+            foreach ($item['visibles'] as $k => $v) {
+                $auth[] = $v['brand_id'];
             }
         }
         $data = isset($auth) ? $auth : [];
         $bool = array_filter($data);
         if ((bool)$bool === false) {
             abort(401, '暂无权限');
-        }else{
-            return $this->note->getDetail($request,$bool);
+        } else {
+            return $this->note->getDetail($request, $bool);
         }
     }
 
@@ -246,15 +246,15 @@ class NotesController extends Controller
      */
     private function verifyEmploy($request)
     {
-        $note=Notes::where('note_type_id',$request->route('id'))->first();
-        if((bool)$note === true){
-            abort(400,'当前分类被暂用，不能修改');
+        $note = Notes::where('note_type_id', $request->route('id'))->first();
+        if ((bool)$note === true) {
+            abort(400, '当前分类被暂用，不能修改');
         }
     }
 
     public function getUserBrands(Request $request)
     {
-        $obj=ClientHasBrands::where('client_id',$request->route('id'))->get();
+        $obj = ClientHasBrands::where('client_id', $request->route('id'))->get();
         return $obj;
     }
 }

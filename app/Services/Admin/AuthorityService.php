@@ -27,7 +27,7 @@ class AuthorityService
 
     public function getList($request)
     {
-        $list = $this->groups->with(['staffs','editables','visibles'])->filterByQueryString()->SortByQueryString()->withPagination($request->get('pagesize', 10));
+        $list = $this->groups->with(['staffs', 'editables', 'visibles'])->filterByQueryString()->SortByQueryString()->withPagination($request->get('pagesize', 10));
         if (isset($list['data'])) {
             $list['data'] = new AuthorityCollection(collect($list['data']));
             return $list;
@@ -47,7 +47,7 @@ class AuthorityService
                     $staffSql = [
                         'authority_group_id' => $group->id,
                         'staff_sn' => $value['staff_sn'],
-                        'staff_name'=>$value['staff_name']
+                        'staff_name' => $value['staff_name']
                     ];
                     $this->staff->create($staffSql);
                 }
@@ -75,9 +75,9 @@ class AuthorityService
             DB::rollback();
             abort(400, '添加失败');
         }
-        $data=$this->groups->with('staffs')->where('id', $group->id)->first();
-        $data['editables']=$all['editables'];
-        $data['visibles']=$all['visibles'];
+        $data = $this->groups->with('staffs')->where('id', $group->id)->first();
+        $data['editables'] = $all['editables'];
+        $data['visibles'] = $all['visibles'];
         return response()->json($data, 201);
     }
 
@@ -130,9 +130,9 @@ class AuthorityService
             DB::rollback();
             abort(400, '修改失败');
         }
-        $editData=$this->groups->with('staffs')->where('id', $group->id)->first();
-        $editData['editables']=$all['editables'];
-        $editData['visibles']=$all['visibles'];
+        $editData = $this->groups->with('staffs')->where('id', $group->id)->first();
+        $editData['editables'] = $all['editables'];
+        $editData['visibles'] = $all['visibles'];
         return response()->json($editData, 201);
     }
 
@@ -163,7 +163,7 @@ class AuthorityService
         })->with('visibles')->get();
         if ((bool)$staff === false) {
             abort(401, '暂无权限');
-        }else{
+        } else {
             return $staff;
         }
     }
@@ -175,20 +175,20 @@ class AuthorityService
      */
     public function actionAuth($request)
     {
-        if(empty($request->brands)){
-            abort(404,'未找到的品牌');
+        if (empty($request->brands)) {
+            abort(404, '未找到的品牌');
         }
         foreach ($request->brands as $item) {
             $auth[] = AuthorityGroups::whereHas('staffs', function ($query) use ($request) {
-                    $query->where('staff_sn', $request->user()->staff_sn);
-                })->whereHas('editables',function($query)use($item){
-                    $query->where('brand_id',$item);
+                $query->where('staff_sn', $request->user()->staff_sn);
+            })->whereHas('editables', function ($query) use ($item) {
+                $query->where('brand_id', $item);
             })->first();
         }
         $data = isset($auth) ? $auth : [];
         $bool = array_filter($data);
         if ($bool === []) {
-            if($request->user()->staff_sn != 999999){
+            if ($request->user()->staff_sn != 999999) {
                 abort(401, '暂无权限');
             }
         }
@@ -198,67 +198,67 @@ class AuthorityService
     {
         return [
             [
-                "id"=> 1,
-                "name"=> "",
-                "description"=> "",
-                "created_at"=> "",
-                "updated_at"=> "",
-                "visibles"=> [
+                "id" => 1,
+                "name" => "",
+                "description" => "",
+                "created_at" => "",
+                "updated_at" => "",
+                "visibles" => [
                     [
-                        "authority_group_id"=> 1,
-                        "brand_id"=> 1
+                        "authority_group_id" => 1,
+                        "brand_id" => 1
                     ],
                     [
-                        "authority_group_id"=> 1,
-                        "brand_id"=> 2
+                        "authority_group_id" => 1,
+                        "brand_id" => 2
                     ],
                     [
-                        "authority_group_id"=> 1,
-                        "brand_id"=> 3
+                        "authority_group_id" => 1,
+                        "brand_id" => 3
                     ],
                     [
-                        "authority_group_id"=> 1,
-                        "brand_id"=> 4
+                        "authority_group_id" => 1,
+                        "brand_id" => 4
                     ],
                     [
-                        "authority_group_id"=> 1,
-                        "brand_id"=> 5
+                        "authority_group_id" => 1,
+                        "brand_id" => 5
                     ],
                     [
-                        "authority_group_id"=> 1,
-                        "brand_id"=> 6
+                        "authority_group_id" => 1,
+                        "brand_id" => 6
                     ],
                     [
-                        "authority_group_id"=> 1,
-                        "brand_id"=> 7
+                        "authority_group_id" => 1,
+                        "brand_id" => 7
                     ],
                     [
-                        "authority_group_id"=> 1,
-                        "brand_id"=> 8
+                        "authority_group_id" => 1,
+                        "brand_id" => 8
                     ],
                     [
-                        "authority_group_id"=> 1,
-                        "brand_id"=> 9
+                        "authority_group_id" => 1,
+                        "brand_id" => 9
                     ],
                     [
-                        "authority_group_id"=> 1,
-                        "brand_id"=> 10
+                        "authority_group_id" => 1,
+                        "brand_id" => 10
                     ],
                     [
-                        "authority_group_id"=> 1,
-                        "brand_id"=> 11
+                        "authority_group_id" => 1,
+                        "brand_id" => 11
                     ],
                     [
-                        "authority_group_id"=> 1,
-                        "brand_id"=> 12
+                        "authority_group_id" => 1,
+                        "brand_id" => 12
                     ],
                     [
-                        "authority_group_id"=> 1,
-                        "brand_id"=> 13
+                        "authority_group_id" => 1,
+                        "brand_id" => 13
                     ],
                     [
-                        "authority_group_id"=> 1,
-                        "brand_id"=> 14
+                        "authority_group_id" => 1,
+                        "brand_id" => 14
                     ]
                 ]
             ]

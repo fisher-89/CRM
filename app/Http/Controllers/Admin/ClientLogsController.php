@@ -15,7 +15,7 @@ class ClientLogsController extends Controller
     protected $logs;
     protected $auth;
 
-    public function __construct(ClientLogsService $clientLogsService,AuthorityService $authorityService)
+    public function __construct(ClientLogsService $clientLogsService, AuthorityService $authorityService)
     {
         $this->logs = $clientLogsService;
         $this->auth = $authorityService;
@@ -30,11 +30,11 @@ class ClientLogsController extends Controller
     public function index(Request $request)
     {
         $OA = $request->user()->authorities['oa'];
-        if (!in_array('184',$OA)) {
+        if (!in_array('184', $OA)) {
             abort(401, '你没有权限操作');
         }
         $obj = $this->clientReadingAuth($request);
-        if($request->user()->staff_sn == 999999){
+        if ($request->user()->staff_sn == 999999) {
             $obj = $this->auth->userAuthentication();
         }
         return $this->logs->getClientLogsList($request, $obj);
@@ -52,7 +52,7 @@ class ClientLogsController extends Controller
         $this->authority($request);
         $this->last($logs);
         if (strstr($logs->type, '删除') || $logs->status == '-1') {
-            return $this->logs->restoreClientDelete($request,$logs->client_id);
+            return $this->logs->restoreClientDelete($request, $logs->client_id);
         }
         return $this->logs->restoreClient($request);
     }
@@ -66,7 +66,7 @@ class ClientLogsController extends Controller
     {
 //        $staff = ClientLogs::where('id', $request->route('id'))->value('staff_sn');
         $OA = $request->user()->authorities['oa'];
-        if (!in_array('186',$OA)) {
+        if (!in_array('186', $OA)) {
             abort(401, '你没有权限操作');
         }
     }

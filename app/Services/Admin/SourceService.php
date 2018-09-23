@@ -21,27 +21,27 @@ class SourceService
 
     public function addSource(Request $request)
     {
-        $source=$this->source->create($request->all());
-        return response()->json($source,201);
+        $source = $this->source->create($request->all());
+        return response()->json($source, 201);
     }
 
     public function editSource(Request $request)
     {
-        $source=$this->source->find($request->route('id'));
-        if((bool)$source===false){
-            abort(404,'未找到数据');
+        $source = $this->source->find($request->route('id'));
+        if ((bool)$source === false) {
+            abort(404, '未找到数据');
         }
         $source->update($request->all());
-        return response()->json($source,201);
+        return response()->json($source, 201);
     }
 
     public function delSource(Request $request)
     {
-        $source=$this->source->find($request->route('id'));
-        if((bool)$source===false){
-            abort(404,'未找到数据');
+        $source = $this->source->find($request->route('id'));
+        if ((bool)$source === false) {
+            abort(404, '未找到数据');
         }
         $source->delete();
-        return response('',204);
+        return response('', 204);
     }
 }

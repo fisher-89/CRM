@@ -140,7 +140,7 @@ class ClientLogsService
             'restore_at' => date('Y-m-d H:i:s'),
         ];
         $log->update($clientLog);
-        $logs = $this->clientLogs->orderBy('id', 'desc')->where('client_id',$log->client_id)->where('status', 0)->whereNotIn('changes', ['[]'])->first();
+        $logs = $this->clientLogs->orderBy('id', 'desc')->where('client_id', $log->client_id)->where('status', 0)->whereNotIn('changes', ['[]'])->first();
         if ($logs == true) {
             $logSql = [
                 'status' => 1,
@@ -191,7 +191,7 @@ class ClientLogsService
             'restore_at' => date('Y-m-d H:i:s'),
         ];
         $log->update($clientLog);
-        $logs = $this->clientLogs->orderBy('id', 'desc')->where('client_id',$log->client_id)->where('status', 0)->whereNotIn('changes', ['[]'])->first();
+        $logs = $this->clientLogs->orderBy('id', 'desc')->where('client_id', $log->client_id)->where('status', 0)->whereNotIn('changes', ['[]'])->first();
         if ($logs == true) {
             $logSql = [
                 'status' => 1,

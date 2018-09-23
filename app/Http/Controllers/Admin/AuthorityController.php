@@ -21,7 +21,7 @@ class AuthorityController extends Controller
     public function index(Request $request)
     {
         $OA = $request->user()->authorities['oa'];
-        if (!in_array('183',$OA)) {
+        if (!in_array('183', $OA)) {
             abort(401, '你没有权限操作');
         }
         return $this->authority->getList($request);
@@ -30,7 +30,7 @@ class AuthorityController extends Controller
     public function store(Request $request)
     {
         $OA = $request->user()->authorities['oa'];
-        if (!in_array('183',$OA)) {
+        if (!in_array('183', $OA)) {
             abort(401, '你没有权限操作');
         }
         $this->storeVerify($request);
@@ -40,7 +40,7 @@ class AuthorityController extends Controller
     public function edit(Request $request)
     {
         $OA = $request->user()->authorities['oa'];
-        if (!in_array('183',$OA)) {
+        if (!in_array('183', $OA)) {
             abort(401, '你没有权限操作');
         }
         $this->editVerify($request);
@@ -50,7 +50,7 @@ class AuthorityController extends Controller
     public function delete(Request $request)
     {
         $OA = $request->user()->authorities['oa'];
-        if (!in_array('183',$OA)) {
+        if (!in_array('183', $OA)) {
             abort(401, '你没有权限操作');
         }
         return $this->authority->delAuth($request);
@@ -58,32 +58,33 @@ class AuthorityController extends Controller
 
     protected function storeVerify($request)
     {
-        $editables = $request->editables;$visibles = $request->visibles;
+        $editables = $request->editables;
+        $visibles = $request->visibles;
         $this->validate($request,
             [
                 'name' => ['required', 'max:20', Rule::unique('authority_groups', 'name')],
                 'description' => 'max:30',
                 'visibles.*' => 'numeric',
                 'visibles' => ['array', function ($attribute, $value, $event) use ($editables) {
-                    if ($value == [] &&  $editables == []) {
+                    if ($value == [] && $editables == []) {
                         return $event('查看权限必选');
                     }
                 }],
                 'editables' => ['array',
-                    function($attribute, $value, $event)use($visibles){
-                        $diff = array_diff($value,$visibles);
-                        if($diff != []){
+                    function ($attribute, $value, $event) use ($visibles) {
+                        $diff = array_diff($value, $visibles);
+                        if ($diff != []) {
                             $brand = app('api')->getBrands($diff);
                             $name = [];
-                            foreach ($brand as $key=>$value){
-                                if(in_array($value['id'],$diff)){
-                                    $name[]=$value['name'];
+                            foreach ($brand as $key => $value) {
+                                if (in_array($value['id'], $diff)) {
+                                    $name[] = $value['name'];
                                 }
                             }
-                            $event('可查看品牌需添加:'.implode('、',$name));
+                            $event('可查看品牌需添加:' . implode('、', $name));
                         };
                     }
-                    ],
+                ],
                 'editables.*' => 'numeric',
                 'staffs' => 'array|required',
                 'staffs.*.staff_sn' => 'numeric|digits:6|required',
@@ -109,23 +110,23 @@ class AuthorityController extends Controller
                     ->whereNotIn('id', explode(' ', $id)),],
                 'description' => 'max:30',
                 'visibles.*' => 'numeric',
-                'visibles' => ['array', function ($attribute, $value, $event){
+                'visibles' => ['array', function ($attribute, $value, $event) {
                     if ($value == []) {
                         return $event('查看权限必选');
                     }
                 }],
                 'editables' => ['array',
-                    function($attribute, $value, $event)use($visibles){
-                        $diff = array_diff($value,$visibles);
-                        if($diff != []){
+                    function ($attribute, $value, $event) use ($visibles) {
+                        $diff = array_diff($value, $visibles);
+                        if ($diff != []) {
                             $brand = app('api')->getBrands($diff);
                             $name = [];
-                            foreach ($brand as $key=>$value){
-                                if(in_array($value['id'],$diff)){
-                                    $name[]=$value['name'];
+                            foreach ($brand as $key => $value) {
+                                if (in_array($value['id'], $diff)) {
+                                    $name[] = $value['name'];
                                 }
                             }
-                            $event('可查看品牌需添加:'.implode('、',$name));
+                            $event('可查看品牌需添加:' . implode('、', $name));
                         };
                     }
                 ],

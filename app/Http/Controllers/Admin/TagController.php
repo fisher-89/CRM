@@ -26,7 +26,7 @@ class TagController extends Controller
     public function indexType(Request $request)
     {
         $OA = $request->user()->authorities['oa'];
-        if (!in_array('180',$OA)) {
+        if (!in_array('180', $OA)) {
             abort(401, '你没有权限操作');
         }
         return $this->tagService->listType($request);
@@ -41,7 +41,7 @@ class TagController extends Controller
     public function storeType(Request $request)
     {
         $OA = $request->user()->authorities['oa'];
-        if (!in_array('180',$OA)) {
+        if (!in_array('180', $OA)) {
             abort(401, '你没有权限操作');
         }
         $this->storeVerify($request);
@@ -57,7 +57,7 @@ class TagController extends Controller
     public function updateType(Request $request)
     {
         $OA = $request->user()->authorities['oa'];
-        if (!in_array('180',$OA)) {
+        if (!in_array('180', $OA)) {
             abort(401, '你没有权限操作');
         }
         $this->updateVerify($request);
@@ -73,12 +73,12 @@ class TagController extends Controller
     public function deleteType(Request $request)
     {
         $OA = $request->user()->authorities['oa'];
-        if (!in_array('180',$OA)) {
+        if (!in_array('180', $OA)) {
             abort(401, '你没有权限操作');
         }
-        $tags = Tags::where('type_id',$request->route('id'))->first();
-        if($tags == true){
-            abort(400,'删除失败，分类被使用');
+        $tags = Tags::where('type_id', $request->route('id'))->first();
+        if ($tags == true) {
+            abort(400, '删除失败，分类被使用');
         }
         return $this->tagService->delType($request);
     }
@@ -133,7 +133,7 @@ class TagController extends Controller
     public function index(Request $request)
     {
         $OA = $request->user()->authorities['oa'];
-        if (!in_array('179',$OA)) {
+        if (!in_array('179', $OA)) {
             abort(401, '你没有权限操作');
         }
         return $this->tagService->tagList($request);
@@ -148,7 +148,7 @@ class TagController extends Controller
     public function store(Request $request)
     {
         $OA = $request->user()->authorities['oa'];
-        if (!in_array('179',$OA)) {
+        if (!in_array('179', $OA)) {
             abort(401, '你没有权限操作');
         }
         $this->tagStoreVerify($request);
@@ -164,7 +164,7 @@ class TagController extends Controller
     public function update(Request $request)
     {
         $OA = $request->user()->authorities['oa'];
-        if (!in_array('179',$OA)) {
+        if (!in_array('179', $OA)) {
             abort(401, '你没有权限操作');
         }
         $this->tagUpdateVerify($request);
@@ -180,7 +180,7 @@ class TagController extends Controller
     public function delete(Request $request)
     {
         $OA = $request->user()->authorities['oa'];
-        if (!in_array('179',$OA)) {
+        if (!in_array('179', $OA)) {
             abort(401, '你没有权限操作');
         }
         return $this->tagService->tagDel($request);
@@ -195,18 +195,18 @@ class TagController extends Controller
     {
         $this->validate($request,
             [
-                'type_id'=>'required|numeric|exists:tag_types,id',
-                'name'=>['required','max:255',
-                    Rule::unique('tags','name')
+                'type_id' => 'required|numeric|exists:tag_types,id',
+                'name' => ['required', 'max:255',
+                    Rule::unique('tags', 'name')
 //                        ->where('type_id',$request->all('type_id'))
-                    ],
-                'describe'=>'max:50',
-                'sort'=>'numeric',
-            ],[],[
-                'type_id'=>'分类',
-                'name'=>'标签名称',
-                'describe'=>'描述',
-                'sort'=>'排序',
+                ],
+                'describe' => 'max:50',
+                'sort' => 'numeric',
+            ], [], [
+                'type_id' => '分类',
+                'name' => '标签名称',
+                'describe' => '描述',
+                'sort' => '排序',
             ]);
     }
 
@@ -219,19 +219,19 @@ class TagController extends Controller
     {
         $this->validate($request,
             [
-                'type_id'=>'required|numeric|exists:tag_types,id',
-                'name'=>['required','max:255',
-                    Rule::unique('tags','name')
+                'type_id' => 'required|numeric|exists:tag_types,id',
+                'name' => ['required', 'max:255',
+                    Rule::unique('tags', 'name')
 //                    ->where('type_id',$request->all('type_id'))
-                    ->whereNotIn('id', explode(' ', $request->route('id')))
-                    ],
-                'describe'=>'max:50',
-                'sort'=>'numeric',
-            ],[],[
-                'type_id'=>'分类',
-                'name'=>'标签名称',
-                'describe'=>'描述',
-                'sort'=>'排序',
+                        ->whereNotIn('id', explode(' ', $request->route('id')))
+                ],
+                'describe' => 'max:50',
+                'sort' => 'numeric',
+            ], [], [
+                'type_id' => '分类',
+                'name' => '标签名称',
+                'describe' => '描述',
+                'sort' => '排序',
             ]);
     }
 }

@@ -18,13 +18,14 @@ class NationController extends Controller
     {
         return $this->nation->get();
     }
+
 //临时用
     public function store(Request $request)
     {
-        foreach($request->all() as $k=>$v){
-            $sql=[
-                'name'=>$v['name'],
-                'sort'=>$v['sort'],
+        foreach ($request->all() as $k => $v) {
+            $sql = [
+                'name' => $v['name'],
+                'sort' => $v['sort'],
             ];
             $this->nation->create($sql);
         }

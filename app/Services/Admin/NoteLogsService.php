@@ -21,18 +21,18 @@ class NoteLogsService
         $this->noteLogsModel = $noteLogs;
     }
 
-    public function getList($request,$obj)
+    public function getList($request, $obj)
     {
-        foreach ($obj as $item){
+        foreach ($obj as $item) {
             foreach ($item['visibles'] as $key => $value) {
                 $brandId[] = $value['brand_id'];
             }
         }
-        $arr =  isset($brandId) ? array_unique(array_filter($brandId)) : [];
+        $arr = isset($brandId) ? array_unique(array_filter($brandId)) : [];
         $list = $this->noteLogsModel->orderBy('id', 'desc')->with('notes')
-            ->whereHas('notes.brands',function ($query)use($arr){
-            $query->whereIn('brand_id',$arr);
-        })->SortByQueryString()->filterByQueryString()->withPagination($request->get('pagesize', 10));
+            ->whereHas('notes.brands', function ($query) use ($arr) {
+                $query->whereIn('brand_id', $arr);
+            })->SortByQueryString()->filterByQueryString()->withPagination($request->get('pagesize', 10));
         if (isset($list['data'])) {
             $list['data'] = new NoteLogCollection(collect($list['data']));
             return $list;
@@ -93,7 +93,7 @@ class NoteLogsService
                     $getFileName = basename($value);
                     $src = '/uploads/' . $getFileName;
                     $dst = '/abandon/' . $getFileName;
-                    if(Storage::exists($src)) {
+                    if (Storage::exists($src)) {
                         Storage::disk('public')->move($src, $dst);
                     }
                 }
@@ -101,7 +101,7 @@ class NoteLogsService
                 $getFileName = basename($attachments);
                 $src = '/uploads/' . $getFileName;
                 $dst = '/abandon/' . $getFileName;
-                if(Storage::exists($src)) {
+                if (Storage::exists($src)) {
                     Storage::disk('public')->move($src, $dst);
                 }
             }

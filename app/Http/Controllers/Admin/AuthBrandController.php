@@ -9,13 +9,13 @@ class AuthBrandController extends Controller
 {
     public function getBrand(Request $request)
     {
-        if($request->user()->staff_sn == 999999){
+        if ($request->user()->staff_sn == 999999) {
             return [
-                "editable"=>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,15,16,17,18,19,20],
-                "visible"=> [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,15,16,17,18,19,20]
+                "editable" => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+                "visible" => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
             ];
         }
-        return ['editable'=>$this->getBrandEditable($request),'visible'=>$this->getBrandVisible($request)];
+        return ['editable' => $this->getBrandEditable($request), 'visible' => $this->getBrandVisible($request)];
     }
 
     public function getBrandEditable($request)

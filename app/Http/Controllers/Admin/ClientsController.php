@@ -19,7 +19,8 @@ class ClientsController extends Controller
 {
     protected $client;
     protected $auth;
-    public function __construct(ClientsService $clientsService,AuthorityService $authorityService)
+
+    public function __construct(ClientsService $clientsService, AuthorityService $authorityService)
     {
         $this->client = $clientsService;
         $this->auth = $authorityService;
@@ -33,7 +34,7 @@ class ClientsController extends Controller
     public function index(Request $request)
     {
         $brand = $this->auth->readingAuth($request->user()->staff_sn);
-        return $this->client->listClient($request,$brand);
+        return $this->client->listClient($request, $brand);
     }
 
     /**
@@ -45,7 +46,7 @@ class ClientsController extends Controller
     public function store(ClientRequest $clientRequest)
     {
         $OA = $clientRequest->user()->authorities['oa'];
-        if (!in_array('188',$OA)) {
+        if (!in_array('188', $OA)) {
             abort(401, '你没有权限操作');
         }
         $this->auth->actionAuth($clientRequest);
@@ -61,11 +62,11 @@ class ClientsController extends Controller
     public function update(ClientRequest $clientRequest)
     {
         $OA = $clientRequest->user()->authorities['oa'];
-        if (!in_array('187',$OA)) {
+        if (!in_array('187', $OA)) {
             abort(401, '你没有权限操作');
         }
         $this->auth->actionAuth($clientRequest);
-        $this->nameVerify($clientRequest->route('id'),$clientRequest->name);
+        $this->nameVerify($clientRequest->route('id'), $clientRequest->name);
         return $this->client->editClient($clientRequest);
     }
 
@@ -78,23 +79,23 @@ class ClientsController extends Controller
     public function delete(Request $request)
     {
         $OA = $request->user()->authorities['oa'];
-        if (!in_array('178',$OA)) {
+        if (!in_array('178', $OA)) {
             abort(401, '你没有权限操作');
         }
         $id = $request->route('id');
         $data = ClientHasBrands::where('client_id', $id)->get();
         foreach ($data as $item) {
             $auth = AuthorityGroups::whereHas('staffs', function ($query) use ($request) {
-                    $query->where('staff_sn', $request->user()->staff_sn);
-                })->WhereHas('editables', function ($query) use ($item) {
-                    $query->where('brand_id', $item['brand_id']);
-                })->first();
+                $query->where('staff_sn', $request->user()->staff_sn);
+            })->WhereHas('editables', function ($query) use ($item) {
+                $query->where('brand_id', $item['brand_id']);
+            })->first();
             if ((bool)$auth === true) {
                 return $this->client->delClient($request);
                 break;
             }
         }
-        if($request->user()->staff_sn == 999999){
+        if ($request->user()->staff_sn == 999999) {
             return $this->client->delClient($request);
         }
         abort(401, '暂无权限');
@@ -109,25 +110,26 @@ class ClientsController extends Controller
     public function details(Request $request)
     {
         $OA = $request->user()->authorities['oa'];
-        if (!in_array('177',$OA)) {
+        if (!in_array('177', $OA)) {
             abort(401, '你没有权限操作');
         }
         $brand = $this->auth->readingAuth($request->user()->staff_sn);
-        if($request->user()->staff_sn == 999999){
-            $brand=$this->auth->userAuthentication();
+        if ($request->user()->staff_sn == 999999) {
+            $brand = $this->auth->userAuthentication();
         }
-        return $this->client->firstClient($request,$brand);
+        return $this->client->firstClient($request, $brand);
     }
 
-    public function nameVerify($id,$name)
+    public function nameVerify($id, $name)
     {
         $value = DB::table('clients')->where('id', $id)->first();
         $days = date('Y-m-d:H:i:s', strtotime('-7 days')) < $value->created_at;
         $dname = $name == $value->name;
-        if($days === false && $dname === false){
-            abort(500,'客户姓名不能修改');
+        if ($days === false && $dname === false) {
+            abort(500, '客户姓名不能修改');
         };
     }
+
     public function export(Request $request)
     {
         return $this->client->exportClient($request);

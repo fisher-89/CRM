@@ -36,9 +36,9 @@ class SourceController extends Controller
 
     public function delete(Request $request)
     {
-        $client = Clients::where('source_id',$request->route('id'))->first();
-        if($client == true){
-            abort(400,'删除失败：该条记录被使用');
+        $client = Clients::where('source_id', $request->route('id'))->first();
+        if ($client == true) {
+            abort(400, '删除失败：该条记录被使用');
         }
         return $this->source->delSource($request);
     }
@@ -63,10 +63,10 @@ class SourceController extends Controller
         $this->validate($request,
             [
                 'name' => ['required',
-                    Rule::unique('source','name')
-                    ->whereNotIn('id',explode(' ', $request->route('id'))),
+                    Rule::unique('source', 'name')
+                        ->whereNotIn('id', explode(' ', $request->route('id'))),
                     'max:10'
-                    ],
+                ],
                 'describe' => '',
                 'sort' => 'numeric'
             ], [], [
