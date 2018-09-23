@@ -396,13 +396,14 @@ class ClientsService
         if (false == (bool)$client) {
             return response()->json(['message' => '没有找到符号条件的数据'], 404);
         }
+        $brand = app('api')->getBrands($arr);
         $eventTop[] = ['姓名', '客户来源', '客户状态', '客户品牌', '性别', '电话', '微信', '民族', '身份证号码', '标签',
-            '籍贯', '现住地址', '首次合作时间', '维护人编号', '备注'];
-        dd($client );
+            '籍贯', '首次合作时间', '维护人编号', '备注'];
         foreach ($client as $k => $v) {
-            $eventTop[] = [$v['name'], $v['source']['name'], $this->transform($v['status']),$v[''] ,$v['gender'], $v['mobile'],
-                $v['wechat'], $v['nation'], $v['id_card_number'], $v['tags'] ? $this->transTags($v['tags']) : '', $v['native_place'],
-                $v['present_address'], $v['first_cooperation_at'], $v['vindicator_sn'] . ',' . $v['vindicator_name'], $v['remark']
+            $eventTop[] = [$v['name'], $v['source']['name'], $this->transform($v['status']), $this->transBrand($v['brands'],$brand) ,
+                $v['gender'], $v['mobile'], $v['wechat'], $v['nation'], $v['id_card_number'],
+                $v['tags'] ? $this->transTags($v['tags']) : '', $v['native_place'], $v['first_cooperation_at'],
+                $v['vindicator_sn'] . ',' . $v['vindicator_name'], $v['remark']
             ];
         }
         Excel::create('客户信息资料', function ($excel) use ($eventTop) {
@@ -412,6 +413,20 @@ class ClientsService
         })->export('xlsx');
     }
 
+    protected function transBrand($obj,$brand)
+    {
+        $data = [];
+        $brands = [];
+        foreach ($obj as $items){
+            $data[]= $items['brand_id'];
+        }
+        foreach ($brand as $key=>$value){
+            if(in_array($value['id'],$data)){
+                $brands[] = $value['name'];
+            }
+        }
+        return implode(',',$brands);
+    }
 //导入  todo  导入人权限品牌验证，合作店铺，合作品牌，合作区域   没弄
     public function importClient()
     {
