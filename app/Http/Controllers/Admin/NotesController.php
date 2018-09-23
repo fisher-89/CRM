@@ -103,6 +103,9 @@ class NotesController extends Controller
             abort(401, '你没有权限操作');
         }
         $obj = $this->auth->readingAuth($request->user()->staff_sn);
+        if($request->user()->staff_sn == 999999){
+            $obj = $this->auth->userAuthentication();
+        }
         return $this->note->getList($request, $obj);
     }
 
