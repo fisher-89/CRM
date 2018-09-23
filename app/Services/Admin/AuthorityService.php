@@ -158,13 +158,13 @@ class AuthorityService
      */
     public function readingAuth($staff)
     {
-        $staff = AuthorityGroups::whereHas('staffs', function ($query) use ($staff) {
+        $staffAuth = AuthorityGroups::whereHas('staffs', function ($query) use ($staff) {
             $query->where('staff_sn', $staff);
         })->with('visibles')->get();
-        if ((bool)$staff === false) {
+        if ((bool)$staffAuth === false) {
             abort(401, '暂无权限');
         } else {
-            return $staff;
+            return $staffAuth;
         }
     }
 
