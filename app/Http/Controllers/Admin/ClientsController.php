@@ -32,7 +32,6 @@ class ClientsController extends Controller
      */
     public function index(Request $request)
     {
-        return 123;
         $brand = $this->auth->readingAuth($request->user()->staff_sn);
         return $this->client->listClient($request,$brand);
     }
