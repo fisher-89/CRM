@@ -11,7 +11,8 @@ class AuthBrandController extends Controller
     {
         if($request->user()->staff_sn == 999999){
             return [
-                1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
+                "editable"=>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+                "visible"=> [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
             ];
         }
         return ['editable'=>$this->getBrandEditable($request),'visible'=>$this->getBrandVisible($request)];
