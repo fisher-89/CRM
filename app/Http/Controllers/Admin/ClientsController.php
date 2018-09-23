@@ -111,7 +111,6 @@ class ClientsController extends Controller
         }
         $brand = $this->auth->readingAuth($request->user()->staff_sn);
         if($request->user()->staff_sn == 999999){
-            dd(654321);
             $brand=$this->auth->userAuthentication();
         }
         return $this->client->firstClient($request,$brand);
