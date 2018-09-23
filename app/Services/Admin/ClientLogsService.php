@@ -34,7 +34,7 @@ class ClientLogsService
     {
         foreach ($obj as $item) {
             foreach ($item['visibles'] as $items) {
-                $data[] = $items->brand_id;
+                $data[] = $items['brand_id'];
             };
         }
         $array = isset($data) ? $data : [];
