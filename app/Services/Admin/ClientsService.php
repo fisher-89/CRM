@@ -377,13 +377,18 @@ class ClientsService
     }
 
 //导出
-    public function exportClient($request)
+    public function exportClient($request,$brand)
     {
         $all = $request->all();
         if (array_key_exists('page', $all) || array_key_exists('pagesize', $all)) {
             abort(400, '传递无效参数');
         }
-        $arr = $this->authDetection($request);
+        foreach ($brand as $key => $value) {
+            foreach ($value['visibles'] as $k => $v) {
+                $arrData[] = $v['brand_id'];
+            }
+        }
+        $arr = isset($arrData) ? $arrData : [];
         $client = $this->client->with('source')->with('tags')->with('brands')->with('shops')
             ->whereHas('brands', function ($query) use ($arr) {
                 $query->whereIn('brand_id', $arr);
@@ -391,12 +396,11 @@ class ClientsService
         if (false == (bool)$client) {
             return response()->json(['message' => '没有找到符号条件的数据'], 404);
         }
-        $eventTop[] = ['姓名', '客户来源', '客户状态', '性别', '电话', '微信', '民族', '身份证号码', '标签',
-            '籍贯', '现住地址', '首次合作时间', '维护人编号',
-//            '合作品牌','合作地区','地址店铺',
-            '备注'];
+        $eventTop[] = ['姓名', '客户来源', '客户状态', '客户品牌', '性别', '电话', '微信', '民族', '身份证号码', '标签',
+            '籍贯', '现住地址', '首次合作时间', '维护人编号', '备注'];
+        dd($client );
         foreach ($client as $k => $v) {
-            $eventTop[] = [$v['name'], $v['source']['name'], $this->transform($v['status']), $v['gender'], $v['mobile'],
+            $eventTop[] = [$v['name'], $v['source']['name'], $this->transform($v['status']),$v[''] ,$v['gender'], $v['mobile'],
                 $v['wechat'], $v['nation'], $v['id_card_number'], $v['tags'] ? $this->transTags($v['tags']) : '', $v['native_place'],
                 $v['present_address'], $v['first_cooperation_at'], $v['vindicator_sn'] . ',' . $v['vindicator_name'], $v['remark']
             ];
@@ -423,7 +427,7 @@ class ClientsService
         for ($i = 1; $i < count($res); $i++) {
             $err = [];
             $l = $i + 1;
-            if (count($res[$i]) != 14) {
+            if (count($res[$i]) != 15) {
                 $err['序号:' . $l][] = '文件布局错误';
             }
             if (strlen($res[$i][0]) > 10) {
