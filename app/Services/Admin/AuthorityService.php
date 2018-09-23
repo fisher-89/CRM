@@ -195,67 +195,69 @@ class AuthorityService
     public function userAuthentication()
     {
         return [
-            "id"=> 1,
-            "name"=> "",
-            "description"=> "",
-            "created_at"=> "",
-            "updated_at"=> "",
-            "visibles"=> [
-                [
-                    "authority_group_id"=> 1,
-                    "brand_id"=> 1
-                ],
-                [
-                    "authority_group_id"=> 1,
-                    "brand_id"=> 2
-                ],
-                [
-                    "authority_group_id"=> 1,
-                    "brand_id"=> 3
-                ],
-                [
-                    "authority_group_id"=> 1,
-                    "brand_id"=> 4
-                ],
-                [
-                    "authority_group_id"=> 1,
-                    "brand_id"=> 5
-                ],
-                [
-                    "authority_group_id"=> 1,
-                    "brand_id"=> 6
-                ],
-                [
-                    "authority_group_id"=> 1,
-                    "brand_id"=> 7
-                ],
-                [
-                    "authority_group_id"=> 1,
-                    "brand_id"=> 8
-                ],
-                [
-                    "authority_group_id"=> 1,
-                    "brand_id"=> 9
-                ],
-                [
-                    "authority_group_id"=> 1,
-                    "brand_id"=> 10
-                ],
-                [
-                    "authority_group_id"=> 1,
-                    "brand_id"=> 11
-                ],
-                [
-                    "authority_group_id"=> 1,
-                    "brand_id"=> 12
-                ],
-                [
-                    "authority_group_id"=> 1,
-                    "brand_id"=> 13
-                ],
-                [
-                    "authority_group_id"=> 1,
-                    "brand_id"=> 14
+            [
+                "id"=> 1,
+                "name"=> "",
+                "description"=> "",
+                "created_at"=> "",
+                "updated_at"=> "",
+                "visibles"=> [
+                    [
+                        "authority_group_id"=> 1,
+                        "brand_id"=> 1
+                    ],
+                    [
+                        "authority_group_id"=> 1,
+                        "brand_id"=> 2
+                    ],
+                    [
+                        "authority_group_id"=> 1,
+                        "brand_id"=> 3
+                    ],
+                    [
+                        "authority_group_id"=> 1,
+                        "brand_id"=> 4
+                    ],
+                    [
+                        "authority_group_id"=> 1,
+                        "brand_id"=> 5
+                    ],
+                    [
+                        "authority_group_id"=> 1,
+                        "brand_id"=> 6
+                    ],
+                    [
+                        "authority_group_id"=> 1,
+                        "brand_id"=> 7
+                    ],
+                    [
+                        "authority_group_id"=> 1,
+                        "brand_id"=> 8
+                    ],
+                    [
+                        "authority_group_id"=> 1,
+                        "brand_id"=> 9
+                    ],
+                    [
+                        "authority_group_id"=> 1,
+                        "brand_id"=> 10
+                    ],
+                    [
+                        "authority_group_id"=> 1,
+                        "brand_id"=> 11
+                    ],
+                    [
+                        "authority_group_id"=> 1,
+                        "brand_id"=> 12
+                    ],
+                    [
+                        "authority_group_id"=> 1,
+                        "brand_id"=> 13
+                    ],
+                    [
+                        "authority_group_id"=> 1,
+                        "brand_id"=> 14
+                    ]
                 ]
             ]
         ];
