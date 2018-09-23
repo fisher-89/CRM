@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\Admin\ClientRequest;
 use App\Models\AuthorityGroups;
 use App\Models\ClientLogs;
+use App\Services\Admin\AuthorityService;
 use App\Services\Admin\ClientLogsService;
 use App\Services\Admin\ClientsService;
 use Illuminate\Http\Request;
@@ -12,10 +13,12 @@ use Illuminate\Http\Request;
 class ClientLogsController extends Controller
 {
     protected $logs;
+    protected $auth;
 
-    public function __construct(ClientLogsService $clientLogsService)
+    public function __construct(ClientLogsService $clientLogsService,AuthorityService $authorityService)
     {
         $this->logs = $clientLogsService;
+        $this->auth = $authorityService;
     }
 
     /**
@@ -31,6 +34,9 @@ class ClientLogsController extends Controller
             abort(401, '你没有权限操作');
         }
         $obj = $this->clientReadingAuth($request);
+        if($request->user()->staff_sn == 999999){
+            $obj = $this->auth->userAuthentication();
+        }
         return $this->logs->getClientLogsList($request, $obj);
     }
 
