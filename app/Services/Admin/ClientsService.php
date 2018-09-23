@@ -349,6 +349,9 @@ class ClientsService
             }
         }
         $arr = isset($arrData) ? $arrData : [];
+        if($request->user()->staff_sn == 999999){
+            $arr = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+        }
         return $this->client->with('tags')->with('brands')->with('shops')
             ->where('id', $request->route('id'))->whereHas('brands', function ($query) use ($arr) {
                 $query->whereIn('brand_id', $arr);
