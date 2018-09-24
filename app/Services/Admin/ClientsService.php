@@ -462,10 +462,10 @@ class ClientsService
                 }
             }
             if (strlen($res[$i][2]) < 4) {
-                $err['序号:' . $l][] = '未知的客户状态';
+                $err['序号:' . $l][] = '客户状态过长';
             } else if ($res[$i][2] == '潜在客户' || $res[$i][2] == '合作中' || $res[$i][2] == '合作完毕'|| $res[$i][2] == '黑名单' ) {
                 if ($this->strTransNum($res[$i][2]) === false) {
-                    $err[$res[$i][2]][] = '未知的客户状态';
+                    $err[$res[$i][2]][] = '客户状态不在选择范围';
                 }
             } else {
                 $err[$res[$i][2]][] = '未知的客户状态';
@@ -473,18 +473,17 @@ class ClientsService
             if ($res[$i][3] == '') {
                 $err[$res[$i][3]] = '客户品牌不能为空';
             }
-            $data = explode(',', $res[$i][3]);
+            $explode = explode(',', $res[$i][3]);
             $brandId = [];
             foreach ($brand as $item) {
-                if (in_array($item['name'], $data)) {
+                if (in_array($item['name'], $explode)) {
                     $brandId[] = $item['id'];
                 }
             }
-            if (count($brandId) < count($data)) {
-                $err[$res[$i][3]] = '合作品牌名字个别错误';
-            }
-            if ($brandId == []) {
-                $err[$res[$i][3]] = '合作品牌名字全部错误';
+            if (count($brandId) < count($explode)) {
+                $err[$res[$i][3]][] = '合作品牌名字个别错误';
+            }else if ($brandId == []) {
+                $err[$res[$i][3]][] = '合作品牌名字全部错误';
             }
             if ($res[$i][4] != '男' && $res[$i][4] != '女') {
                 $err[$res[$i][4]][] = '未知的性别';
@@ -498,7 +497,7 @@ class ClientsService
                 if (strlen($res[$i][5]) < 11) {
                     $err[$res[$i][5]][] = '电话号码位数不正确';
                 }
-                if(preg_match('/^1[3456789]\d{9}$/',$res[$i][5])){
+                if(!preg_match('/^1[3456789]\d{9}$/',$res[$i][5])){
                     $err[$res[$i][5]][] = '电话号码格式错误';
                 }
                 $mobile = $this->client->where('mobile', $res[$i][5])->first();
@@ -506,8 +505,13 @@ class ClientsService
                     $err[$res[$i][5]][] = '电话号码已存在';
                 }
             }
-            if (isset($res[$i][6]) || strlen($res[$i][6]) > 20) {
-                $res[$i][6] = '微信号过长';
+            if ($res[$i][6] != '') {
+                if(strlen($res[$i][6]) > 20){
+                    $err[$res[$i][6]][] = '微信号过长';
+                }
+                if(!preg_match('/^[a-zA-Z][a-zA-Z0-9_-]{5,19}$/',$res[$i][6])){
+                    $err[$res[$i][6]][] = '微信号格式错误';
+                }
             }
             if (strlen($res[$i][7]) > 15) {
                 $err[$res[$i][7]][] = '民族过长';
@@ -517,7 +521,7 @@ class ClientsService
                     $err[$res[$i][7]][] = '未知的民族';
                 }
             }
-            if (!preg_match('/^[1-9][0-9]{5}(19|20)[0-9]{2}((01|03|05|07|08|10|12)(0[1-9]|[1-2][0-9]|31)|(04|06|09|11)(0[1-9]|[1-2][0-9]|30)|02(0[1-9]|[1-2][0-9]))[0-9]{3}([0-9]|x|X)$/', $res[$i][7])) {
+            if (!preg_match('/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/', $res[$i][8])) {
                 $err[$res[$i][8]][] = '错误的身份证号码';
             } else {
                 $card = $this->client->where('id_card_number', $res[$i][8])->first();
@@ -541,21 +545,26 @@ class ClientsService
                 }
                 $tags = isset($e) ? implode(',', $e) : '';
                 if (true === (bool)$tags) {
-                    $err[$res[$i][9]] = '第' . $tags . '标签未找到';
+                    $err[$res[$i][9]][] = '第' . $tags . '标签未找到';
                 }
             }
             if (empty($res[$i][10])) {
                 $err['序号:' . $res[$l]][] = '籍贯不能为空';
-            } else if (strlen($res[$i][10]) > 8) {
+            } else if (strlen($res[$i][10]) > 24) {
                 $err[$res[$i][10]][] = '籍贯过长,只需省份';
+            }else if(strlen($res[$i][10]) < 9){
+                $err[$res[$i][10]][] = '省份没有填写明确';
             }
 
             if (strtotime($res[$i][11]) == false) {
                 $err['序号：' . $l][] = '首次合作时间必须是时间格式';
             }
-            if (!is_numeric($res[$i][12]) == false) {
+            if (!is_numeric($res[$i][12])) {
                 $err[$res[$i][12]][] = '维护人编号必须数字';
             } else {
+                if(strlen($res[$i][12]) != 6){
+                    $err[$res[$i][12]][] = '员工编号长度必须是6位';
+                }
                 try {
                     $oaData = app('api')->withRealException()->getStaff($res[$i][12]);
                     if ($oaData == false) {
@@ -577,13 +586,12 @@ class ClientsService
             $this->client->name = $res[$i][0];
             $this->client->source_id = $bool;
             $this->client->status = $this->strTransNum($res[$i][2]);
-            $this->client->gender = $res[$i][3];
-            $this->client->mobile = $res[$i][4];
-            $this->client->wechat = $res[$i][5];
-            $this->client->nation = $res[$i][6];
-            $this->client->id_card_number = $res[$i][7];
-            $this->client->native_place = $res[$i][9];//todo  验证省份
-            $this->client->present_address = $res[$i][10];
+            $this->client->gender = $res[$i][4];
+            $this->client->mobile = $res[$i][5];
+            $this->client->wechat = $res[$i][6];
+            $this->client->nation = $res[$i][7];
+            $this->client->id_card_number = $res[$i][8];
+            $this->client->native_place = $res[$i][10];//籍贯
             $this->client->first_cooperation_at = $res[$i][11];
             $this->client->vindicator_sn = $res[$i][12];
             $this->client->vindicator_name = $oaData['realname'];
