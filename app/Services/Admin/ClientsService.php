@@ -555,12 +555,12 @@ class ClientsService
             }
             if (empty($res[$i][10])) {
                 $err['序号:' . $res[$l]][] = '籍贯不能为空';
-            } else if (strlen($res[$i][10]) > 24) {
-                $err[$res[$i][10]][] = '籍贯过长,只需省份';
-            }else if(strlen($res[$i][10]) < 9){
-                $err[$res[$i][10]][] = '省份没有填写明确';
+            } else{
+                $arr=DB::table('provincial')->where('name',$res[$i][10])->first();
+                if((bool)$arr === false){
+                    $err[$res[$i][10]][] = '籍贯不正确';
+                }
             }
-
             if (strtotime($res[$i][11]) == false) {
                 $err[$res[$i][11]][] = '首次合作时间必须是时间格式';
             }
