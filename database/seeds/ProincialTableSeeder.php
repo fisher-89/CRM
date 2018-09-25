@@ -45,7 +45,7 @@ class ProincialTableSeeder extends Seeder
             ["id"=>31,"provincial"=>"宁夏回族自治区"],
             ["id"=>32,"provincial"=>"新疆维吾尔自治区"],
             ["id"=>33,"provincial"=>"香港特别行政区"],
-            ["id"=>34,"provincial"=>"澳门特别行政"],
+            ["id"=>34,"provincial"=>"澳门特别行政区"],
         ];
         DB::table('provincial')->truncate();
         DB::table('provincial')->insert($data);
