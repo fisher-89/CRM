@@ -466,7 +466,7 @@ class ClientsService
                     $err[$res[$i][1]][] = '未找到的客户来源';
                 }
             }
-            if (strlen($res[$i][2]) < 4) {
+            if (strlen($res[$i][2]) < 12) {
                 $err['序号:' . $l][] = '客户状态过长';
             } else if ($res[$i][2] == '潜在客户' || $res[$i][2] == '合作中' || $res[$i][2] == '合作完毕'|| $res[$i][2] == '黑名单' ) {
                 if ($this->strTransNum($res[$i][2]) === false) {
@@ -499,7 +499,7 @@ class ClientsService
                 if (!is_numeric($res[$i][5])) {
                     $err[$res[$i][5]][] = '电话必须是数字';
                 }
-                if (strlen($res[$i][5]) < 11) {
+                if (strlen($res[$i][5]) != 11) {
                     $err[$res[$i][5]][] = '电话号码位数不正确';
                 }
                 if(!preg_match('/^1[3456789]\d{9}$/',$res[$i][5])){
