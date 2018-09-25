@@ -447,10 +447,12 @@ class ClientsService
             if (count($res[$i]) != 14) {
                 $err['序号:' . $l][] = '文件布局错误';
             }
-            if (strlen($res[$i][0]) > 10) {
-                $err[$res[$i][0]][] = '名字过长';
+            if($res[$i][0] == ''){
+                $err[$res[$i][0]][] = '名字不能为空';
             }
-            if (strlen($res[$i][0]) < 2) {
+            if (strlen($res[$i][0]) > 30) {
+                $err[$res[$i][0]][] = '名字过长';
+            }else if (strlen($res[$i][0]) < 6) {
                 $err[$res[$i][0]][] = '名字过短';
             }
             if (empty($res[$i][1])) {
@@ -458,7 +460,7 @@ class ClientsService
             } else {
                 $bool = $this->source->where('name', $res[$i][1])->value('id');
                 if (false === (bool)$bool) {
-                    $err[$res[$i][0]][] = '未找到的客户来源';
+                    $err[$res[$i][1]][] = '未找到的客户来源';
                 }
             }
             if (strlen($res[$i][2]) < 4) {
@@ -557,7 +559,7 @@ class ClientsService
             }
 
             if (strtotime($res[$i][11]) == false) {
-                $err['序号：' . $l][] = '首次合作时间必须是时间格式';
+                $err[$res[$i][11]][] = '首次合作时间必须是时间格式';
             }
             if (!is_numeric($res[$i][12])) {
                 $err[$res[$i][12]][] = '维护人编号必须数字';
@@ -568,14 +570,14 @@ class ClientsService
                 try {
                     $oaData = app('api')->withRealException()->getStaff($res[$i][12]);
                     if ($oaData == false) {
-                        $err[$l][] = '维护人错误';
+                        $err[$res[$i][12]][] = '维护人错误';
                     }
                 } catch (\Exception $e) {
-                    $err[$l][] = '维护人错误';
+                    $err[$res[$i][12]][] = '维护人错误';
                 }
             }
             if (strlen($res[$i][13]) > 600) {
-                $err[$l][] = '备注过长';
+                $err['序号：' . $l][] = '备注过长';
             }
             if ($err != []) {
                 $errors['data'] = (object)$res[$i];
