@@ -455,6 +455,9 @@ class ClientsService
             }else if (strlen($res[$i][0]) < 6) {
                 $err[$res[$i][0]][] = '名字过短';
             }
+            if(!preg_match('/^[\u4E00-\u9FA5\uf900-\ufa2d·s]{2,20}$/',$res[$i][0])){
+                $err[$res[$i][0]][] = '名字格式不正确';
+            }
             if (empty($res[$i][1])) {
                 $err['序号:' . $l][] = '客户来源不能为空';
             } else {
