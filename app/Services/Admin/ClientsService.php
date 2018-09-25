@@ -486,7 +486,7 @@ class ClientsService
                 }
             }
             if(empty($res[$i][3])){
-                $err['序号:' . $l][] = '合作品牌名字个别错误';
+                $err['序号:' . $l][] = '合作品牌不能为空';
             }else{
                 if (count($brandId) < count($explode)) {
                     $err[$res[$i][3]][] = '合作品牌名字个别错误';
@@ -494,8 +494,9 @@ class ClientsService
                     $err[$res[$i][3]][] = '合作品牌名字全部错误';
                 }
             }
-
-            if ($res[$i][4] != '男' && $res[$i][4] != '女') {
+            if(empty($res[$i][4])){
+                $err['序号:' . $l][] = '性别不能为空';
+            }else if ($res[$i][4] != '男' && $res[$i][4] != '女') {
                 $err[$res[$i][4]][] = '未知的性别';
             }
             if (empty($res[$i][5])) {
@@ -515,7 +516,7 @@ class ClientsService
                     $err[$res[$i][5]][] = '电话号码已存在';
                 }
             }
-            if ($res[$i][6] != '') {
+            if (!empty($res[$i][6])) {
                 if(strlen($res[$i][6]) > 20){
                     $err[$res[$i][6]][] = '微信号过长';
                 }
@@ -523,22 +524,31 @@ class ClientsService
                     $err[$res[$i][6]][] = '微信号格式错误';
                 }
             }
-            if (strlen($res[$i][7]) > 15) {
-                $err[$res[$i][7]][] = '民族过长';
-            } else {
-                $nations = $this->nations->where('name', $res[$i][7])->first();
-                if ($nations == false) {
-                    $err[$res[$i][7]][] = '未知的民族';
+            if(empty($res[$i][7])){
+                $err['序号:' . $res[$l]] = '民族不能为空';
+            }else{
+                if (strlen($res[$i][7]) > 15) {
+                    $err[$res[$i][7]][] = '民族过长';
+                } else {
+                    $nations = $this->nations->where('name', $res[$i][7])->first();
+                    if ($nations == false) {
+                        $err[$res[$i][7]][] = '未知的民族';
+                    }
                 }
             }
-            if (!preg_match('/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/', $res[$i][8])) {
-                $err[$res[$i][8]][] = '错误的身份证号码';
-            } else {
-                $card = $this->client->where('id_card_number', $res[$i][8])->first();
-                if ((bool)$card === true) {
-                    $err[$res[$i][8]][] = '身份证号码已存在';
+            if(empty($res[$i][8])){
+                $err['序号:' . $res[$l]] = '身份证号码不能为空';
+            }else{
+                if (!preg_match('/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/', $res[$i][8])) {
+                    $err[$res[$i][8]][] = '错误的身份证号码';
+                } else {
+                    $card = $this->client->where('id_card_number', $res[$i][8])->first();
+                    if ((bool)$card === true) {
+                        $err[$res[$i][8]][] = '身份证号码已存在';
+                    }
                 }
             }
+
             if (empty($res[$i][9])) {
                 $err['序号:' . $res[$l]][] = '标签不能为空';
             } else {
@@ -566,22 +576,26 @@ class ClientsService
                     $err[$res[$i][10]][] = '籍贯不正确';
                 }
             }
-            if (strtotime($res[$i][11]) == false) {
-                $err[$res[$i][11]][] = '首次合作时间必须是时间格式';
-            }
-            if (!is_numeric($res[$i][12])) {
-                $err[$res[$i][12]][] = '维护人编号必须数字';
-            } else {
-                if(strlen($res[$i][12]) != 6){
-                    $err[$res[$i][12]][] = '员工编号长度必须是6位';
+            if(empty($res[$i][12])){
+                $err['序号:' . $res[$l]][] = '首次合作时间不能为空';
+            }else{
+                if (strtotime($res[$i][11]) == false) {
+                    $err[$res[$i][11]][] = '首次合作时间必须是时间格式';
                 }
-                try {
-                    $oaData = app('api')->withRealException()->getStaff($res[$i][12]);
-                    if ($oaData == false) {
+                if (!is_numeric($res[$i][12])) {
+                    $err[$res[$i][12]][] = '维护人编号必须数字';
+                } else {
+                    if(strlen($res[$i][12]) != 6){
+                        $err[$res[$i][12]][] = '员工编号长度必须是6位';
+                    }
+                    try {
+                        $oaData = app('api')->withRealException()->getStaff($res[$i][12]);
+                        if ($oaData == false) {
+                            $err[$res[$i][12]][] = '维护人错误';
+                        }
+                    } catch (\Exception $e) {
                         $err[$res[$i][12]][] = '维护人错误';
                     }
-                } catch (\Exception $e) {
-                    $err[$res[$i][12]][] = '维护人错误';
                 }
             }
             if (strlen($res[$i][13]) > 600) {
