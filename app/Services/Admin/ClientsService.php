@@ -448,7 +448,7 @@ class ClientsService
                 $err['序号:' . $l][] = '文件布局错误';
             }
             if(empty($res[$i][0])){
-                $err[$res[$i][0]][] = '名字不能为空';
+                $err['序号:' . $l . ',第1列'][] = '名字不能为空';
             }else{
                 if (strlen($res[$i][0]) > 30) {
                     $err[$res[$i][0]][] = '名字过长';
@@ -460,15 +460,15 @@ class ClientsService
                 }
             }
             if (empty($res[$i][1])) {
-                $err['序号:' . $l][] = '客户来源不能为空';
+                $err['序号:' . $l . ',第2列'][] = '客户来源不能为空';
             } else {
                 $bool = $this->source->where('name', $res[$i][1])->value('id');
                 if (false === (bool)$bool) {
                     $err[$res[$i][1]][] = '未找到的客户来源';
                 }
             }
-            if (strlen($res[$i][2]) < 12) {
-                $err['序号:' . $l][] = '客户状态过长';
+            if (empty($res[$i][2])) {
+                $err['序号:' . $l . ',第3列'][] = '客户状态不能为空';
             } else if ($res[$i][2] == '潜在客户' || $res[$i][2] == '合作中' || $res[$i][2] == '合作完毕'|| $res[$i][2] == '黑名单' ) {
                 if ($this->strTransNum($res[$i][2]) === false) {
                     $err[$res[$i][2]][] = '客户状态不在选择范围';
@@ -476,19 +476,16 @@ class ClientsService
             } else {
                 $err[$res[$i][2]][] = '未知的客户状态';
             }
-            if ($res[$i][3] == '') {
-                $err[$res[$i][3]] = '客户品牌不能为空';
-            }
-            $explode = explode(',', $res[$i][3]);
-            $brandId = [];
-            foreach ($brand as $item) {
-                if (in_array($item['name'], $explode)) {
-                    $brandId[] = $item['id'];
-                }
-            }
             if(empty($res[$i][3])){
-                $err['序号:' . $l][] = '合作品牌不能为空';
+                $err['序号:' . $l . ',第4列'][] = '合作品牌不能为空';
             }else{
+                $explode = explode(',', $res[$i][3]);
+                $brandId = [];
+                foreach ($brand as $item) {
+                    if (in_array($item['name'], $explode)) {
+                        $brandId[] = $item['id'];
+                    }
+                }
                 if (count($brandId) < count($explode)) {
                     $err[$res[$i][3]][] = '合作品牌名字个别错误';
                 }else if ($brandId == []) {
@@ -496,12 +493,12 @@ class ClientsService
                 }
             }
             if(empty($res[$i][4])){
-                $err['序号:' . $l][] = '性别不能为空';
+                $err['序号:' . $l . ',第5列'][] = '性别不能为空';
             }else if ($res[$i][4] != '男' && $res[$i][4] != '女') {
                 $err[$res[$i][4]][] = '未知的性别';
             }
             if (empty($res[$i][5])) {
-                $err['序号:' . $res[$l]] = '电话必须填写';
+                $err['序号:' . $l . ',第6列'][] = '电话不能为空';
             } else {
                 if (!is_numeric($res[$i][5])) {
                     $err[$res[$i][5]][] = '电话必须是数字';
@@ -526,7 +523,7 @@ class ClientsService
                 }
             }
             if(empty($res[$i][7])){
-                $err['序号:' . $res[$l]] = '民族不能为空';
+                $err['序号:' . $l . ',第8列'][] = '民族不能为空';
             }else{
                 if (strlen($res[$i][7]) > 15) {
                     $err[$res[$i][7]][] = '民族过长';
@@ -538,7 +535,7 @@ class ClientsService
                 }
             }
             if(empty($res[$i][8])){
-                $err['序号:' . $res[$l]] = '身份证号码不能为空';
+                $err['序号:' . $l . ',第9列'][] = '身份证号码不能为空';
             }else{
                 if (!preg_match('/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/', $res[$i][8])) {
                     $err[$res[$i][8]][] = '错误的身份证号码';
@@ -551,7 +548,7 @@ class ClientsService
             }
 
             if (empty($res[$i][9])) {
-                $err['序号:' . $res[$l]][] = '标签不能为空';
+                $err['序号:' . $l . ',第10列'][] = '标签不能为空';
             } else {
                 $arr = explode(',', $res[$i][9]);
                 $e = [];
@@ -570,23 +567,25 @@ class ClientsService
                 }
             }
             if (empty($res[$i][10])) {
-                $err['序号:' . $res[$l]][] = '籍贯不能为空';
+                $err['序号:' . $l . ',第11列'][] = '籍贯不能为空';
             } else{
                 $arr=DB::table('provincial')->where('name',$res[$i][10])->first();
                 if((bool)$arr === false){
                     $err[$res[$i][10]][] = '籍贯不正确';
                 }
             }
-            if(empty($res[$i][12])){
-                $err['序号:' . $res[$l]][] = '首次合作时间不能为空';
+            if(empty($res[$i][11])){
+                $err['序号:' . $l . ',第12列'][] = '首次合作时间不能为空';
             }else{
                 if (strtotime($res[$i][11]) == false) {
                     $err[$res[$i][11]][] = '首次合作时间必须是时间格式';
                 }
+            }
+            if(!empty($res[$i][12])){
                 if (!is_numeric($res[$i][12])) {
                     $err[$res[$i][12]][] = '维护人编号必须数字';
                 } else {
-                    if(strlen($res[$i][12]) != 6){
+                    if (strlen($res[$i][12]) != 6) {
                         $err[$res[$i][12]][] = '员工编号长度必须是6位';
                     }
                     try {
@@ -600,7 +599,7 @@ class ClientsService
                 }
             }
             if (strlen($res[$i][13]) > 600) {
-                $err['序号：' . $l][] = '备注过长';
+                $err['序号：' . $l] = '备注过长';
             }
             if ($err != []) {
                 $errors['data'] = (object)$res[$i];
