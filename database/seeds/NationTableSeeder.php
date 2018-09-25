@@ -70,7 +70,7 @@ class NationTableSeeder extends Seeder
             ["id"=> 56, "name"=> "基诺族", "sort"=> 99],
             ["id"=> 57, "name"=> "其他", "sort"=> 99]
         ];
-        DB::table('nation')->truncate();
-        DB::table('nation')->insert($data);
+        DB::table('nations')->truncate();
+        DB::table('nations')->insert($data);
     }
 }
