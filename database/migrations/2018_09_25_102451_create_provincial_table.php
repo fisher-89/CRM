@@ -15,7 +15,7 @@ class CreateProvincialTable extends Migration
     {
         Schema::create('provincial', function (Blueprint $table) {
             $table->increments('id');
-            $table->char('provincial',8)->comment('省级');
+            $table->char('provincial',8)->comment('省级')->unique();
         });
     }
 
