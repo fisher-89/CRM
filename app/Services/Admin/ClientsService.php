@@ -485,11 +485,16 @@ class ClientsService
                     $brandId[] = $item['id'];
                 }
             }
-            if (count($brandId) < count($explode)) {
-                $err[$res[$i][3]][] = '合作品牌名字个别错误';
-            }else if ($brandId == []) {
-                $err[$res[$i][3]][] = '合作品牌名字全部错误';
+            if(empty($res[$i][3])){
+                $err['序号:' . $l][] = '合作品牌名字个别错误';
+            }else{
+                if (count($brandId) < count($explode)) {
+                    $err[$res[$i][3]][] = '合作品牌名字个别错误';
+                }else if ($brandId == []) {
+                    $err[$res[$i][3]][] = '合作品牌名字全部错误';
+                }
             }
+
             if ($res[$i][4] != '男' && $res[$i][4] != '女') {
                 $err[$res[$i][4]][] = '未知的性别';
             }
