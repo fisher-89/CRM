@@ -447,16 +447,17 @@ class ClientsService
             if (count($res[$i]) != 14) {
                 $err['序号:' . $l][] = '文件布局错误';
             }
-            if($res[$i][0] == ''){
+            if(empty($res[$i][0])){
                 $err[$res[$i][0]][] = '名字不能为空';
-            }
-            if (strlen($res[$i][0]) > 30) {
-                $err[$res[$i][0]][] = '名字过长';
-            }else if (strlen($res[$i][0]) < 6) {
-                $err[$res[$i][0]][] = '名字过短';
-            }
-            if(!preg_match('/^[\x{4e00}-\x{9fa5}]{2,10}$|^[a-zA-Z\s]*[a-zA-Z\s]{2,20}$/isu',$res[$i][0])){
-                $err[$res[$i][0]][] = '名字格式不正确';
+            }else{
+                if (strlen($res[$i][0]) > 30) {
+                    $err[$res[$i][0]][] = '名字过长';
+                }else if (strlen($res[$i][0]) < 6) {
+                    $err[$res[$i][0]][] = '名字过短';
+                }
+                if(!preg_match('/^[\x{4e00}-\x{9fa5}]{2,10}$|^[a-zA-Z\s]*[a-zA-Z\s]{2,20}$/isu',$res[$i][0])){
+                    $err[$res[$i][0]][] = '名字格式不正确';
+                }
             }
             if (empty($res[$i][1])) {
                 $err['序号:' . $l][] = '客户来源不能为空';
