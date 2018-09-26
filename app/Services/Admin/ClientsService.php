@@ -604,7 +604,7 @@ class ClientsService
             }
             if ($err != []) {
                 $errors['row'] = $l;
-                $errors['rowData'] = (object)$res[$i];
+                $errors['rowData'] = $res[$i];
                 $errors['message'] = $err;
                 $error[] = $errors;
                 continue;
