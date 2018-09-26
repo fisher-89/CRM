@@ -572,7 +572,7 @@ class ClientsService
             } else{
                 $arr=DB::table('provincial')->where('name',$res[$i][10])->first();
                 if((bool)$arr === false){
-                    $err['籍贯'][] = '不正确';
+                    $err['籍贯'][] = '不存在';
                 }
             }
             if(empty($res[$i][11])){
