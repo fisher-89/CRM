@@ -141,7 +141,7 @@ class ClientsController extends Controller
 
     public function import(Request $request)
     {
-        return $this->client->importClient();
+        return $this->client->importClient($request);
     }
 
     /**
@@ -175,8 +175,8 @@ class ClientsController extends Controller
                 isset($provincialData[$i]) ? $provincialData[$i] : '',
             ];
         }
-        $cellData[] = ['姓名', '客户来源', '客户状态', '合作品牌', '性别', '电话', '微信', '民族', '身份证号码', '标签', '籍贯', '首次合作时间', '维护人编号', '备注'];
-        $cellData[] = ['例：张三', '例：朋友介绍', '例：合作中', '例：杰尼威尼专卖', '例：女', '例：13333333333', '例：weixin', '例：汉族', '例：510111199905065215', 'VIP客户,市代客户（多个标签用英文逗号分开）', '例：四川省', '例：2010-10-10', '例：110105（选填）', '例：备注（选填）'];
+        $cellData[] = ['姓名', '客户来源', '客户状态', '合作品牌', '性别', '电话', '微信', '民族', '身份证号码', '标签', '籍贯', '首次合作时间', '维护人员工编号', '备注'];
+        $cellData[] = ['例：张三', '例：朋友介绍', '例：合作中', '例：杰尼威尼专卖', '例：女', '例：13333333333', '例：weixin', '例：汉族', '例：510111199905065215', 'VIP客户,市代客户（多个标签用英文逗号分开）', '例：四川省（选填）', '例：2010-01-01', '例：110105（选填）', '例：备注（选填）'];
         $fileName = '客户资料导入模板';
         $tot = count($cellData);
         $maxi = $max + 1;
@@ -185,25 +185,27 @@ class ClientsController extends Controller
                 $sheet->rows($cellData);
                 $sheet->cells('A1:N1', function ($cells) {
                     $cells->setAlignment('center');
-//                    $cells->setFontWeight('bold');
-//                    $cells->setFontColor('#FFFFFF');
                     $cells->setBackground('#D2E9FF');
                 });
+                $sheet->setColumnFormat(array(
+                    'I' => '@',
+                    'L' => 'yyyy-mm-dd',
+                ));
                 $sheet->cells('A2:N' . $tot, function ($cells) {
                     $cells->setAlignment('center');
                 });
+                $sheet->setAutoSize(true);
             });
             $excel->sheet('辅助附页', function ($sheet) use ($data, $maxi) {
                 $sheet->rows($data);
                 $sheet->cells('A1:F1', function ($cells) {
                     $cells->setAlignment('center');
                     $cells->setBackground('#D2E9FF');
-//                    $cells->setFontColor('#FFFFFF');
-//                    $cells->setFontWeight('bold');
                 });
                 $sheet->cells('A2:F' . $maxi, function ($cells) {
                     $cells->setAlignment('center');
                 });
+                $sheet->setAutoSize(true);
             });
         })->export('xlsx');
     }
