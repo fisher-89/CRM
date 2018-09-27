@@ -181,6 +181,17 @@ class ClientsController extends Controller
         $tot = count($cellData);
         $maxi = $max + 1;
         Excel::create($fileName, function ($excel) use ($cellData, $data, $tot, $maxi) {
+            $excel->sheet('辅助附表', function ($sheet) use ($data, $maxi) {
+                $sheet->rows($data);
+                $sheet->cells('A1:F1', function ($cells) {
+                    $cells->setAlignment('center');
+                    $cells->setBackground('#D2E9FF');
+                });
+                $sheet->cells('A2:F' . $maxi, function ($cells) {
+                    $cells->setAlignment('center');
+                });
+                $sheet->setAutoSize(true);
+            });
             $excel->sheet('主表', function ($sheet) use ($cellData, $tot) {
                 $sheet->rows($cellData);
                 $sheet->cells('A1:N1', function ($cells) {
@@ -192,17 +203,6 @@ class ClientsController extends Controller
                     'L' => 'yyyy-mm-dd',
                 ));
                 $sheet->cells('A2:N' . $tot, function ($cells) {
-                    $cells->setAlignment('center');
-                });
-                $sheet->setAutoSize(true);
-            });
-            $excel->sheet('辅助附表', function ($sheet) use ($data, $maxi) {
-                $sheet->rows($data);
-                $sheet->cells('A1:F1', function ($cells) {
-                    $cells->setAlignment('center');
-                    $cells->setBackground('#D2E9FF');
-                });
-                $sheet->cells('A2:F' . $maxi, function ($cells) {
                     $cells->setAlignment('center');
                 });
                 $sheet->setAutoSize(true);
