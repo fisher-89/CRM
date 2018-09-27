@@ -618,12 +618,14 @@ class ClientsService
             $this->client->vindicator_name = $oaData['realname'];
             $this->client->remark = $res[$i][13];
             $this->client->save();
-            foreach ($a as $val) {
-                $tagSql=[
-                    'client_id'=> $this->client->id,
-                    'tag_id' => $val,
-                ];
-                $this->clientHasTags->create($tagSql);
+            if(isset($a)){
+                foreach ($a as $val) {
+                    $tagSql=[
+                        'client_id'=> $this->client->id,
+                        'tag_id' => $val,
+                    ];
+                    $this->clientHasTags->create($tagSql);
+                }
             }
             foreach($brandId as $v){
                 $brandSql=[
