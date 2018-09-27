@@ -176,7 +176,7 @@ class ClientsController extends Controller
             ];
         }
         $cellData[] = ['姓名', '客户来源', '客户状态', '合作品牌', '性别', '电话', '微信', '民族', '身份证号码', '标签', '籍贯', '首次合作时间', '维护人员工编号', '备注'];
-        $cellData[] = ['例：张三', '例：朋友介绍', '例：合作中', '例：杰尼威尼专卖', '例：女', '例：13333333333', '例：weixin', '例：汉族', '例：510111199905065215', 'VIP客户,市代客户（多个标签用英文逗号分开）', '例：四川省（选填）', '例：2010-01-01', '例：110105（选填）', '例：备注（选填）'];
+        $cellData[] = ['例：张三', '例：朋友介绍', '例：合作中', '例：杰尼威尼专卖,利鲨(多个品牌用英文逗号分开)', '例：女', '例：13333333333', '例：weixin', '例：汉族', '例：510111199905065215', 'VIP客户,市代客户（多个标签用英文逗号分开）', '例：四川省（选填）', '例：2010-01-01', '例：110105（选填）', '例：备注（选填）'];
         $cellTop[] = ['姓名', '客户来源', '客户状态', '合作品牌', '性别', '电话', '微信', '民族', '身份证号码', '标签', '籍贯', '首次合作时间', '维护人员工编号', '备注'];
         $fileName = '客户资料导入模板';
         $tot = count($cellData);
@@ -213,7 +213,7 @@ class ClientsController extends Controller
                 $sheet->cells('A1:N1', function ($cells) {
                     $cells->setAlignment('center');
                     $cells->setFontWeight('bold');
-                    $cells->setFontSize(14);
+                    $cells->setFontSize(12);
                     $cells->setBackground('#D2E9FF');
                 });
                 $sheet->setColumnFormat(array(
