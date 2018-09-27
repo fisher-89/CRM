@@ -428,7 +428,6 @@ class ClientsService
         return implode(',', $brands);
     }
 
-//导入  todo  导入人权限品牌验证，合作店铺，合作品牌，合作区域   没弄
     public function importClient()
     {
         if (isset($_FILES['file']['tmp_name']) === false) {
@@ -539,7 +538,7 @@ class ClientsService
                 $err['身份证号码'][] = '不能为空';
             }else{
                 if (!preg_match('/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/', $res[$i][8])) {
-                    $err['身份证号码'][] = '错误的';
+                    $err['身份证号码'][] = '格式不正确';
                 } else {
                     $card = $this->client->where('id_card_number', $res[$i][8])->first();
                     if ((bool)$card === true) {
