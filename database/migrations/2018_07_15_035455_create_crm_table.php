@@ -15,7 +15,7 @@ class CreateCrmTable extends Migration
     {//来源
         Schema::create('source', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->char('name', 10)->comment('来源名称');
+            $table->char('name', 10)->comment('来源名称')->unique();
             $table->text('describe')->comment('来源描述')->nullable();
             $table->tinyInteger('sort')->comment('排序')->default(99);
         });
@@ -38,7 +38,7 @@ class CreateCrmTable extends Migration
         Schema::create('tags', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('type_id')->comment('分类id');
-            $table->char('name',10)->comment('名称');
+            $table->char('name',10)->comment('名称')->unique();
             $table->char('describe', 50)->comment('描述')->nullable();
             $table->tinyInteger('sort')->comment('排序')->nullable();
             $table->foreign('type_id')->references('id')->on('tag_types');
