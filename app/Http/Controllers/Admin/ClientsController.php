@@ -179,19 +179,31 @@ class ClientsController extends Controller
         $cellData[] = ['例：张三', '例：朋友介绍', '例：合作中', '例：杰尼威尼专卖', '例：女', '例：13333333333', '例：weixin', '例：汉族', '例：510111199905065215', 'VIP客户,市代客户（多个标签用英文逗号分开）', '例：四川省', '例：2010-10-10', '例：110105（选填）', '例：备注（选填）'];
         $assist[] = ['客户来源', '客户状态', '合作品牌', '民族', '标签', '籍贯'];
         $fileName = '客户资料导入模板';
-        Excel::create($fileName, function ($excel) use ($cellData,$data) {
-            $excel->sheet('主页', function ($sheet) use ($cellData) {
+        $tot = count($cellData);
+        $maxi=$max+1;
+        Excel::create($fileName, function ($excel) use ($cellData,$data,$tot,$maxi) {
+            $excel->sheet('主页', function ($sheet) use ($cellData,$tot) {
                 $sheet->rows($cellData);
                 $sheet->cells('A1:N1', function ($cells) {
                     $cells->setAlignment('center');
                     $cells->setFontWeight('bold');
-                    $cells->setBackground('#006000');
+//                    $cells->setFontColor('#FFFFFF');
+                    $cells->setBackground('#A6FFA6');
+                });
+                $sheet->cells('A2:N'.$tot, function($cells) {
+                    $cells->setAlignment('center');
                 });
             });
-            $excel->sheet('辅助附页', function ($sheet) use ($data) {
+            $excel->sheet('辅助附页', function ($sheet) use ($data,$maxi) {
                 $sheet->rows($data);
                 $sheet->cells('A1:F1', function ($cells) {
-                    $cells->setBackground('#006000');
+                    $cells->setAlignment('center');
+                    $cells->setBackground('#A6FFA6');
+//                    $cells->setFontColor('#FFFFFF');
+                    $cells->setFontWeight('bold');
+                });
+                $sheet->cells('A2:F'.$maxi, function($cells) {
+                    $cells->setAlignment('center');
                 });
             });
         })->export('xlsx');
