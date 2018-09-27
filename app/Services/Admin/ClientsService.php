@@ -428,14 +428,17 @@ class ClientsService
         return implode(',', $brands);
     }
 
-    public function importClient()
+    public function importClient($request)
     {
-        if (isset($_FILES['file']['tmp_name']) === false) {
+        if (!$request->hasFile('file')) {
             abort(400, '未选择文件');
-        };
-        $excelPath = $_FILES['file']['tmp_name'];
+        }
+        $excelPath = $request->file('file');
+        if (!$excelPath->isValid()) {
+            abort(400, '文件上传出错');
+        }
         $res = [];
-        Excel::load($excelPath, function ($matter) use (&$res) {
+        Excel::selectSheets('主页')->load($excelPath, function ($matter) use (&$res) {
             $matter = $matter->getSheet();
             $res = $matter->toArray();
         });
@@ -594,8 +597,10 @@ class ClientsService
                     }
                 }
             }
-            if (strlen($res[$i][13]) > 600) {
-                $err['序号：' . $l] = '备注过长';
+            if(isset($res[$i][13])){
+                if (strlen($res[$i][13]) > 600) {
+                    $err['序号：' . $l] = '备注过长';
+                }
             }
             if ($err != []) {
                 $errors['row'] = $l;
