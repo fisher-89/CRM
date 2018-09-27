@@ -547,9 +547,7 @@ class ClientsService
                 }
             }
 
-            if (empty($res[$i][9])) {
-                $err['标签'][] = '不能为空';
-            } else {
+            if (!empty($res[$i][9])){
                 $arr = explode(',', $res[$i][9]);
                 $e = [];
                 $n = 0;
@@ -566,9 +564,7 @@ class ClientsService
                     $err['标签'][] = '第' . $tags . '未找到';
                 }
             }
-            if (empty($res[$i][10])) {
-                $err['籍贯'][] = '不能为空';
-            } else{
+            if (!empty($res[$i][10])) {
                 $arr=DB::table('provincial')->where('name',$res[$i][10])->first();
                 if((bool)$arr === false){
                     $err['籍贯'][] = '不存在';
