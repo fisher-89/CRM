@@ -438,7 +438,7 @@ class ClientsService
             abort(400, '文件上传出错');
         }
         $res = [];
-        Excel::selectSheets('主页')->load($excelPath, function ($matter) use (&$res) {
+        Excel::selectSheets('主表')->load($excelPath, function ($matter) use (&$res) {
             $matter = $matter->getSheet();
             $res = $matter->toArray();
         });
