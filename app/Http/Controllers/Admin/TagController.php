@@ -25,10 +25,10 @@ class TagController extends Controller
      */
     public function indexType(Request $request)
     {
-        $OA = $request->user()->authorities['oa'];
-        if (!in_array('180', $OA)) {
-            abort(401, '你没有权限操作');
-        }
+//        $OA = $request->user()->authorities['oa'];
+//        if (!in_array('180', $OA)) {
+//            abort(401, '你没有权限操作');
+//        }
         return $this->tagService->listType($request);
     }
 
@@ -132,10 +132,10 @@ class TagController extends Controller
      */
     public function index(Request $request)
     {
-        $OA = $request->user()->authorities['oa'];
-        if (!in_array('179', $OA)) {
-            abort(401, '你没有权限操作');
-        }
+//        $OA = $request->user()->authorities['oa'];
+//        if (!in_array('179', $OA)) {
+//            abort(401, '你没有权限操作');
+//        }
         return $this->tagService->tagList($request);
     }
 
