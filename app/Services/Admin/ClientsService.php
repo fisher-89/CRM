@@ -477,6 +477,7 @@ class ClientsService
                     $err['客户状态'][] = '不在选择范围';
                 }
             } else {
+                dd($this->strTransNum($res[$i][2]));
                 $err['客户状态'][] = '无效';
             }
             if(empty($res[$i][3])){
