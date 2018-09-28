@@ -181,7 +181,7 @@ class ClientsController extends Controller
         $fileName = '客户资料导入模板';
         $tot = count($cellData);
         $maxi = $max + 1;
-        Excel::create($fileName, function ($excel) use ($cellData, $data, $tot, $maxi ,$cellTop) {
+        Excel::create($fileName, function ($excel) use ($cellData, $data, $tot, $maxi, $cellTop) {
             $excel->sheet('辅助附表', function ($sheet) use ($data, $maxi) {
                 $sheet->rows($data);
                 $sheet->cells('A1:F1', function ($cells) {
