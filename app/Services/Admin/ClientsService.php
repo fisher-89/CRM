@@ -442,6 +442,9 @@ class ClientsService
             $matter = $matter->getSheet();
             $res = $matter->toArray();
         });
+        if(implode($res[1])==''){
+            abort(400, '未找到导入数据');
+        }
         $brand = app('api')->getBrands([1, 2]);
         $header = $res[0];
         for ($i = 1; $i < count($res); $i++) {
