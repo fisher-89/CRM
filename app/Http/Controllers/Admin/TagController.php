@@ -92,7 +92,7 @@ class TagController extends Controller
     {
         $this->validate($request,
             [
-                'name' => 'required|unique:tag_types,name',
+                'name' => 'required|unique:tag_types,name|max:6',
                 'color' => 'max:7|min:7',
                 'sort' => 'numeric'
             ], [], [
@@ -111,7 +111,7 @@ class TagController extends Controller
     {
         $this->validate($request,
             [
-                'name' => ['required',
+                'name' => ['required', 'max:6',
                     Rule::unique('tag_types', 'name')
                         ->whereNotIn('id', explode(' ', $request->route('id'))),
                 ],
@@ -196,7 +196,7 @@ class TagController extends Controller
         $this->validate($request,
             [
                 'type_id' => 'required|numeric|exists:tag_types,id',
-                'name' => ['required', 'max:255',
+                'name' => ['required', 'max:10',
                     Rule::unique('tags', 'name')
 //                        ->where('type_id',$request->all('type_id'))
                 ],
@@ -220,7 +220,7 @@ class TagController extends Controller
         $this->validate($request,
             [
                 'type_id' => 'required|numeric|exists:tag_types,id',
-                'name' => ['required', 'max:255',
+                'name' => ['required', 'max:10',
                     Rule::unique('tags', 'name')
 //                    ->where('type_id',$request->all('type_id'))
                         ->whereNotIn('id', explode(' ', $request->route('id')))
