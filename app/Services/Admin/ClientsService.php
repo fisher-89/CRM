@@ -443,7 +443,7 @@ class ClientsService
             $res = $matter->toArray();
         });
         if(implode($res[1])==''){
-            abort(400, '未找到导入数据');
+            abort(404, '未找到导入数据');
         }
         $brand = app('api')->getBrands([1, 2]);
         $header = $res[0];
