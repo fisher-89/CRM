@@ -28,7 +28,7 @@ class CreateCrmTable extends Migration
         //标签类型
         Schema::create('tag_types', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->string('name')->comment('分类名称');
+            $table->char('name',6)->comment('分类名称');
             $table->char('color', 7)->comment('样式颜色');
             $table->tinyInteger('sort')->comment('排序')->default(99);
             $table->timestamps();
