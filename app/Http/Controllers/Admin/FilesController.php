@@ -39,7 +39,7 @@ class FilesController extends Controller
     {
         $this->validate($request,
             [
-                'file' => 'required|file|max:4096|mimes:png,gif,jpeg,txt,pdf,doc,docx'
+                'file' => 'required|file|max:4096|mimes:png,gif,jpeg,txt,pdf,doc,docx,xls,xlsx'
             ], [], [
                 'file' => '文件'
             ]
