@@ -63,7 +63,7 @@ class AuthorityController extends Controller
         $this->validate($request,
             [
                 'name' => ['required', 'max:20', Rule::unique('authority_groups', 'name')],
-                'description' => 'max:30',
+                'description' => 'max:50',
                 'visibles.*' => 'numeric',
                 'visibles' => ['array', function ($attribute, $value, $event) use ($editables) {
                     if ($value == [] && $editables == []) {
