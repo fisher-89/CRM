@@ -17,7 +17,7 @@ class CreateAuthTable extends Migration
         Schema::create('authority_groups', function (Blueprint $table) {
             $table->tinyIncrements('id');
             $table->char('name',20)->comment('分组名称');
-            $table->char('description',30)->comment('描述')->nullable();
+            $table->char('description',50)->comment('描述')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
