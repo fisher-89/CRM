@@ -248,7 +248,7 @@ class NotesController extends Controller
     {
         $note = Notes::where('note_type_id', $request->route('id'))->first();
         if ((bool)$note === true) {
-            abort(400, '当前分类被暂用，不能修改');
+            abort(400, '当前分类被使用，不能修改');
         }
     }
 
