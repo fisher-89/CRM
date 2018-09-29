@@ -442,7 +442,7 @@ class ClientsService
             $matter = $matter->getSheet();
             $res = $matter->toArray();
         });
-        if(implode($res[1])==''){
+        if (implode($res[1]) == '') {
             abort(404, '未找到导入数据');
         }
         $brand = app('api')->getBrands([1, 2]);
@@ -453,15 +453,15 @@ class ClientsService
             if (count($res[$i]) != 14) {
                 $err['序号:' . $l][] = '文件布局错误';
             }
-            if(empty($res[$i][0])){
+            if (empty($res[$i][0])) {
                 $err['名字'][] = '不能为空';
-            }else{
+            } else {
                 if (strlen($res[$i][0]) > 30) {
                     $err['姓名'][] = '过长';
-                }else if (strlen($res[$i][0]) < 6) {
+                } else if (strlen($res[$i][0]) < 6) {
                     $err['姓名'][] = '过短';
                 }
-                if(!preg_match('/^[\x{4e00}-\x{9fa5}]{2,10}$|^[a-zA-Z\s]*[a-zA-Z\s]{2,20}$/isu',$res[$i][0])){
+                if (!preg_match('/^[\x{4e00}-\x{9fa5}]{2,10}$|^[a-zA-Z\s]*[a-zA-Z\s]{2,20}$/isu', $res[$i][0])) {
                     $err['名字'][] = '格式不正确';
                 }
             }
@@ -475,16 +475,16 @@ class ClientsService
             }
             if (empty($res[$i][2])) {
                 $err['客户状态'][] = '不能为空';
-            } else if ($res[$i][2] == '潜在客户' || $res[$i][2] == '合作中' || $res[$i][2] == '合作完毕'|| $res[$i][2] == '黑名单' ) {
+            } else if ($res[$i][2] == '潜在客户' || $res[$i][2] == '合作中' || $res[$i][2] == '合作完毕' || $res[$i][2] == '黑名单') {
                 if ($this->strTransNum($res[$i][2]) === false) {
                     $err['客户状态'][] = '不在选择范围';
                 }
             } else {
                 $err['客户状态'][] = '无效';
             }
-            if(empty($res[$i][3])){
+            if (empty($res[$i][3])) {
                 $err['合作品牌'][] = '不能为空';
-            }else{
+            } else {
                 $explode = explode(',', $res[$i][3]);
                 $brandId = [];
                 foreach ($brand as $item) {
@@ -494,13 +494,13 @@ class ClientsService
                 }
                 if (count($brandId) < count($explode)) {
                     $err['合作品牌'][] = '名字个别错误';
-                }else if ($brandId == []) {
+                } else if ($brandId == []) {
                     $err['合作品牌'][] = '名字全部错误';
                 }
             }
-            if(empty($res[$i][4])){
+            if (empty($res[$i][4])) {
                 $err['性别'][] = '不能为空';
-            }else if ($res[$i][4] != '男' && $res[$i][4] != '女') {
+            } else if ($res[$i][4] != '男' && $res[$i][4] != '女') {
                 $err['性别'][] = '无效';
             }
             if (empty($res[$i][5])) {
@@ -512,7 +512,7 @@ class ClientsService
                 if (strlen($res[$i][5]) != 11) {
                     $err['电话号码'][] = '位数不正确';
                 }
-                if(!preg_match('/^1[3456789]\d{9}$/',$res[$i][5])){
+                if (!preg_match('/^1[3456789]\d{9}$/', $res[$i][5])) {
                     $err['电话号码'][] = '格式错误';
                 }
                 $mobile = $this->client->where('mobile', $res[$i][5])->first();
@@ -521,16 +521,16 @@ class ClientsService
                 }
             }
             if (!empty($res[$i][6])) {
-                if(strlen($res[$i][6]) > 20){
+                if (strlen($res[$i][6]) > 20) {
                     $err['微信号'][] = '过长';
                 }
-                if(!preg_match('/^[a-zA-Z][a-zA-Z0-9_-]{5,19}$/',$res[$i][6])){
+                if (!preg_match('/^[a-zA-Z][a-zA-Z0-9_-]{5,19}$/', $res[$i][6])) {
                     $err['微信号'][] = '格式错误';
                 }
             }
-            if(empty($res[$i][7])){
+            if (empty($res[$i][7])) {
                 $err['民族'][] = '不能为空';
-            }else{
+            } else {
                 if (strlen($res[$i][7]) > 15) {
                     $err['民族'][] = '过长';
                 } else {
@@ -540,9 +540,9 @@ class ClientsService
                     }
                 }
             }
-            if(empty($res[$i][8])){
+            if (empty($res[$i][8])) {
                 $err['身份证号码'][] = '不能为空';
-            }else{
+            } else {
                 if (!preg_match('/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/', $res[$i][8])) {
                     $err['身份证号码'][] = '格式不正确';
                 } else {
@@ -553,7 +553,7 @@ class ClientsService
                 }
             }
 
-            if (!empty($res[$i][9])){
+            if (!empty($res[$i][9])) {
                 $arr = explode(',', $res[$i][9]);
                 $e = [];
                 $n = 0;
@@ -571,19 +571,19 @@ class ClientsService
                 }
             }
             if (!empty($res[$i][10])) {
-                $arr=DB::table('provincial')->where('name',$res[$i][10])->first();
-                if((bool)$arr === false){
+                $arr = DB::table('provincial')->where('name', $res[$i][10])->first();
+                if ((bool)$arr === false) {
                     $err['籍贯'][] = '不存在';
                 }
             }
-            if(empty($res[$i][11])){
+            if (empty($res[$i][11])) {
                 $err['首次合作时间'][] = '不能为空';
-            }else{
+            } else {
                 if (strtotime($res[$i][11]) == false) {
                     $err['首次合作时间'][] = '必须是时间格式';
                 }
             }
-            if(!empty($res[$i][12])){
+            if (!empty($res[$i][12])) {
                 if (!is_numeric($res[$i][12])) {
                     $err['维护人编号'][] = '必须数字';
                 } else {
@@ -600,7 +600,7 @@ class ClientsService
                     }
                 }
             }
-            if(isset($res[$i][13])){
+            if (isset($res[$i][13])) {
                 if (strlen($res[$i][13]) > 600) {
                     $err['序号：' . $l] = '备注过长';
                 }
@@ -626,17 +626,17 @@ class ClientsService
             $this->client->vindicator_name = $oaData['realname'];
             $this->client->remark = $res[$i][13];
             $this->client->save();
-            if(isset($a)){
+            if (isset($a)) {
                 foreach ($a as $val) {
-                    $tagSql=[
-                        'client_id'=> $this->client->id,
+                    $tagSql = [
+                        'client_id' => $this->client->id,
                         'tag_id' => $val,
                     ];
                     $this->clientHasTags->create($tagSql);
                 }
             }
-            foreach($brandId as $v){
-                $brandSql=[
+            foreach ($brandId as $v) {
+                $brandSql = [
                     'client_id' => $this->client->id,
                     'brand_id' => $v,
                 ];
@@ -647,7 +647,7 @@ class ClientsService
             }
         }
         $data['data'] = isset($success) ? $success : [];
-        $data['headers'] = isset($header) ? $header :[];
+        $data['headers'] = isset($header) ? $header : [];
         $data['errors'] = isset($error) ? $error : [];
         return $data;
     }
