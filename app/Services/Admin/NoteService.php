@@ -33,7 +33,7 @@ class NoteService
 
     public function getListType($request)
     {
-        return $this->noteTypesModel->orderBy('sort', 'asc')->filterByQueryString()->withPagination($request->get('pagesize', 10));
+        return $this->noteTypesModel->SortByQueryString()->filterByQueryString()->withPagination($request->get('pagesize', 10));
     }
 
     public function addNoteType($request)
