@@ -50,7 +50,7 @@ class SourceController extends Controller
             [
                 'name' => 'required|unique:source,name|max:10',
                 'describe' => '',
-                'sort' => 'numeric|max:9999'
+                'sort' => 'numeric|max:255'
             ], [], [
                 'name' => '来源名称',
                 'describe' => '描述',

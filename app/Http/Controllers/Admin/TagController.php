@@ -94,7 +94,7 @@ class TagController extends Controller
             [
                 'name' => 'required|unique:tag_types,name|max:6',
                 'color' => 'max:7|min:7',
-                'sort' => 'numeric'
+                'sort' => 'numeric|max:255'
             ], [], [
                 'name' => '类型名字',
                 'color' => '颜色',
@@ -201,7 +201,7 @@ class TagController extends Controller
 //                        ->where('type_id',$request->all('type_id'))
                 ],
                 'describe' => 'max:50',
-                'sort' => 'numeric',
+                'sort' => 'numeric|max:255',
             ], [], [
                 'type_id' => '分类',
                 'name' => '标签名称',
