@@ -192,7 +192,7 @@ class NotesController extends Controller
         return $this->validate($request,
             [
                 'name' => 'required|max:20|unique:note_types,name',
-                'sort' => 'required|numeric',
+                'sort' => 'required|numeric|max:255',
                 'is_task' => 'numeric|between:0,1',
             ], [], [
                 'name' => '名称',
@@ -216,7 +216,7 @@ class NotesController extends Controller
                     Rule::unique('note_types', 'name')
                         ->whereNotIn('id', explode(' ', $request->route('id'))),
                 ],
-                'sort' => 'required|numeric',
+                'sort' => 'required|numeric|max:255',
                 'is_task' => 'numeric|between:0,1',
             ], [], [
                 'name' => '名称',
