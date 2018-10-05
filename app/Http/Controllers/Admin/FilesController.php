@@ -41,7 +41,7 @@ class FilesController extends Controller
             [
                 'file' => 'required|file|max:4096|mimes:png,gif,jpeg,txt,pdf,doc,docx,xls,xlsx'
             ], [], [
-                'file' => '文件'
+                'file' => '附件'
             ]
         );
     }
