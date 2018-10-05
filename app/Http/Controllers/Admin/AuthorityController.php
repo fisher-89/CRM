@@ -109,7 +109,7 @@ class AuthorityController extends Controller
                 'name' => ['required', 'max:20', Rule::unique('authority_groups', 'name')
                     ->whereNotIn('id', explode(' ', $id)),],
                 'description' => 'max:50',
-                'visibles.*' => 'numeric',
+                'visibles.*' => 'numeric|max:255',
                 'visibles' => ['array', function ($attribute, $value, $event) {
                     if ($value == []) {
                         return $event('查看权限必选');
@@ -130,7 +130,7 @@ class AuthorityController extends Controller
                         };
                     }
                 ],
-                'editables.*' => 'numeric',
+                'editables.*' => 'numeric|max:255',
                 'staffs' => 'array|required',
                 'staffs.*.staff_sn' => 'numeric|digits:6|required',
                 'staffs.*.staff_name' => 'max:10|required',
