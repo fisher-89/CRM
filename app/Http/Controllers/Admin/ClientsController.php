@@ -157,13 +157,13 @@ class ClientsController extends Controller
             abort(400, '文件上传出错');
         }
         $res = [];
-        try{
+        try {
             Excel::selectSheets('主表')->load($excelPath, function ($matter) use (&$res) {
                 $matter = $matter->getSheet();
                 $res = $matter->toArray();
             });
-        }catch (\Exception $exception){
-            abort(404,'未找到主表');
+        } catch (\Exception $exception) {
+            abort(404, '未找到主表');
         }
         if (!isset($res[1]) || implode($res[1]) == '') {
             abort(404, '未找到导入数据');
@@ -239,6 +239,11 @@ class ClientsController extends Controller
         return $info;
     }
 
+    /**
+     * 数据验证
+     * unique:tag_types,name
+     * @param $request
+     */
     protected function excelVerify($request)
     {
         try {
@@ -250,24 +255,10 @@ class ClientsController extends Controller
                             return $event('不正确');
                         }
                     }],
-                    'mobile' => ['required', 'digits:11', 'regex:/^1[3456789]\d{9}$/',
-                        function ($attribute, $value, $event) {
-                            $mobile = DB::table('clients')->where('mobile', $value)->first();
-                            if (true === (bool)$mobile) {
-                                return $event('已经存在');
-                            }
-                        }
-                    ],
+                    'mobile' => ['required', 'digits:11', 'regex:/^1[3456789]\d{9}$/', 'unique:clients,mobile'],
                     'wechat' => 'max:20|nullable',
                     'nation' => 'required|max:5|exists:nations,name',
-                    'id_card_number' => ['required',
-                        function ($attribute, $value, $event) {
-                            $cardNumber = DB::table('clients')->where('id_card_number', $value)->first();
-                            if (true === (bool)$cardNumber) {
-                                return $event('已经存在');
-                            }
-                        },
-                        'max:18',
+                    'id_card_number' => ['required', 'unique:clients,id_card_number', 'max:18',
                         'regex:/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/'],
                     'native_place' => 'nullable|max:8|exists:provincial,name',
                     'present_address' => 'nullable|max:150',
@@ -309,8 +300,15 @@ class ClientsController extends Controller
         foreach ($value as $item) {
             $arr = explode(' ', $item);
             if (count($arr) > 2) {
-                unset($arr[0]);
-                $array[] = implode($arr);
+                $clean = [];
+                foreach ($arr as $items) {
+                    if (preg_match('/^[A-Za-z]+$/', $items)) {
+                        unset($items);
+                    } else {
+                        $clean[] = $items;
+                    }
+                }
+                $array[] = implode($clean);
             } else {
                 $array[] = isset($arr[1]) ? $arr[1] : $arr[0];
             }
