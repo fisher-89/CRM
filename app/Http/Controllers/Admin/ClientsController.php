@@ -208,7 +208,7 @@ class ClientsController extends Controller
                     ];
                 }
                 $this->client->excelSaveBrand($brandArray);
-                if ($arr['tag_id'] != []) {
+                if ((bool)$arr['tag_id'] === true) {
                     $tagsArray = [];
                     foreach ($arr['tag_id'] as $item) {
                         $tagsArray[] = [
