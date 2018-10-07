@@ -61,7 +61,7 @@ class NotesRequest extends FormRequest
             'finished_at' => 'date|nullable',
             'task_result' => 'between:-1,1|nullable',
             'brands'=>'array|required',
-            'brands.*.brand_id'=>'numeric'
+            'brands.*.brand_id'=>'numeric|required'
         ];
     }
 
