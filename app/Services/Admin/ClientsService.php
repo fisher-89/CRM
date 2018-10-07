@@ -43,6 +43,13 @@ class ClientsService
         $this->clientHasBrands = $clientHasBrands;
     }
 
+    /**
+     * 获取列表
+     *
+     * @param $request
+     * @param $brand
+     * @return ClientsCollection
+     */
     public function listClient($request, $brand)
     {
 //        foreach ($brand as $key => $value) {
@@ -63,6 +70,12 @@ class ClientsService
         }
     }
 
+    /**
+     * 添加执行
+     *
+     * @param $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function addClient($request)
     {
         $all = $request->all();
@@ -127,7 +140,7 @@ class ClientsService
             $clientData->update($all);
             if ((bool)$clientData === false) {
                 DB::rollback();
-                abort(400, '客户修改失败2');
+                abort(400, '客户修改失败');
             }
             $this->clientHasTags->where('client_id', $clientData->id)->delete();
             $this->clientHasShops->where('client_id', $clientData->id)->delete();
