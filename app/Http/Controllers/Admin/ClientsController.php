@@ -3,21 +3,24 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\Admin\ClientRequest;
-use App\Models\AuthorityGroups;
 use App\Models\AuthGroupHasEditableBrands;
 use App\Models\AuthGroupHasVisibleBrands;
-use App\Models\ClientHasBrands;
-use App\Models\Clients;
 use App\Services\Admin\AuthorityService;
 use App\Services\Admin\ClientsService;
-use Illuminate\Http\Request;
-use Excel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\AuthorityGroups;
+use App\Models\ClientHasBrands;
+use Illuminate\Http\Request;
+use App\Models\Clients;
+use App\Http\Requests;
+use Validator;
+use Excel;
 
 class ClientsController extends Controller
 {
     protected $client;
+    protected $error;
     protected $auth;
 
     public function __construct(ClientsService $clientsService, AuthorityService $authorityService)
@@ -139,9 +142,265 @@ class ClientsController extends Controller
         return $this->client->exportClient($request, $brand);
     }
 
+    /**
+     * @param Request $request
+     * @return mixed
+     * return $this->client->importClient($request);
+     */
     public function import(Request $request)
     {
-        return $this->client->importClient($request);
+        if (!$request->hasFile('file')) {
+            abort(400, '未选择文件');
+        }
+        $excelPath = $request->file('file');
+        if (!$excelPath->isValid()) {
+            abort(400, '文件上传出错');
+        }
+        $res = [];
+        Excel::selectSheets('主表')->load($excelPath, function ($matter) use (&$res) {
+            $matter = $matter->getSheet();
+            $res = $matter->toArray();
+        });
+        if (implode($res[1]) == '') {
+            abort(404, '未找到导入数据');
+        }
+        $brand = app('api')->getBrands([1, 2]);
+        $header = $res[0];
+        for ($i = 1; $i < count($res); $i++) {
+            $this->error = [];
+            $oaData = app('api')->withRealException()->getStaff($res[$i][12]);
+            $source = $this->getSource($res[$i][1]);
+            $transNum = $this->strTransNum($res[$i][2]);
+            $brandId = $this->getBrandId($brand, $res[$i][3]);
+            $tagId = $res[$i][9] != '' ? $this->getTagId($res[$i][9]) : '';
+            $arr = [
+                'name' => $res[$i][0],
+                'source_id' => $source,
+                'status' => $transNum,
+                'brand' => $brandId,
+                'gender' => $res[$i][4],
+                'mobile' => $res[$i][5],
+                'wechat' => $res[$i][6],
+                'nation' => $res[$i][7],
+                'id_card_number' => $res[$i][8],
+                'tag_id' => $tagId,
+                'native_place' => $res[$i][10],
+                'first_cooperation_at' => $res[$i][11],
+                'vindicator_sn' => $res[$i][12],
+                'vindicator_name' => $oaData['realname'],
+                'remark' => $res[$i][13]
+            ];
+            $request = new Requests\Admin\ClientRequest($arr);
+            $this->excelVerify($request);
+            if ($this->error == []) {
+                $data = $this->client->excelSaveClient($arr);
+                $brandArray = [];
+                foreach ($arr['brand'] as $value) {
+                    $brandArray[] = [
+                        'client_id' => $data->id,
+                        'brand_id' => $value,
+                    ];
+                }
+                $this->client->excelSaveBrand($brandArray);
+                if ($arr['tag_id'] != []) {
+                    $tagsArray = [];
+                    foreach ($arr['tag_id'] as $item) {
+                        $tagsArray[] = [
+                            'client_id' => $data->id,
+                            'tag_id' => $item,
+                        ];
+                    }
+                    $this->client->excelSaveTags($tagsArray);
+                }
+                if ($data == true) {
+                    $success[] = $data;
+                }
+            } else {
+                $errors['row'] = $i + 1;
+                $errors['rowData'] = $res[$i];
+                $errors['message'] = $this->error;
+                $mistake[] = $errors;
+                continue;
+            }
+        }
+        $info['data'] = isset($success) ? $success : [];
+        $info['headers'] = isset($header) ? $header : [];
+        $info['errors'] = isset($mistake) ? $mistake : [];
+        return $info;
+    }
+
+    protected function excelVerify($request)
+    {
+        try {
+            $this->validate($request,
+                [
+                    'name' => 'required|max:10',
+                    'gender' => ['required', 'max:1', function ($attribute, $value, $event) {
+                        if ($value != '男' && $value != '女') {
+                            return $event('不正确');
+                        }
+                    }],
+                    'mobile' => ['required', 'digits:11', 'regex:/^1[3456789]\d{9}$/',
+                        function ($attribute, $value, $event) {
+                            $mobile = DB::table('clients')->where('mobile', $value)->first();
+                            if (true === (bool)$mobile) {
+                                return $event('已经存在');
+                            }
+                        }
+                    ],
+                    'wechat' => 'max:20|nullable',
+                    'nation' => 'required|max:5|exists:nations,name',
+                    'id_card_number' => ['required',
+                        function ($attribute, $value, $event) {
+                            $cardNumber = DB::table('clients')->where('id_card_number', $value)->first();
+                            if (true === (bool)$cardNumber) {
+                                return $event('已经存在');
+                            }
+                        },
+                        'max:18|',
+                        'regex:/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/'],
+                    'native_place' => 'nullable|max:8|exists:provincial,name',
+                    'present_address' => 'nullable|max:150',
+                    'first_cooperation_at' => 'nullable|date',
+                    'vindicator_sn' => ['numeric', 'nullable',
+                        function ($attribute, $value, $event) {
+                            if ((bool)$value === true) {
+                                try {
+                                    $oa = app('api')->withRealException()->getStaff($value);
+                                    if ((bool)$oa === false) {
+                                        return $event('错误');
+                                    }
+                                } catch (\Exception $e) {
+                                    return $event('错误');
+                                }
+                            }
+                        }
+                    ],
+                    'vindicator_name' => 'max:10',
+                    'remark' => 'max:200',
+                    'shops' => 'array|nullable',
+                    'shops.*.shop_sn' => [
+                        'required',
+                    ]
+                ]
+            );
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            foreach ($e->validator->errors()->getMessages() as $key => $value) {
+                $this->error[$this->conversion($key)] = $this->conversionValue($value);
+            }
+        } catch (\Exception $e) {
+            $this->error['message'] ='系统异常：' . $e->getMessage();
+        }
+    }
+
+    protected function conversionValue($value)
+    {
+        $array = [];
+        foreach ($value as $item) {
+            $arr = explode(' ', $item);
+            if (count($arr) > 2) {
+                unset($arr[0]);
+                $array[] = implode($arr);
+            } else {
+                $array[] = isset($arr[1]) ? $arr[1] : $arr[0];
+            }
+        }
+        return $array;
+    }
+
+    protected function conversion($str)
+    {
+        $arr = [
+            'name' => '客户姓名',
+            'source_id' => '客户来源',
+            'status' => '客户状态',
+            'gender' => '性别',
+            'mobile' => '电话',
+            'wechat' => '微信',
+            'nation' => '民族',
+            'id_card_number' => '身份证号码',
+            'native_place' => '籍贯',
+            'present_address' => '现住地址',
+            'tag_id' => '标签',
+            'first_cooperation_at' => '第一次合作时间',
+            'vindicator_sn' => '维护人编号',
+            'vindicator_name' => '维护人姓名',
+            'remark' => '备注',
+            'brand' => '品牌',
+        ];
+        return $arr[$str];
+    }
+
+    protected function getSource($str)
+    {
+        $source = DB::table('source')->where('name', $str)->value('id');
+        if ($source == true) {
+            return $source;
+        } else {
+            $this->error['来源'][] = '错误';
+        }
+    }
+
+    protected function getBrandId($brand, $str)
+    {
+        $explode = explode(',', $str);
+        if(count(array_unique($explode)) < count($explode)){
+            $this->error['合作品牌'][] = '存在重复';
+        }
+        $brandId = [];
+        foreach ($brand as $item) {
+            if (in_array($item['name'], $explode)) {
+                $brandId[] = $item['id'];
+            }
+        }
+        if (isset($brandId)) {
+            return $brandId;
+        } else {
+            if (count($brandId) < count($explode)) {
+                $this->error['合作品牌'][] = '名字个别错误';
+            } else if ($brandId == []) {
+                $this->error['合作品牌'][] = '名字全部错误';
+            }
+        }
+    }
+
+    protected function getTagId($str)
+    {
+        $arr = explode(',', $str);
+        if(count(array_unique($arr)) < count($arr)){
+            $this->error['标签'][] = '存在重复';
+        }
+        $e = [];
+        $n = 0;
+        foreach ($arr as $item) {
+            $n++;
+            $id = DB::table('tags')->where('name', $item)->value('id');
+            if (false == (bool)$id) {
+                $e[] = $n;
+            }
+            $a[] = $id;
+        }
+        $null = isset($e) ? implode(',', $e) : '';
+        if ($null == '') {
+            return isset($a) ? $a : [];
+        } else {
+            $this->error['标签'][] = '第' . implode('、', $e) . '未找到';
+        }
+    }
+
+    protected function strTransNum($str)
+    {
+        $arr = [
+            '黑名单' => '-1',
+            '潜在客户' => '0',
+            '合作中' => '1',
+            '合作完毕' => '2',
+        ];
+        if (!isset($arr[$str])) {
+            $this->error['状态'][] = '不存在';
+        } else {
+            return $arr[$str];
+        }
     }
 
     /**
