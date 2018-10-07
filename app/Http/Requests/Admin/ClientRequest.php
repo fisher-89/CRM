@@ -128,7 +128,8 @@ class ClientRequest extends FormRequest
             'first_cooperation_at' => '第一次合作时间',
             'vindicator_sn' => '维护人编号',
             'vindicator_name' => '维护人姓名',
-            'remark' => '备注'
+            'remark' => '备注',
+            'brand'=>'品牌',
             //品牌  店铺
         ];
     }
