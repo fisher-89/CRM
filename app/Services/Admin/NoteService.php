@@ -103,12 +103,14 @@ class NoteService
             $note->finished_at = $request->finished_at;
             $note->task_result = $request->task_result;
             $note->save();
-            foreach ($request->brands as $items) {
-                $brandSql = [
-                    'note_id' => $note->id,
-                    'brand_id' => $items,
-                ];
-                $this->noteHasBrand->create($brandSql);
+            if((bool)$request->brands === true){
+                foreach ($request->brands as $items) {
+                    $brandSql[] = [
+                        'note_id' => $note->id,
+                        'brand_id' => $items,
+                    ];
+                }
+                $this->noteHasBrand->insert($brandSql);
             }
             DB::commit();
         } catch (\Exception $e) {
@@ -149,12 +151,14 @@ class NoteService
             $notes = clone $note;
             $note->update($noteSql);
             $this->noteHasBrand->where('note_id', $id)->delete();
-            foreach ($request->brands as $items) {
-                $noteHasBrandSql = [
-                    'note_id' => $id,
-                    'brand_id' => $items
-                ];
-                $this->noteHasBrand->create($noteHasBrandSql);
+            if((bool)$request->brands === true){
+                foreach ($request->brands as $items) {
+                    $noteHasBrandSql[] = [
+                        'note_id' => $id,
+                        'brand_id' => $items
+                    ];
+                }
+                $this->noteHasBrand->insert($noteHasBrandSql);
             }
             $this->saveLogs($request, $notes, '后台修改', '1');
             DB::commit();
