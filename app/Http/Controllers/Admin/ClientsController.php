@@ -163,7 +163,7 @@ class ClientsController extends Controller
         });
         if (implode($res[1]) == '') {
             abort(404, '未找到导入数据');
-        }dd(456);
+        }
         $brand = app('api')->getBrands([1, 2]);
         $header = $res[0];
         for ($i = 1; $i < count($res); $i++) {
