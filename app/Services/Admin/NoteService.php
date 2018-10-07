@@ -87,34 +87,34 @@ class NoteService
 
     public function addNote($request)
     {
-//        try {
-//            DB::beginTransaction();
-        $note = $this->noteModel;
-        $note->note_type_id = $request->note_type_id;
-        $note->client_id = $request->client_id;
-        $note->client_name = $request->client_name;
-        $note->took_place_at = $request->took_place_at;
-        $note->recorder_sn = $request->user()->staff_sn;
-        $note->recorder_name = $request->user()->realname;
-        $note->title = $request->title;
-        $note->content = $request->content;
-        $note->attachments = $this->fileDispose($request->attachments);
-        $note->task_deadline = $request->task_deadline;
-        $note->finished_at = $request->finished_at;
-        $note->task_result = $request->task_result;
-        $note->save();
-        foreach ($request->brands as $items) {
-            $brandSql = [
-                'note_id' => $note->id,
-                'brand_id' => $items,
-            ];
-            $this->noteHasBrand->create($brandSql);
+        try {
+            DB::beginTransaction();
+            $note = $this->noteModel;
+            $note->note_type_id = $request->note_type_id;
+            $note->client_id = $request->client_id;
+            $note->client_name = $request->client_name;
+            $note->took_place_at = $request->took_place_at;
+            $note->recorder_sn = $request->user()->staff_sn;
+            $note->recorder_name = $request->user()->realname;
+            $note->title = $request->title;
+            $note->content = $request->content;
+            $note->attachments = $this->fileDispose($request->attachments);
+            $note->task_deadline = $request->task_deadline;
+            $note->finished_at = $request->finished_at;
+            $note->task_result = $request->task_result;
+            $note->save();
+            foreach ($request->brands as $items) {
+                $brandSql = [
+                    'note_id' => $note->id,
+                    'brand_id' => $items,
+                ];
+                $this->noteHasBrand->create($brandSql);
+            }
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+            abort(400, '事件添加失败');
         }
-//            DB::commit();
-//        } catch (\Exception $e) {
-//            DB::rollback();
-//            abort(400, '事件添加失败');
-//        }
         $data = $note->where('id', $note->id)->first();
         $data['brands'] = $request->brands;
         return response()->json($data, 201);
@@ -127,41 +127,41 @@ class NoteService
         if (false == (bool)$note) {
             abort(404, '未找到数据');
         }
-//        try {
-//            DB::beginTransaction();
-        if (true === (bool)$note->attachments) {
-            $this->fileDiscard($note->attachments);
-        }
-        $noteSql = [
-            'note_type_id' => $request->note_type_id,
-            'client_id' => $request->client_id,
-            'client_name' => $request->client_name,
-            'took_place_at' => $request->took_place_at,
-            'recorder_sn' => $request->user()->staff_sn,
-            'recorder_name' => $request->user()->realname,
-            'title' => $request->title,
-            'content' => $request->content,
-            'attachments' => $this->fileDispose($request->attachments),
-            'task_deadline' => $request->task_deadline,
-            'finished_at' => $request->finished_at,
-            'task_result' => $request->task_result,
-        ];
-        $notes = clone $note;
-        $note->update($noteSql);
-        $this->noteHasBrand->where('note_id', $id)->delete();
-        foreach ($request->brands as $items) {
-            $noteHasBrandSql = [
-                'note_id' => $id,
-                'brand_id' => $items
+        try {
+            DB::beginTransaction();
+            if (true === (bool)$note->attachments) {
+                $this->fileDiscard($note->attachments);
+            }
+            $noteSql = [
+                'note_type_id' => $request->note_type_id,
+                'client_id' => $request->client_id,
+                'client_name' => $request->client_name,
+                'took_place_at' => $request->took_place_at,
+                'recorder_sn' => $request->user()->staff_sn,
+                'recorder_name' => $request->user()->realname,
+                'title' => $request->title,
+                'content' => $request->content,
+                'attachments' => $this->fileDispose($request->attachments),
+                'task_deadline' => $request->task_deadline,
+                'finished_at' => $request->finished_at,
+                'task_result' => $request->task_result,
             ];
-            $this->noteHasBrand->create($noteHasBrandSql);
+            $notes = clone $note;
+            $note->update($noteSql);
+            $this->noteHasBrand->where('note_id', $id)->delete();
+            foreach ($request->brands as $items) {
+                $noteHasBrandSql = [
+                    'note_id' => $id,
+                    'brand_id' => $items
+                ];
+                $this->noteHasBrand->create($noteHasBrandSql);
+            }
+            $this->saveLogs($request, $notes, '后台修改', '1');
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+            abort(400, '事件修改失败');
         }
-        $this->saveLogs($request, $notes, '后台修改', '1');
-//            DB::commit();
-//        } catch (\Exception $e) {
-//            DB::rollback();
-//            abort(400, '事件修改失败');
-//        }
         $data = $note->where('id', $note->id)->first();
         $data['brands'] = $request->brands;
         return response()->json($data, 201);
@@ -245,27 +245,27 @@ class NoteService
      */
     private function fileDiscard($attachments)
     {
-//        try {
-        if (is_array($attachments)) {
-            foreach ($attachments as $key => $value) {
-                $getFileName = basename($value);
+        try {
+            if (is_array($attachments)) {
+                foreach ($attachments as $key => $value) {
+                    $getFileName = basename($value);
+                    $src = '/uploads/' . $getFileName;
+                    $dst = '/abandon/' . $getFileName;
+                    if (Storage::exists($src)) {
+                        Storage::disk('public')->move($src, $dst);
+                    }
+                }
+            } else {
+                $getFileName = basename($attachments);
                 $src = '/uploads/' . $getFileName;
                 $dst = '/abandon/' . $getFileName;
                 if (Storage::exists($src)) {
                     Storage::disk('public')->move($src, $dst);
                 }
             }
-        } else {
-            $getFileName = basename($attachments);
-            $src = '/uploads/' . $getFileName;
-            $dst = '/abandon/' . $getFileName;
-            if (Storage::exists($src)) {
-                Storage::disk('public')->move($src, $dst);
-            }
+        } catch (\Exception $e) {
+            abort(500, '修改失败');
         }
-//        } catch (\Exception $e) {
-//            abort(500, '修改失败');
-//        }
     }
 
     protected function saveLogs($request, $notes, $type, $operation = '')
