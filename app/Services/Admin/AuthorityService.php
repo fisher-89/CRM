@@ -44,31 +44,31 @@ class AuthorityService
             $group = $this->groups->create($all);
             if ((bool)$all['staffs'] === true) {
                 foreach ($all['staffs'] as $key => $value) {
-                    $staffSql = [
+                    $staffSql[] = [
                         'authority_group_id' => $group->id,
                         'staff_sn' => $value['staff_sn'],
                         'staff_name' => $value['staff_name']
                     ];
-                    $this->staff->create($staffSql);
                 }
+                $this->staff->insert($staffSql);
             }
             if ((bool)$all['editables'] === true) {
                 foreach ($all['editables'] as $k => $v) {
-                    $departmentSql = [
+                    $departmentSql[] = [
                         'authority_group_id' => $group->id,
                         'brand_id' => $v,
                     ];
-                    $this->editable->create($departmentSql);
                 }
+                $this->editable->insert($departmentSql);
             }
             if ((bool)$all['visibles'] === true) {
                 foreach ($all['visibles'] as $ky => $va) {
-                    $noteSql = [
+                    $noteSql[] = [
                         'authority_group_id' => $group->id,
                         'brand_id' => $va,
                     ];
-                    $this->visible->create($noteSql);
                 }
+                $this->visible->insert($noteSql);
             }
             DB::commit();
         } catch (\Exception $e) {
@@ -97,33 +97,33 @@ class AuthorityService
             if ((bool)$all['staffs'] === true) {
                 $this->staff->where('authority_group_id', $id)->delete();
                 foreach ($all['staffs'] as $key => $value) {
-                    $staffSql = [
+                    $staffSql[] = [
                         'authority_group_id' => $group->id,
                         'staff_sn' => $value['staff_sn'],
                         'staff_name' => $value['staff_name'],
                     ];
-                    $this->staff->create($staffSql);
                 }
+                $this->staff->insert($staffSql);
             }
             if ((bool)$all['editables'] === true) {
                 $this->editable->where('authority_group_id', $id)->delete();
                 foreach ($all['editables'] as $k => $v) {
-                    $departmentSql = [
+                    $departmentSql[] = [
                         'authority_group_id' => $group->id,
                         'brand_id' => $v,
                     ];
-                    $this->editable->create($departmentSql);
                 }
+                $this->editable->insert($departmentSql);
             }
             if ((bool)$all['visibles'] === true) {
                 $this->visible->where('authority_group_id', $id)->delete();
                 foreach ($all['visibles'] as $ky => $va) {
-                    $noteSql = [
+                    $noteSql[] = [
                         'authority_group_id' => $group->id,
                         'brand_id' => $va,
                     ];
-                    $this->visible->create($noteSql);
                 }
+                $this->visible->insert($noteSql);
             }
             DB::commit();
         } catch (\Exception $e) {
