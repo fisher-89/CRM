@@ -161,7 +161,7 @@ class ClientsController extends Controller
             $matter = $matter->getSheet();
             $res = $matter->toArray();
         });
-        if (implode($res[1]) == '') {
+        if (!isset($res[1]) || implode($res[1]) == '') {
             abort(404, '未找到导入数据');
         }
         try {

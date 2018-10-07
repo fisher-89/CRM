@@ -108,6 +108,12 @@ class ClientsService
         return response()->json($this->client->with('tags')->with('shops')->with('brands')->where('id', $bool->id)->first(), 201);
     }
 
+    /**
+     * 修改执行
+     *
+     * @param $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
     public function editClient($request)
     {
         $all = $request->all();
@@ -168,6 +174,13 @@ class ClientsService
         return response($this->client->with('tags')->with('shops')->with('brands')->where('id', $clientData->id)->first(), 201);
     }
 
+    /**
+     * 写入记录表
+     *
+     * @param $model
+     * @param $commit
+     * @param $request
+     */
     private function saveClientLog($model, $commit, $request)
     {
         $model = $model->toArray();
@@ -280,6 +293,12 @@ class ClientsService
         return $dirty;
     }
 
+    /**
+     * 冒泡排序
+     *
+     * @param $arr
+     * @return mixed
+     */
     private function sort($arr)
     {
         $length = count($arr);
@@ -295,6 +314,12 @@ class ClientsService
         return $arr;
     }
 
+    /**
+     * 删除执行
+     *
+     * @param $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
     public function delClient($request)
     {
         $id = $request->route('id');
@@ -358,6 +383,11 @@ class ClientsService
             })->first();
     }
 
+    /**
+     * 状态转换
+     * @param $data
+     * @return mixed
+     */
     protected function transform($data)
     {
         $arr = [
