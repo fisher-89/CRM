@@ -129,8 +129,8 @@ class NoteService
         if (false == (bool)$note) {
             abort(404, '未找到数据');
         }
-        try {
-            DB::beginTransaction();
+//        try {
+//            DB::beginTransaction();
             if (true === (bool)$note->attachments) {
                 $this->fileDiscard($note->attachments);
             }
@@ -161,11 +161,11 @@ class NoteService
                 $this->noteHasBrand->insert($noteHasBrandSql);
             }
             $this->saveLogs($request, $notes, '后台修改', '1');
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollback();
-            abort(400, '事件修改失败');
-        }
+//            DB::commit();
+//        } catch (\Exception $e) {
+//            DB::rollback();
+//            abort(400, '事件修改失败');
+//        }
         $data = $note->where('id', $note->id)->first();
         $data['brands'] = $request->brands;
         return response()->json($data, 201);
