@@ -75,30 +75,30 @@ class ClientsService
             }
             if (isset($request->tags) && $request->tags != []) {
                 foreach ($request->tags as $k => $v) {
-                    $tagSql = [
+                    $tagSql[] = [
                         'client_id' => $bool->id,
                         'tag_id' => $v['tag_id'],
                     ];
-                    $this->clientHasTags->create($tagSql);
                 }
+                $this->clientHasTags->insert($tagSql);
             }
             if (isset($request->brands) && $request->brands != []) {
                 foreach ($request->brands as $item) {
-                    $brandSql = [
+                    $brandSql[] = [
                         'client_id' => $bool->id,
                         'brand_id' => $item['brand_id'],
                     ];
-                    $this->clientHasBrands->create($brandSql);
                 }
+                $this->clientHasBrands->insert($brandSql);
             }
             if (isset($request->shops) && $request->shops != []) {
                 foreach ($request->shops as $items) {
-                    $shopSql = [
+                    $shopSql[] = [
                         'client_id' => $bool->id,
                         'shop_sn' => $items['shop_sn'],
                     ];
-                    $this->clientHasShops->create($shopSql);
                 }
+                $this->clientHasShops->insert($shopSql);
             }
             DB::commit();
         } catch (\Exception $e) {
@@ -116,55 +116,55 @@ class ClientsService
             abort(404, '未找到数据');
         }
         $specialHandling = clone $clientData;
-//        try {
-//            DB::beginTransaction();
-        $clientData->update($all);
-        if ((bool)$clientData === false) {
-            DB::rollback();
-            abort(400, '客户修改失败');
-        }
-        $this->clientHasTags->where('client_id', $clientData->id)->delete();
-        $this->clientHasShops->where('client_id', $clientData->id)->delete();
-        $this->clientHasBrands->where('client_id', $clientData->id)->delete();
-        if (isset($request->tags)) {
-            if ($request->tags != []) {
-                foreach ($request->tags as $k => $v) {
-                    $sql = [
-                        'client_id' => $clientData->id,
-                        'tag_id' => $v['tag_id'],
-                    ];
+        try {
+            DB::beginTransaction();
+            $clientData->update($all);
+            if ((bool)$clientData === false) {
+                DB::rollback();
+                abort(400, '客户修改失败');
+            }
+            $this->clientHasTags->where('client_id', $clientData->id)->delete();
+            $this->clientHasShops->where('client_id', $clientData->id)->delete();
+            $this->clientHasBrands->where('client_id', $clientData->id)->delete();
+            if (isset($request->tags)) {
+                if ($request->tags != []) {
+                    foreach ($request->tags as $k => $v) {
+                        $sql[] = [
+                            'client_id' => $clientData->id,
+                            'tag_id' => $v['tag_id'],
+                        ];
+                    }
                     $this->clientHasTags->create($sql);
                 }
             }
-        }
-        if (isset($request->brands)) {
-            if ($request->brands != []) {
-                foreach ($request->brands as $item) {
-                    $brandSql = [
-                        'client_id' => $clientData->id,
-                        'brand_id' => $item['brand_id'],
-                    ];
+            if (isset($request->brands)) {
+                if ($request->brands != []) {
+                    foreach ($request->brands as $item) {
+                        $brandSql[] = [
+                            'client_id' => $clientData->id,
+                            'brand_id' => $item['brand_id'],
+                        ];
+                    }
                     $this->clientHasBrands->create($brandSql);
                 }
             }
-        }
-        if (isset($request->shops)) {
-            if ($request->shops != []) {
-                foreach ($request->shops as $items) {
-                    $shopSql = [
-                        'client_id' => $clientData->id,
-                        'shop_sn' => $items['shop_sn'],
-                    ];
+            if (isset($request->shops)) {
+                if ($request->shops != []) {
+                    foreach ($request->shops as $items) {
+                        $shopSql[] = [
+                            'client_id' => $clientData->id,
+                            'shop_sn' => $items['shop_sn'],
+                        ];
+                    }
                     $this->clientHasShops->create($shopSql);
                 }
             }
+            $this->saveClientLog($specialHandling, $all, $request);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+            abort(400, '客户修改失败');
         }
-        $this->saveClientLog($specialHandling, $all, $request);
-//            DB::commit();
-//        } catch (\Exception $e) {
-//            DB::rollback();   getMissage()
-//            abort(400, '客户修改失败');
-//        }
         return response($this->client->with('tags')->with('shops')->with('brands')->where('id', $clientData->id)->first(), 201);
     }
 
