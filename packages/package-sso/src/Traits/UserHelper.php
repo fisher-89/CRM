@@ -90,7 +90,7 @@ trait UserHelper
     {
         $options = [
             'base_uri' => method_exists($this, 'getBaseUri') ? $this->getBaseUri() : '',
-            'timeout' => property_exists($this, 'timeout') ? $this->timeout : 5.0,
+            'timeout' => property_exists($this, 'timeout') ? $this->timeout : 29.0,
         ];
 
         return $options;
