@@ -121,7 +121,7 @@ class ClientsService
             $clientData->update($all);
             if ((bool)$clientData === false) {
                 DB::rollback();
-                abort(400, '客户修改失败');
+                abort(400, '客户修改失败2');
             }
             $this->clientHasTags->where('client_id', $clientData->id)->delete();
             $this->clientHasShops->where('client_id', $clientData->id)->delete();
@@ -134,7 +134,7 @@ class ClientsService
                             'tag_id' => $v['tag_id'],
                         ];
                     }
-                    $this->clientHasTags->create($sql);
+                    $this->clientHasTags->insert($sql);
                 }
             }
             if (isset($request->brands)) {
@@ -145,7 +145,7 @@ class ClientsService
                             'brand_id' => $item['brand_id'],
                         ];
                     }
-                    $this->clientHasBrands->create($brandSql);
+                    $this->clientHasBrands->insert($brandSql);
                 }
             }
             if (isset($request->shops)) {
@@ -156,7 +156,7 @@ class ClientsService
                             'shop_sn' => $items['shop_sn'],
                         ];
                     }
-                    $this->clientHasShops->create($shopSql);
+                    $this->clientHasShops->insert($shopSql);
                 }
             }
             $this->saveClientLog($specialHandling, $all, $request);
