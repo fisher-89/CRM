@@ -157,10 +157,14 @@ class ClientsController extends Controller
             abort(400, '文件上传出错');
         }
         $res = [];
-        Excel::selectSheets('主表')->load($excelPath, function ($matter) use (&$res) {
-            $matter = $matter->getSheet();
-            $res = $matter->toArray();
-        });
+        try{
+            Excel::selectSheets('主表')->load($excelPath, function ($matter) use (&$res) {
+                $matter = $matter->getSheet();
+                $res = $matter->toArray();
+            });
+        }catch (\Exception $exception){
+            abort(404,'未找到主表');
+        }
         if (!isset($res[1]) || implode($res[1]) == '') {
             abort(404, '未找到导入数据');
         }
