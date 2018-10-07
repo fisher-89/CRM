@@ -250,24 +250,10 @@ class ClientsController extends Controller
                             return $event('不正确');
                         }
                     }],
-                    'mobile' => ['required', 'digits:11', 'regex:/^1[3456789]\d{9}$/',
-                        function ($attribute, $value, $event) {
-                            $mobile = DB::table('clients')->where('mobile', $value)->first();
-                            if (true === (bool)$mobile) {
-                                return $event('已经存在');
-                            }
-                        }
-                    ],
+                    'mobile' => ['required', 'digits:11', 'regex:/^1[3456789]\d{9}$/', 'unique:clients,id_card_number'],
                     'wechat' => 'max:20|nullable',
                     'nation' => 'required|max:5|exists:nations,name',
-                    'id_card_number' => ['required',
-                        function ($attribute, $value, $event) {
-                            $cardNumber = DB::table('clients')->where('id_card_number', $value)->first();
-                            if (true === (bool)$cardNumber) {
-                                return $event('已经存在');
-                            }
-                        },
-                        'max:18|',
+                    'id_card_number' => ['required','unique:clients,id_card_number', 'max:18',
                         'regex:/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/'],
                     'native_place' => 'nullable|max:8|exists:provincial,name',
                     'present_address' => 'nullable|max:150',
