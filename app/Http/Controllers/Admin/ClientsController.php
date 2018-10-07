@@ -164,15 +164,17 @@ class ClientsController extends Controller
         if (implode($res[1]) == '') {
             abort(404, '未找到导入数据');
         }
-        try{
+        try {
             $brand = app('api')->getBrands([1, 2]);
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             abort(500, '调取数据错误');
         }
         $header = $res[0];
         for ($i = 1; $i < count($res); $i++) {
             $this->error = [];
-            $oaData = app('api')->withRealException()->getStaff($res[$i][12]);
+            if ($res[$i][12] != null) {
+                $oaData = app('api')->withRealException()->getStaff($res[$i][12]);
+            }
             $source = $this->getSource($res[$i][1]);
             $transNum = $this->strTransNum($res[$i][2]);
             $brandId = $this->getBrandId($brand, $res[$i][3]);
@@ -191,7 +193,7 @@ class ClientsController extends Controller
                 'native_place' => $res[$i][10],
                 'first_cooperation_at' => $res[$i][11],
                 'vindicator_sn' => $res[$i][12],
-                'vindicator_name' => $oaData['realname'],
+                'vindicator_name' => isset($oaData) ? $oaData['realname'] : null,
                 'remark' => $res[$i][13]
             ];
             $request = new Requests\Admin\ClientRequest($arr);
@@ -293,7 +295,7 @@ class ClientsController extends Controller
                 $this->error[$this->conversion($key)] = $this->conversionValue($value);
             }
         } catch (\Exception $e) {
-            $this->error['message'] ='系统异常：' . $e->getMessage();
+            $this->error['message'] = '系统异常：' . $e->getMessage();
         }
     }
 
@@ -348,7 +350,7 @@ class ClientsController extends Controller
     protected function getBrandId($brand, $str)
     {
         $explode = explode(',', $str);
-        if(count(array_unique($explode)) < count($explode)){
+        if (count(array_unique($explode)) < count($explode)) {
             $this->error['合作品牌'][] = '存在重复';
         }
         $brandId = [];
@@ -371,7 +373,7 @@ class ClientsController extends Controller
     protected function getTagId($str)
     {
         $arr = explode(',', $str);
-        if(count(array_unique($arr)) < count($arr)){
+        if (count(array_unique($arr)) < count($arr)) {
             $this->error['标签'][] = '存在重复';
         }
         $e = [];
