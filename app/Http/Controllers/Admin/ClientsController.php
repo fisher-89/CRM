@@ -176,29 +176,29 @@ class ClientsController extends Controller
         $header = $res[0];
         for ($i = 1; $i < count($res); $i++) {
             $this->error = [];
-            if ($res[$i][12] != null) {
+            if (trim($res[$i][12]) == true) {
                 $oaData = app('api')->withRealException()->getStaff($res[$i][12]);
             }
-            $source = $this->getSource($res[$i][1]);
-            $transNum = $this->strTransNum($res[$i][2]);
-            $brandId = $this->getBrandId($brand, $res[$i][3]);
-            $tagId = $res[$i][9] != '' ? $this->getTagId($res[$i][9]) : '';
+            $source = $this->getSource(trim($res[$i][1]));
+            $transNum = $this->strTransNum(trim($res[$i][2]));
+            $brandId = $this->getBrandId($brand, trim($res[$i][3]));
+            $tagId = trim($res[$i][9]) != '' ? $this->getTagId(trim($res[$i][9])) : '';
             $arr = [
-                'name' => $res[$i][0],
+                'name' => trim($res[$i][0]),
                 'source_id' => $source,
                 'status' => $transNum,
                 'brand' => $brandId,
-                'gender' => $res[$i][4],
-                'mobile' => $res[$i][5],
-                'wechat' => $res[$i][6],
-                'nation' => $res[$i][7],
-                'id_card_number' => $res[$i][8],
+                'gender' => trim($res[$i][4]),
+                'mobile' => trim($res[$i][5]),
+                'wechat' => trim($res[$i][6]),
+                'nation' => trim($res[$i][7]),
+                'id_card_number' => trim($res[$i][8]),
                 'tag_id' => $tagId,
-                'native_place' => $res[$i][10],
-                'first_cooperation_at' => $res[$i][11],
-                'vindicator_sn' => $res[$i][12],
+                'native_place' => trim($res[$i][10]),
+                'first_cooperation_at' => trim($res[$i][11]),
+                'vindicator_sn' => trim($res[$i][12]),
                 'vindicator_name' => isset($oaData) ? $oaData['realname'] : null,
-                'remark' => $res[$i][13]
+                'remark' => trim($res[$i][13])
             ];
             $request = new Requests\Admin\ClientRequest($arr);
             $this->excelVerify($request);
