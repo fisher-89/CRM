@@ -263,20 +263,7 @@ class ClientsController extends Controller
                     'native_place' => 'nullable|max:8|exists:provincial,name',
                     'present_address' => 'nullable|max:150',
                     'first_cooperation_at' => 'nullable|date',
-                    'vindicator_sn' => ['numeric', 'nullable',
-                        function ($attribute, $value, $event) {
-                            if ((bool)$value === true) {
-                                try {
-                                    $oa = app('api')->withRealException()->getStaff($value);
-                                    if ((bool)$oa === false) {
-                                        return $event('错误');
-                                    }
-                                } catch (\Exception $e) {
-                                    return $event('错误');
-                                }
-                            }
-                        }
-                    ],
+                    'vindicator_sn' => ['numeric', 'nullable',],
                     'vindicator_name' => 'max:10',
                     'remark' => 'max:200',
                     'shops' => 'array|nullable',
