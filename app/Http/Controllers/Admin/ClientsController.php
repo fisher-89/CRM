@@ -177,7 +177,7 @@ class ClientsController extends Controller
         for ($i = 1; $i < count($res); $i++) {
             $this->error = [];
             if (trim($res[$i][12]) == true) {
-                $oaData = app('api')->withRealException()->getStaff($res[$i][12]);
+                $oaData = app('api')->withRealException()->getStaff(trim($res[$i][12]));
             }
             $source = $this->getSource(trim($res[$i][1]));
             $transNum = $this->strTransNum(trim($res[$i][2]));
