@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\ImageManagerStatic;
 
 class FilesController extends Controller
 {
@@ -42,6 +43,60 @@ class FilesController extends Controller
                 'file' => 'required|file|max:4096|mimes:png,gif,jpeg,txt,pdf,doc,docx,xls,xlsx'
             ], [], [
                 'file' => '附件'
+            ]
+        );
+    }
+
+    public function iconImage(Request $request)
+    {
+        $this->imageVerify($request);
+        $files = $request->file('iconImage');
+        if (!$files->isValid()) {
+            abort(400, '文件上传失败');
+        }
+        $exe = $files->getClientOriginalExtension();
+        $fileName = rand(99, 999) . time() . $request->user()->staff_sn;
+        $path = Storage::url($files->storeAs('temporary', $fileName . '.' . $exe, 'public'));
+        $Shrinkage = ImageManagerStatic::make($files->getRealPath())->resize(180,180);
+        $Shrinkage ->save(public_path('storage/temporary/'.$fileName . '_thumb.'. $exe));
+        if ($path == false) {
+            abort(400, '文件上传失败');
+        }
+        return config('app.url') . '/storage/temporary/' . $fileName . '.' . $exe;
+    }
+
+    protected function imageVerify($request)
+    {
+        $this->validate($request,[
+                'iconImage' => 'file|max:4096|mimes:png,gif,jpeg'
+            ],[],[
+                'iconImage' => '头像'
+            ]
+        );
+    }
+
+    public function cardImage(Request $request)
+    {
+        $this->cardVerify($request);
+        $files = $request->file('cardImage');
+        if (!$files->isValid()) {
+            abort(400, '文件上传失败');
+        }
+        $exe = $files->getClientOriginalExtension();
+        $fileName = rand(99, 999) . time() . $request->user()->staff_sn;
+        $path = Storage::url($files->storeAs('temporary', $fileName . '.' . $exe, 'public'));
+        if ($path == false) {
+            abort(400, '文件上传失败');
+        }
+        return config('app.url') . '/storage/temporary/' . $fileName . '.' . $exe;
+    }
+
+    protected function cardVerify($request)
+    {
+        $this->validate($request,[
+            'cardImage' => 'required|file|max:4096|mimes:png,gif,jpeg'
+        ],[],[
+                'cardImage' => '身份证照片'
             ]
         );
     }
