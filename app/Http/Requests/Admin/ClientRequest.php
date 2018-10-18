@@ -27,6 +27,8 @@ class ClientRequest extends FormRequest
      */
     public function rules()
     {
+        $recommend = $this->recommend_id;
+        $develop = $this->develop_sn;
         return [
             'name' => 'required|max:10',
             'source_id' => 'required|numeric|max:5|exists:source,id',
@@ -40,7 +42,7 @@ class ClientRequest extends FormRequest
                     return $event('性别不正确');
                 }
             }],
-            'mobile' => ['required', 'digits:11','regex:/^1[3456789]\d{9}$/',
+            'mobile' => ['required', 'digits:11', 'regex:/^1[3456789]\d{9}$/',
                 function ($attribute, $value, $event) {
                     $id = $this->route('id');
                     if (isset($id)) {
@@ -76,8 +78,38 @@ class ClientRequest extends FormRequest
                 'max:18|',
                 'regex:/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/'],
             'native_place' => 'nullable|max:8|exists:provincial,name',
-            'present_address' => 'nullable|max:150',
-            'tags'=>'array|nullable',
+            'province' => 'nullable|max:8|exists:linkage,name',
+            'city' => 'nullable|max:10|exists:linkage,name',
+            'county' => 'nullable|max:15|exists:linkage,name',
+            'detailed_address' => 'nullable|max:100',
+            'icon' => 'nullable',
+            'id_card_image' => 'nullable|array',
+            'develop_sn' => ['max:6', function ($attribute, $value, $event) use ($recommend) {
+                if ((bool)$value === true) {
+                    try {
+                        $develop = app('api')->withRealException()->getStaff($value);
+                        if ($develop == false) {
+                            return $event('错误');
+                        }
+                    } catch (\Exception $exception) {
+                        return $event('错误');
+                    }
+                } else {
+                    if ((bool)$recommend === false) {
+                        return $event('员工开发人或客户介绍人必须任选其一');
+                    }
+                }
+            }],
+            'develop_name' => 'nullable|max:10',
+            'recommend_id' => ['exists:clients,id', function ($attribute, $value, $event) use ($develop) {
+                if ((bool)$value === false) {
+                    if ((bool)$develop === false) {
+                        return $event('员工开发人或客户介绍人必须任选其一');
+                    }
+                }
+            }],
+            'recommend_name' => 'nullable|max:10',
+            'tags' => 'array|nullable',
             'tags.*.tag_id' => ['exists:tags,id', 'numeric', 'nullable'],
             'first_cooperation_at' => 'nullable|date',
             'vindicator_sn' => ['numeric', 'nullable',
@@ -99,12 +131,12 @@ class ClientRequest extends FormRequest
             'brands.*.brand_id' => [
                 'numeric', 'required'
             ],
-            'brands'=>['array',function($attribute, $value, $event){
-                if(count($value) == 0){
+            'brands' => ['array', function ($attribute, $value, $event) {
+                if (count($value) == 0) {
                     return $event('未选择品牌');
                 }
             }],
-            'shops'=>'array|nullable',
+            'shops' => 'array|nullable',
             'shops.*.shop_sn' => [
                 'required',
             ]
@@ -123,13 +155,22 @@ class ClientRequest extends FormRequest
             'nation' => '民族',
             'id_card_number' => '身份证号码',
             'native_place' => '籍贯',
-            'present_address' => '现住地址',
+            'province' => '省级',
+            'city' => '市级',
+            'county' => '县级',
+            'detailed_address' => '详细地址',
+            'icon' => '头像照片',
+            'id_card_image' => '身份证照片',
+            'develop_sn' => '开发人编号',
+            'develop_name' => '开发人姓名',
+            'recommend_id' => '介绍人id',
+            'recommend_name' => '认识人姓名',
             'tag_id' => '标签',
             'first_cooperation_at' => '第一次合作时间',
             'vindicator_sn' => '维护人编号',
             'vindicator_name' => '维护人姓名',
             'remark' => '备注',
-            'brand'=>'品牌',
+            'brand' => '品牌',
             //品牌  店铺
         ];
     }
