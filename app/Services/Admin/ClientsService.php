@@ -413,8 +413,11 @@ class ClientsService
 
     protected function transTags($arr)
     {
+        $data = [];
         foreach ($arr as $key => $val) {
-            $data[] = $val['tag']['name'];
+            if(isset($val['tag']['name'])){
+                $data[] = $val['tag']['name'];
+            }
         }
         return implode(',', $data);
     }
