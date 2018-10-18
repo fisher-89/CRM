@@ -407,6 +407,7 @@ class ClientsService
             '-1' => '合作完毕',
             '0' => '待合作',
             '1' => '合作中',
+            '2' => '合作完成',
         ];
         return $arr[$data];
     }
