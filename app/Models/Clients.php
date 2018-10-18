@@ -13,11 +13,13 @@ class Clients extends Model
     protected $table = 'clients';
 
     protected $casts = [
-        'present_address' => 'array',
+        'id_card_image' => 'array',
     ];
 
     protected $fillable = ['name', 'source_id', 'status', 'gender', 'mobile', 'wechat', 'nation', 'id_card_number',
-        'native_place', 'present_address', 'first_cooperation_at', 'vindicator_sn', 'vindicator_name', 'remark'];
+        'native_place', 'first_cooperation_at', 'vindicator_sn', 'vindicator_name', 'remark', 'province', 'city', 'county',
+        'detailed_address', 'icon', 'id_card_image', 'develop_sn', 'develop_name', 'recommend_id', 'recommend_name',
+    ];
 
     public function source()
     {
