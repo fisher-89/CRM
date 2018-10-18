@@ -17,6 +17,12 @@ class CreateProvincialTable extends Migration
             $table->increments('id');
             $table->char('name',8)->comment('省级')->unique();
         });
+        Schema::create('linkage',function(Blueprint $table){
+            $table->increments('id');
+            $table->string('name',20)->comment('地区名字');
+            $table->integer('parent_id')->comment('父级id');
+            $table->integer('level')->comment('地区登记');
+        });
     }
 
     /**
