@@ -30,6 +30,8 @@ Route::group(['middleware' => 'auth:api'], function (Registrar $admin) {
     $admin->get('clients/{id}', Admin\ClientsController::class . '@details');
     $admin->get('clients/export', Admin\ClientsController::class . '@export');//导出
     $admin->post('clients/import', Admin\ClientsController::class . '@import');//导入 todo  导入人权限品牌验证，合作店铺，合作品牌，合作区域   没弄
+    $admin->post('clients/image',Admin\FilesController::class.'@iconImage');//头像
+    $admin->post('clients/card',Admin\FilesController::class.'@cardImage');//身份证照片
 
     $admin->get('clients/brands',Admin\AuthBrandController::class.'@getBrand');
     //民族选择
