@@ -17,8 +17,8 @@ class Clients extends Model
     ];
 
     protected $fillable = ['name', 'source_id', 'status', 'gender', 'mobile', 'wechat', 'nation', 'id_card_number',
-        'native_place', 'first_cooperation_at', 'vindicator_sn', 'vindicator_name', 'remark', 'province', 'city', 'county',
-        'detailed_address', 'icon', 'id_card_image', 'develop_sn', 'develop_name', 'recommend_id', 'recommend_name',
+        'native_place', 'first_cooperation_at', 'vindicator_sn', 'vindicator_name', 'remark', 'province_id', 'city_id',
+        'county_id', 'address', 'icon', 'id_card_image', 'develop_sn', 'develop_name', 'recommend_id', 'recommend_name',
     ];
 
     public function source()
