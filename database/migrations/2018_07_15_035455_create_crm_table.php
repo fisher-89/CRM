@@ -58,8 +58,17 @@ class CreateCrmTable extends Migration
             $table->char('nation', 5)->comment('民族');
             $table->char('id_card_number', 18)->comment('身份证号码')->unique();
             $table->char('native_place', 8)->comment('籍贯：省份')->default('')->nullable();
-            $table->string('present_address', 150)->comment('现住地址')->default('')->nullable();
+            $table->char('province', 8)->comment('现住地址:省')->default('')->nullable();
+            $table->char('city', 10)->comment('现住地址:市')->default('')->nullable();
+            $table->string('county', 15)->comment('现住地址:县')->default('')->nullable();
+            $table->string('detailed_address', 100)->comment('现住地址:详细')->default('')->nullable();
             $table->date('first_cooperation_at')->comment('初次合作时间')->nullable();
+            $table->text('icon')->comment('头像')->nullable();
+            $table->text('id_card_image')->comment('身份证照片')->nullable();
+            $table->char('develop_sn',6)->comment('开发人编号')->index()->nullable();
+            $table->char('develop_name',10)->comment('开发人姓名')->index()->nullable();
+            $table->integer('recommend_id')->comment('介绍人id')->index()->nullable();
+            $table->char('recommend_name',10)->comment('介绍人姓名')->index()->nullable();
             $table->unsignedMediumInteger('vindicator_sn')->comment('维护人编号')->nullable();
             $table->char('vindicator_name', 10)->comment('维护人姓名')->nullable();
             $table->char('remark', 200)->comment('备注')->nullable();
