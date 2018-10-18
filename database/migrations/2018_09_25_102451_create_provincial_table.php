@@ -22,6 +22,7 @@ class CreateProvincialTable extends Migration
             $table->string('name',20)->comment('地区名字');
             $table->integer('parent_id')->comment('父级id');
             $table->integer('level')->comment('地区登记');
+            $table->string('full_name');
         });
     }
 
