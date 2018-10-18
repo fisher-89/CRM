@@ -19,10 +19,10 @@ class CreateProvincialTable extends Migration
         });
         Schema::create('linkage',function(Blueprint $table){
             $table->increments('id');
-            $table->string('name',20)->comment('地区名字');
+            $table->string('name',15)->comment('地区名字');
             $table->integer('parent_id')->comment('父级id');
             $table->integer('level')->comment('地区登记');
-            $table->string('full_name');
+            $table->string('full_name',30);
         });
     }
 
