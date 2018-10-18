@@ -13,5 +13,6 @@ class DatabaseSeeder extends Seeder
     {
          $this->call(NationTableSeeder::class);
          $this->call(ProincialTableSeeder::class);
+         $this->call(LinkageTableSeeder::class);
     }
 }
