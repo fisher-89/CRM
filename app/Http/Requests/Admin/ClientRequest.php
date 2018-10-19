@@ -84,7 +84,7 @@ class ClientRequest extends FormRequest
             'address' => 'nullable|max:100',
             'icon' => 'nullable',
             'id_card_image' => 'nullable|array',
-            'develop_sn' => ['max:6', function ($attribute, $value, $event) use ($recommend) {
+            'develop_sn' => ['nullable','max:6', function ($attribute, $value, $event) use ($recommend) {
                 if ((bool)$value === true) {
                     try {
                         $develop = app('api')->withRealException()->getStaff($value);
@@ -101,7 +101,7 @@ class ClientRequest extends FormRequest
                 }
             }],
             'develop_name' => 'nullable|max:10',
-            'recommend_id' => ['exists:clients,id', function ($attribute, $value, $event) use ($develop) {
+            'recommend_id' => ['nullable|exists:clients,id', function ($attribute, $value, $event) use ($develop) {
                 if ((bool)$value === false) {
                     if ((bool)$develop === false) {
                         return $event('员工开发人或客户介绍人必须任选其一');
