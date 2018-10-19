@@ -61,8 +61,8 @@ class FilesController extends Controller
         $fileName = rand(99, 999) . time() . $request->user()->staff_sn;
 //        $path = Storage::url($files->storeAs('temporary', $fileName . '.' . $exe, 'public'));
         $Shrinkage = ImageManagerStatic::make($files->getRealPath())->resize(180,180);
-        $Shrinkage ->save(public_path('storage/temporary/'.$fileName . $exe));
-        $age = ImageManagerStatic::make($files->getRealPath())->resize(30,30);
+        $Shrinkage ->save(public_path('storage/temporary/'.$fileName .'.'. $exe));
+        $age = ImageManagerStatic::make($files->getRealPath())->resize(96,96);
         $age ->save(public_path('storage/temporary/'.$fileName . '_thumb.'. $exe));
         return config('app.url') . '/storage/temporary/' . $fileName . '.' . $exe;
     }
