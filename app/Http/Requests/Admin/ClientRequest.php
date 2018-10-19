@@ -75,12 +75,12 @@ class ClientRequest extends FormRequest
                         }
                     }
                 },
-                'max:18|',
+                'max:18',
                 'regex:/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/'],
             'native_place' => 'nullable|max:8|exists:provincial,name',
-            'province_id' => 'nullable|max:6|numeric|exists:linkage,id',
-            'city_id' => 'nullable|max:6|numeric|exists:linkage,id',
-            'county_id' => 'nullable|max:6|numeric|exists:linkage,id',
+            'province_id' => 'nullable|numeric|exists:linkage,id',
+            'city_id' => 'nullable|numeric|exists:linkage,id',
+            'county_id' => 'nullable|numeric|exists:linkage,id',
             'address' => 'nullable|max:100',
             'icon' => 'nullable',
             'id_card_image' => 'nullable|array',
@@ -101,7 +101,7 @@ class ClientRequest extends FormRequest
                 }
             }],
             'develop_name' => 'nullable|max:10',
-            'recommend_id' => ['nullable|exists:clients,id', function ($attribute, $value, $event) use ($develop) {
+            'recommend_id' => ['nullable','exists:clients,id', function ($attribute, $value, $event) use ($develop) {
                 if ((bool)$value === false) {
                     if ((bool)$develop === false) {
                         return $event('员工开发人或客户介绍人必须任选其一');
