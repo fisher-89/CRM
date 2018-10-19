@@ -14,6 +14,7 @@ class Clients extends Model
 
     protected $casts = [
         'id_card_image' => 'array',
+        'icon' => 'array'
     ];
 
     protected $fillable = ['name', 'source_id', 'status', 'gender', 'mobile', 'wechat', 'nation', 'id_card_number',
