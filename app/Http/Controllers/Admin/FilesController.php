@@ -51,6 +51,9 @@ class FilesController extends Controller
     {
         $this->imageVerify($request);
         $files = $request->file('iconImage');
+        if($files == null){
+            abort(400, '未找到文件');
+        }
         if (!$files->isValid()) {
             abort(400, '文件上传失败');
         }
@@ -79,6 +82,9 @@ class FilesController extends Controller
     {
         $this->cardVerify($request);
         $files = $request->file('cardImage');
+        if($files == null){
+            abort(400, '未找到文件');
+        }
         if (!$files->isValid()) {
             abort(400, '文件上传失败');
         }
