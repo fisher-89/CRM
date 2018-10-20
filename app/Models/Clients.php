@@ -41,4 +41,14 @@ class Clients extends Model
     {
         return $this->hasMany(ClientHasShops::class,'client_id','id');
     }
+
+    public function levels()
+    {
+        return $this->hasMany(ClientHasLevel::class,'client_id','id');
+    }
+
+    public function provinces()
+    {
+        return $this->hasMany(ClientHasProvincial::class,'client_id','id');
+    }
 }
