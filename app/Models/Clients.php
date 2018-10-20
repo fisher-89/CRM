@@ -13,7 +13,6 @@ class Clients extends Model
     protected $table = 'clients';
 
     protected $casts = [
-        'id_card_image' => 'array',
         'icon' => 'array'
     ];
 
