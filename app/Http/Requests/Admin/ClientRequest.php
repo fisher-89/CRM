@@ -132,7 +132,7 @@ class ClientRequest extends FormRequest
                     return $event('合作省份必选');
                 }
             }],
-            'provinces.*.province_id' => 'numeric|exists:provinces,id|required',
+            'provinces.*.province_id' => 'numeric|exists:linkage,id|required',
             'levels' => 'array',
             'levels.*.level_id' => 'numeric|exists:levels,id',
             'vindicator_name' => 'max:10',
