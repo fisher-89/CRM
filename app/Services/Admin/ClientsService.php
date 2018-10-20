@@ -17,6 +17,7 @@ use App\Models\Tags;
 use Excel;
 use DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ClientsService
 {
@@ -81,6 +82,14 @@ class ClientsService
         $all = $request->all();
         try {
             DB::beginTransaction();
+            if ((bool)$request->icon === true) {
+                $icon = $this->imageDispose($request->icon, 'icon');
+                $all['icon'] = $icon;
+            }
+            if ((bool)$request->id_card_image === true) {
+                $card = $this->imageDispose($request->id_card_image, 'card');
+                $all['id_card_image'] = $card;
+            }
             $bool = $this->client->create($all);
             if ((bool)$bool === false) {
                 DB::rollback();
@@ -130,60 +139,68 @@ class ClientsService
     public function editClient($request)
     {
         $all = $request->all();
-        $clientData = $this->client->with('tags')->with('shops')->with('brands')->find($request->route('id'));
+        $clientData = $this->client->with(['tags', 'shops', 'brands'])->find($request->route('id'));
         if ((bool)$clientData === false) {
             abort(404, '未找到数据');
         }
         $specialHandling = clone $clientData;
-        try {
-            DB::beginTransaction();
-            $clientData->update($all);
-            if ((bool)$clientData === false) {
-                DB::rollback();
-                abort(400, '客户修改失败');
-            }
-            $this->clientHasTags->where('client_id', $clientData->id)->delete();
-            $this->clientHasShops->where('client_id', $clientData->id)->delete();
-            $this->clientHasBrands->where('client_id', $clientData->id)->delete();
-            if (isset($request->tags)) {
-                if ($request->tags != []) {
-                    foreach ($request->tags as $k => $v) {
-                        $sql[] = [
-                            'client_id' => $clientData->id,
-                            'tag_id' => $v['tag_id'],
-                        ];
-                    }
-                    $this->clientHasTags->insert($sql);
-                }
-            }
-            if (isset($request->brands)) {
-                if ($request->brands != []) {
-                    foreach ($request->brands as $item) {
-                        $brandSql[] = [
-                            'client_id' => $clientData->id,
-                            'brand_id' => $item['brand_id'],
-                        ];
-                    }
-                    $this->clientHasBrands->insert($brandSql);
-                }
-            }
-            if (isset($request->shops)) {
-                if ($request->shops != []) {
-                    foreach ($request->shops as $items) {
-                        $shopSql[] = [
-                            'client_id' => $clientData->id,
-                            'shop_sn' => $items['shop_sn'],
-                        ];
-                    }
-                    $this->clientHasShops->insert($shopSql);
-                }
-            }
-            $this->saveClientLog($specialHandling, $all, $request);
-            DB::commit();
-        } catch (\Exception $e) {
+//        try {
+//            DB::beginTransaction();
+        if ((bool)$request->icon === true) {
+            $icon = $this->imageDispose($request->icon, 'icon', $clientData['icon']);
+            $all['icon'] = $icon;
+        }
+        if ((bool)$request->id_card_image === true) {
+            $card = $this->imageDispose($request->id_card_image, 'card', $clientData['id_card_image']);
+            $all['id_card_image'] = $card;
+        }
+        $clientData->update($all);
+        if ((bool)$clientData === false) {
             DB::rollback();
             abort(400, '客户修改失败');
         }
+        $this->clientHasTags->where('client_id', $clientData->id)->delete();
+        $this->clientHasShops->where('client_id', $clientData->id)->delete();
+        $this->clientHasBrands->where('client_id', $clientData->id)->delete();
+        if (isset($request->tags)) {
+            if ($request->tags != []) {
+                foreach ($request->tags as $k => $v) {
+                    $sql[] = [
+                        'client_id' => $clientData->id,
+                        'tag_id' => $v['tag_id'],
+                    ];
+                }
+                $this->clientHasTags->insert($sql);
+            }
+        }
+        if (isset($request->brands)) {
+            if ($request->brands != []) {
+                foreach ($request->brands as $item) {
+                    $brandSql[] = [
+                        'client_id' => $clientData->id,
+                        'brand_id' => $item['brand_id'],
+                    ];
+                }
+                $this->clientHasBrands->insert($brandSql);
+            }
+        }
+        if (isset($request->shops)) {
+            if ($request->shops != []) {
+                foreach ($request->shops as $items) {
+                    $shopSql[] = [
+                        'client_id' => $clientData->id,
+                        'shop_sn' => $items['shop_sn'],
+                    ];
+                }
+                $this->clientHasShops->insert($shopSql);
+            }
+        }
+        $this->saveClientLog($specialHandling, $all, $request);
+//            DB::commit();
+//        } catch (\Exception $e) {
+//            DB::rollback();
+//            abort(400, '客户修改失败');
+//        }
         return response($this->client->with('tags')->with('shops')->with('brands')->where('id', $clientData->id)->first(), 201);
     }
 
@@ -197,52 +214,77 @@ class ClientsService
     private function saveClientLog($model, $commit, $request)
     {
         $model = $model->toArray();
-        foreach ($model['tags'] as $i) {
-            $tags[] = $i['tag_id'];
+        if (isset($model['tags']) && (bool)$model['tags'] === true) {
+            foreach ($model['tags'] as $i) {
+                $tags[] = $i['tag_id'];
+            }
+            $tag = isset($tags) ? $tags : [];
+            $tag = $this->sort($tag);
+            $model['tags'] = implode(',', $tag);
+        } else {
+            $model['tags'] = '';
         }
-        $tag = isset($tags) ? $tags : [];
-        $tag = $this->sort($tag);
-        $model['tags'] = implode(',', $tag);
-
-        foreach ($model['brands'] as $item) {
-            $brands[] = $item['brand_id'];
+        if (isset($model['brands']) && (bool)$model['brands'] === true) {
+            foreach ($model['brands'] as $item) {
+                $brands[] = $item['brand_id'];
+            }
+            $brand = isset($brands) ? $brands : [];
+            $brand = $this->sort($brand);
+            $model['brands'] = implode(',', $brand);
+        } else {
+            $model['brands'] = '';
         }
-        $brand = isset($brands) ? $brands : [];
-        $brand = $this->sort($brand);
-        $model['brands'] = implode(',', $brand);
-
-        foreach ($model['shops'] as $items) {
-            $shops[] = $items['shop_sn'];
+        if (isset($model['shops']) && (bool)$model['shops'] === true) {
+            foreach ($model['shops'] as $items) {
+                $shops[] = $items['shop_sn'];
+            }
+            $shop = isset($shops) ? $shops : [];
+            $shop = $this->sort($shop);
+            $model['shops'] = implode(',', $shop);
+        } else {
+            $model['shops'] = '';
         }
-        $shop = isset($shops) ? $shops : [];
-        $shop = $this->sort($shop);
-        $model['shops'] = implode(',', $shop);
-
-        foreach ($commit['tags'] as $v) {
-            $commitTag[] = $v['tag_id'];
+        if (isset($commit['tags']) && (bool)$commit['tags'] === true) {
+            foreach ($commit['tags'] as $v) {
+                $commitTag[] = $v['tag_id'];
+            }
+            $commitTags = isset($commitTag) ? $commitTag : [];
+            $commitTags = $this->sort($commitTags);
+            $commit['tags'] = implode(',', $commitTags);
+        } else {
+            $commit['tags'] = '';
         }
-        $commitTags = isset($commitTag) ? $commitTag : [];
-        $commitTags = $this->sort($commitTags);
-        $commit['tags'] = implode(',', $commitTags);
-
-        foreach ($commit['brands'] as $v) {
-            $commitBrand[] = $v['brand_id'];
+        if (isset($commit['brands']) && (bool)$commit['brands'] === true) {
+            foreach ($commit['brands'] as $v) {
+                $commitBrand[] = $v['brand_id'];
+            }
+            $commitBrands = isset($commitBrand) ? $commitBrand : [];
+            $commitBrands = $this->sort($commitBrands);
+            $commit['brands'] = implode(',', $commitBrands);
+        } else {
+            $commit['brands'] = '';
         }
-        $commitBrands = isset($commitBrand) ? $commitBrand : [];
-        $commitBrands = $this->sort($commitBrands);
-        $commit['brands'] = implode(',', $commitBrands);
-
-        foreach ($commit['shops'] as $v) {
-            $commitShop[] = $v['shop_sn'];
+        if (isset($commit['shops']) && (bool)$commit['shops'] === true) {
+            foreach ($commit['shops'] as $v) {
+                $commitShop[] = $v['shop_sn'];
+            }
+            $commitShops = isset($commitShop) ? $commitShop : [];
+            $commitShops = $this->sort($commitShops);
+            $commit['shops'] = implode(',', $commitShops);
+        } else {
+            $commit['shops'] = '';
         }
-        $commitShops = isset($commitShop) ? $commitShop : [];
-        $commitShops = $this->sort($commitShops);
-        $commit['shops'] = implode(',', $commitShops);
-        if (isset($model['present_address'])) {
-            $model['present_address'] = json_encode($model['present_address']);
+        if(isset($model['icon'])){
+            $model['icon'] = json_encode($model['icon']);
         }
-        if (isset($commit['present_address'])) {
-            $commit['present_address'] = json_encode($commit['present_address']);
+        if(isset($model['id_card_image'])){
+            $model['id_card_image'] = json_encode($model['id_card_image']);
+        }
+        if(isset($commit['icon'])){
+            $commit['icon'] = json_encode($commit['icon']);
+        }
+        if(isset($commit['id_card_image'])){
+            $commit['id_card_image'] = json_encode($commit['id_card_image']);
         }
         $model['source_id'] = (string)$model['source_id'];
         $model['status'] = (string)$model['status'];
@@ -253,9 +295,9 @@ class ClientsService
                 $changes[$key] = [$model[$key], $commit[$key]];
             }
         }
-        if (isset($changes['present_address'])) {
-            $changes['present_address'][0] = json_decode($changes['present_address'][0]);
-            $changes['present_address'][1] = json_decode($changes['present_address'][1]);
+        if (isset($changes['icon'])) {
+            $changes['icon'][0] = json_decode($changes['icon'][0]);
+            $changes['icon'][1] = json_decode($changes['icon'][1]);
         }
         $clientLogSql = [
             'client_id' => $model['id'],
@@ -390,10 +432,10 @@ class ClientsService
         if ($request->user()->staff_sn == 999999) {
             $arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
         }
-        return $this->client->with('tags')->with('brands')->with('shops')
-            ->where('id', $request->route('id'))->whereHas('brands', function ($query) use ($arr) {
+        return $this->client->with(['tags', 'brands', 'shops'])->where('id', $request->route('id'))
+            ->whereHas('brands', function ($query) use ($arr) {
                 $query->whereIn('brand_id', $arr);
-            })->first();
+            })->first();//todo 缩列图处理
     }
 
     /**
@@ -416,11 +458,121 @@ class ClientsService
     {
         $data = [];
         foreach ($arr as $key => $val) {
-            if(isset($val['tag']['name'])){
+            if (isset($val['tag']['name'])) {
                 $data[] = $val['tag']['name'];
             }
         }
         return implode(',', $data);
+    }
+
+    protected function imageDispose($path, $type, $action = '')
+    {
+        if (is_array($path)) {
+            return $this->muchImage($path, $type, $action);
+        }
+        return $this->singleImage($path, $type, $action);
+    }
+
+    protected function muchImage($path, $type, $action)
+    {
+        if ($action != '') {
+            if (is_array($action)) {
+                $this->more($action, $type);
+            } else {
+                $this->single($action, $type);
+            }
+        }
+        $url = [];
+        foreach ($path as $k => $v) {
+            $fileName = basename($v);
+            $src = '/temporary/' . $fileName;
+            $dst = '/' . $type . '/' . $fileName;
+            if (Storage::disk('public')->exists($src)) {
+                Storage::disk('public')->move($src, $dst);
+            }
+            if ($type == 'icon') {
+                $fileNameArr = explode('.', $fileName);
+                $fileNameArr[0] = $fileNameArr[0] . '_thumb';
+                $acr = '/temporary/' . implode('.', $fileNameArr);
+                $std = '/' . $type . '/' . implode('.', $fileNameArr);
+                if (Storage::disk('public')->exists($acr)) {
+                    Storage::disk('public')->move($acr, $std);
+                    $url[] = config('app.url') . '/storage' . $std;
+                }
+            }
+            $url[] = config('app.url') . '/storage' . $dst;
+        }
+        return $url;
+    }
+
+    protected function singleImage($path, $type, $action)
+    {
+        if ($action != '') {
+            if (is_array($action)) {
+                $this->more($action, $type);
+            } else {
+                $this->single($action, $type);
+            }
+        }
+        $fileName = basename($path);
+        $src = '/temporary/' . $fileName;
+        $dst = '/' . $type . '/' . $fileName;
+        if (Storage::disk('public')->exists($src)) {
+            Storage::disk('public')->move($src, $dst);
+        }
+        if ($type == 'icon') {
+            $fileNameArr = explode('.', $fileName);
+            $fileNameArr[0] = $fileNameArr[0] . '_thumb';
+            $acr = '/temporary/' . implode('.', $fileNameArr);
+            $std = '/' . $type . '/' . implode('.', $fileNameArr);
+            if (Storage::disk('public')->exists($acr)) {
+                Storage::disk('public')->move($acr, $std);
+                $icon[] = config('app.url') . '/storage' . $dst;
+                $icon[] = config('app.url') . '/storage' . $std;
+                return $icon;
+            }
+        }
+        return config('app.url') . '/storage' . $dst;
+    }
+
+    protected function single($action, $type)
+    {
+        $getFileName = basename($action);
+        $rawSrc = '/' . $type . '/' . $getFileName;
+        $abandonDst = '/abandon/' . $getFileName;
+        if (Storage::disk('public')->exists($rawSrc)) {
+            Storage::disk('public')->move($rawSrc, $abandonDst);
+        }
+        if ($type == 'icon') {
+            $fileArr = explode('.', $getFileName);
+            $fileArr[0] = $fileArr[0] . '_thumb';
+            $acronym = '/' . $type . '/' . implode('.', $fileArr);
+            $stu = '/abandon/' . implode('.', $fileArr);
+            if (Storage::disk('public')->exists($acronym)) {
+                Storage::disk('public')->move($acronym, $stu);
+            }
+        }
+    }
+
+    protected function more($action, $type)
+    {
+        foreach ($action as $item) {
+            $getFileName = basename($item);
+            $typeSrc = '/' . $type . '/' . $getFileName;
+            $abandon = '/abandon/' . $getFileName;
+            if (Storage::disk('public')->exists($typeSrc)) {
+                Storage::disk('public')->move($typeSrc, $abandon);
+            }
+            if ($type == 'icon') {
+                $fileArr = explode('.', $getFileName);
+                $fileArr[0] = $fileArr[0] . '_thumb';
+                $acronym = '/' . $type . '/' . implode('.', $fileArr);
+                $stu = '/abandon/' . implode('.', $fileArr);
+                if (Storage::disk('public')->exists($acronym)) {
+                    Storage::disk('public')->move($acronym, $stu);
+                }
+            }
+        }
     }
 
 //导出
