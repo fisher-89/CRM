@@ -8,7 +8,7 @@ use App\Models\AuthGroupHasEditableBrands;
 use App\Models\AuthGroupHasVisibleBrands;
 use App\Models\ClientHasBrands;
 use App\Models\ClientHasLevel;
-use App\Models\ClientHasProvince;
+use App\Models\ClientHasLinkage;
 use App\Models\ClientHasShops;
 use App\Models\ClientHasTags;
 use App\Models\ClientLogs;
@@ -37,7 +37,7 @@ class ClientsService
 
     public function __construct(Clients $clients, ClientHasTags $clientHasTags, Source $source, Nations $nations, Tags $tags,
                                 ClientHasShops $clientHasShops, ClientHasBrands $clientHasBrands, ClientLogs $clientLogs,
-                                ClientHasLevel $clientHasLevel, ClientHasProvince $clientHasProvincial)
+                                ClientHasLevel $clientHasLevel, ClientHasLinkage $clientHasProvincial)
     {
         $this->tags = $tags;
         $this->source = $source;
@@ -129,7 +129,7 @@ class ClientsService
                 foreach ($request->provinces as $val) {
                     $provincialSql[] = [
                         'client_id' => $bool->id,
-                        'province_id' => $val['province_id'],
+                        'linkage_id' => $val['linkage_id'],
                     ];
                 }
                 $this->clientHasProvincial->insert($provincialSql);
@@ -148,7 +148,7 @@ class ClientsService
 //            DB::rollback();
 //            abort(400, '客户添加失败');
 //        }
-        return response()->json($this->client->with('tags')->with('shops')->with('brands')->where('id', $bool->id)->first(), 201);
+        return response()->json($this->client->with(['tags','shops','brands','levels','linkages'])->first(), 201);
     }
 
     /**
@@ -160,7 +160,7 @@ class ClientsService
     public function editClient($request)
     {
         $all = $request->all();
-        $clientData = $this->client->with(['tags', 'shops', 'brands','levels','provinces'])->find($request->route('id'));
+        $clientData = $this->client->with(['tags', 'shops', 'brands','levels','linkages'])->find($request->route('id'));
         if ((bool)$clientData === false) {
             abort(404, '未找到数据');
         }
@@ -226,7 +226,7 @@ class ClientsService
             foreach ($request->provinces as $val) {
                 $provincialSql[] = [
                     'client_id' => $clientData->id,
-                    'province_id' => $val['province_id'],
+                    'linkage_id' => $val['linkage_id'],
                 ];
             }
             $this->clientHasProvincial->insert($provincialSql);
@@ -246,7 +246,7 @@ class ClientsService
 //            DB::rollback();
 //            abort(400, '客户修改失败');
 //        }
-        return response($this->client->with('tags')->with('shops')->with('brands')->where('id', $clientData->id)->first(), 201);
+        return response($this->client->with(['tags', 'shops', 'brands','levels','linkages'])->first(), 201);
     }
 
     /**
