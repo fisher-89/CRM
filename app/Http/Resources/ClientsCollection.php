@@ -35,8 +35,10 @@ class ClientsCollection extends ResourceCollection
                 'icon' => $data->icon,//'头像照片',
                 'id_card_image_f' => $data->id_card_image_f,//'身份证照片正面',
                 'id_card_image_b' => $data->id_card_image_b,//'身份证照片反面',
-                'provinces' => $this->province($data->provinces),//'合作省份',todo
-                'levels' => $this->level($data->levels),//'客户等级',todo
+//                'provinces' => $this->province($data->provinces),//'合作省份',todo
+                'provinces' => $data->provinces,//'合作省份',todo
+//                'levels' => $this->level($data->levels),//'客户等级',todo
+                'levels' => $data->levels,//'客户等级',todo
                 'develop_sn' => $data->develop_sn,//'开发人编号',
                 'develop_name' => $data->develop_name,//'开发人姓名',
                 'recommend_id' => $data->recommend_id,//'介绍人id',
