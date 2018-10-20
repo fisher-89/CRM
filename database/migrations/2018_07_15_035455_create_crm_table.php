@@ -99,12 +99,12 @@ class CreateCrmTable extends Migration
             $table->softDeletes();
         });
 
-        Schema::create('client_has_province',function(Blueprint $table){
+        Schema::create('client_has_linkage',function(Blueprint $table){
             $table->unsignedInteger('client_id')->index();
-            $table->unsignedTinyInteger('province_id')->index();
-            $table->primary(['client_id', 'province_id'], 'client_id_province_id');
+            $table->unsignedInteger('linkage_id')->index();
+            $table->primary(['client_id', 'linkage_id'], 'client_id_province_id');
             $table->foreign('client_id')->references('id')->on('clients');
-            $table->foreign('province_id')->references('id')->on('provinces');
+            $table->foreign('linkage_id')->references('id')->on('linkage');
         });
 
         Schema::create('client_has_level',function(Blueprint $table){
