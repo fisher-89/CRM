@@ -51,7 +51,7 @@ class FilesController extends Controller
     {
         $this->imageVerify($request);
         $files = $request->file('iconImage');
-        if($files == null){
+        if ($files == null) {
             abort(400, '未找到文件');
         }
         if (!$files->isValid()) {
@@ -60,18 +60,19 @@ class FilesController extends Controller
         $exe = $files->getClientOriginalExtension();
         $fileName = rand(99, 999) . time() . $request->user()->staff_sn;
 //        $path = Storage::url($files->storeAs('temporary', $fileName . '.' . $exe, 'public'));
-        $Shrinkage = ImageManagerStatic::make($files->getRealPath())->resize(180,180);
-        $Shrinkage ->save(public_path('storage/temporary/'.$fileName .'.'. $exe));
-        $age = ImageManagerStatic::make($files->getRealPath())->resize(96,96);
-        $age ->save(public_path('storage/temporary/'.$fileName . '_thumb.'. $exe));
-        return config('app.url') . '/storage/temporary/' . $fileName . '.' . $exe;
+        $name = $fileName . '.' . $exe;
+        $Shrinkage = ImageManagerStatic::make($files->getRealPath())->resize(180, 180);
+        $Shrinkage->save(public_path('storage/temporary/' . $name));
+        $age = ImageManagerStatic::make($files->getRealPath())->resize(96, 96);
+        $age->save(public_path('storage/temporary/' . $fileName . '_thumb.' . $exe));
+        return config('app.url') . '/storage/temporary/' . $name;
     }
 
     protected function imageVerify($request)
     {
-        $this->validate($request,[
-                'iconImage' => 'file|max:4096|mimes:png,gif,jpeg'
-            ],[],[
+        $this->validate($request, [
+            'iconImage' => 'file|max:4096|mimes:png,gif,jpeg'
+        ], [], [
                 'iconImage' => '头像'
             ]
         );
@@ -81,7 +82,7 @@ class FilesController extends Controller
     {
         $this->cardVerify($request);
         $files = $request->file('cardImage');
-        if($files == null){
+        if ($files == null) {
             abort(400, '未找到文件');
         }
         if (!$files->isValid()) {
@@ -98,9 +99,9 @@ class FilesController extends Controller
 
     protected function cardVerify($request)
     {
-        $this->validate($request,[
+        $this->validate($request, [
             'cardImage' => 'required|file|max:4096|mimes:png,gif,jpeg'
-        ],[],[
+        ], [], [
                 'cardImage' => '身份证照片'
             ]
         );
