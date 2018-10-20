@@ -55,6 +55,8 @@ class CreateCrmTable extends Migration
             $table->tinyIncrements('id');
             $table->char('name',10)->comment('等级名称');
             $table->string('explain',50)->comment('等级说明');
+            $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('linkage',function(Blueprint $table){
