@@ -46,6 +46,25 @@ class CreateCrmTable extends Migration
             $table->softDeletes();
         });
 
+        Schema::create('provincial', function (Blueprint $table) {
+            $table->tinyIncrements('id');
+            $table->char('name',8)->comment('省级')->unique();
+        });
+
+        Schema::create('levels',function(Blueprint $table){
+            $table->tinyIncrements('id');
+            $table->char('name',10)->comment('等级名称');
+            $table->string('explain',50)->comment('等级说明');
+        });
+
+        Schema::create('linkage',function(Blueprint $table){
+            $table->increments('id');
+            $table->string('name',15)->comment('地区名字');
+            $table->integer('parent_id')->comment('父级id');
+            $table->integer('level')->comment('地区登记');
+            $table->string('full_name',30);
+        });
+
         //客户表
         Schema::create('clients', function (Blueprint $table) {
             $table->increments('id');
@@ -64,7 +83,8 @@ class CreateCrmTable extends Migration
             $table->string('address', 100)->comment('现住地址:详细')->default('')->nullable();
             $table->date('first_cooperation_at')->comment('初次合作时间')->nullable();
             $table->text('icon')->comment('头像')->nullable();
-            $table->text('id_card_image')->comment('身份证照片')->nullable();
+            $table->text('id_card_image_f')->comment('身份证照片正面')->nullable();
+            $table->text('id_card_image_v')->comment('身份证照片反面')->nullable();
             $table->char('develop_sn',6)->comment('开发人编号')->index()->nullable();
             $table->char('develop_name',10)->comment('开发人姓名')->index()->nullable();
             $table->integer('recommend_id')->comment('介绍人id')->index()->nullable();
@@ -76,6 +96,23 @@ class CreateCrmTable extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+
+        Schema::create('client_has_provincial',function(Blueprint $table){
+            $table->unsignedInteger('client_id')->index();
+            $table->unsignedTinyInteger('provincial_id')->index();
+            $table->primary(['client_id', 'provincial_id'], 'client_id_provincial_id');
+            $table->foreign('client_id')->references('id')->on('clients');
+            $table->foreign('provincial_id')->references('id')->on('provincial');
+        });
+
+        Schema::create('client_has_level',function(Blueprint $table){
+            $table->unsignedInteger('client_id')->index();
+            $table->unsignedTinyInteger('level_id')->index();
+            $table->primary(['client_id', 'level_id'], 'client_id_level_id');
+            $table->foreign('client_id')->references('id')->on('clients');
+            $table->foreign('level_id')->references('id')->on('levels');
+        });
+
         //客户管理标签中间表
         Schema::create('client_has_tags', function (Blueprint $table) {
             $table->unsignedInteger('client_id')->index();
@@ -127,7 +164,12 @@ class CreateCrmTable extends Migration
         Schema::dropIfExists('client_has_shops');
         Schema::dropIfExists('client_has_brands');
         Schema::dropIfExists('client_has_tags');
+        Schema::dropIfExists('client_has_level');
+        Schema::dropIfExists('client_has_provincial');
         Schema::dropIfExists('clients');
+        Schema::dropIfExists('linkage');
+        Schema::dropIfExists('levels');
+        Schema::dropIfExists('provincial');
         Schema::dropIfExists('tags');
         Schema::dropIfExists('tag_types');
         Schema::dropIfExists('nations');
