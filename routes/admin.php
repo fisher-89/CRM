@@ -61,6 +61,11 @@ Route::group(['middleware' => 'auth:api'], function (Registrar $admin) {
     $admin->post('auth', Admin\AuthorityController::class . '@store');
     $admin->put('auth/{id}', Admin\AuthorityController::class . '@edit');
     $admin->delete('auth/{id}', Admin\AuthorityController::class . '@delete');
+    //客户等级
+    $admin->get('level', Admin\LevelsController::class . '@index');
+    $admin->post('level', Admin\LevelsController::class . '@store');
+    $admin->put('level/{id}', Admin\LevelsController::class . '@edit');
+    $admin->delete('level/{id}', Admin\LevelsController::class . '@delete');
 });
 Route::get('clients/example', Admin\ClientsController::class . '@example');//客户信息导入模板
 //localhost:8004/admin/clients/example
