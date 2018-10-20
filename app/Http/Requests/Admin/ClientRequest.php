@@ -83,8 +83,9 @@ class ClientRequest extends FormRequest
             'county_id' => 'nullable|numeric|exists:linkage,id',
             'address' => 'nullable|max:100',
             'icon' => 'nullable',
-            'id_card_image' => 'nullable|array',
-            'develop_sn' => ['nullable','max:6', function ($attribute, $value, $event) use ($recommend) {
+            'id_card_image_f' => 'nullable',
+            'id_card_image_b' => 'nullable',
+            'develop_sn' => ['nullable', 'max:6', function ($attribute, $value, $event) use ($recommend) {
                 if ((bool)$value === true) {
                     try {
                         $develop = app('api')->withRealException()->getStaff($value);
@@ -101,7 +102,7 @@ class ClientRequest extends FormRequest
                 }
             }],
             'develop_name' => 'nullable|max:10',
-            'recommend_id' => ['nullable','exists:clients,id', function ($attribute, $value, $event) use ($develop) {
+            'recommend_id' => ['nullable', 'exists:clients,id', function ($attribute, $value, $event) use ($develop) {
                 if ((bool)$value === false) {
                     if ((bool)$develop === false) {
                         return $event('员工开发人或客户介绍人必须任选其一');
@@ -126,6 +127,10 @@ class ClientRequest extends FormRequest
                     }
                 }
             ],
+            'provinces' => 'array',
+            'provinces.*.province_id' => 'numeric|exists:provincial,id',
+            'levels' => 'array',
+            'levels.*.level_id' => 'numeric|exists:levels,id',
             'vindicator_name' => 'max:10',
             'remark' => 'max:200',
             'brands.*.brand_id' => [
@@ -160,7 +165,10 @@ class ClientRequest extends FormRequest
             'county_id' => '县级',
             'address' => '详细地址',
             'icon' => '头像照片',
-            'id_card_image' => '身份证照片',
+            'id_card_image_f' => '身份证照片正面',
+            'id_card_image_b' => '身份证照片反面',
+            'provinces' => '合作省份',
+            'levels' => '客户等级',
             'develop_sn' => '开发人编号',
             'develop_name' => '开发人姓名',
             'recommend_id' => '介绍人id',
