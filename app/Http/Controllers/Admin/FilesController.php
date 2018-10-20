@@ -64,7 +64,7 @@ class FilesController extends Controller
         $age ->save(public_path('storage/temporary/'.$fileName . '_thumb.'. $exe));
         if ($path == false) {
             abort(400, '文件上传失败');
-        }
+        }dd($exe);
         return config('app.url') . '/storage/temporary/' . $fileName . '.' . $exe;
     }
 
