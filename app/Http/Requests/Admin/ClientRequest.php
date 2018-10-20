@@ -59,7 +59,7 @@ class ClientRequest extends FormRequest
                 }
             ],
             'wechat' => 'max:20|nullable',
-            'nation' => 'required|max:5|exists:nations,name',
+            'nation' => 'max:5|exists:nations,name',
             'id_card_number' => ['required',
                 function ($attribute, $value, $event) {
                     $id = $this->route('id');
