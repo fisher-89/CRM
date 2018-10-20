@@ -77,7 +77,7 @@ class ClientRequest extends FormRequest
                 },
                 'max:18',
                 'regex:/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/'],
-            'native_place' => 'nullable|max:8|exists:provincial,name',
+            'native_place' => 'nullable|max:8|exists:province,name',
             'province_id' => 'nullable|numeric|exists:linkage,id',
             'city_id' => 'nullable|numeric|exists:linkage,id',
             'county_id' => 'nullable|numeric|exists:linkage,id',
@@ -132,7 +132,7 @@ class ClientRequest extends FormRequest
                     return $event('合作省份必选');
                 }
             }],
-            'provinces.*.province_id' => 'numeric|exists:provincial,id|required',
+            'provinces.*.province_id' => 'numeric|exists:province,id|required',
             'levels' => 'array',
             'levels.*.level_id' => 'numeric|exists:levels,id',
             'vindicator_name' => 'max:10',
@@ -176,13 +176,13 @@ class ClientRequest extends FormRequest
             'develop_sn' => '开发人编号',
             'develop_name' => '开发人姓名',
             'recommend_id' => '介绍人id',
-            'recommend_name' => '认识人姓名',
-            'tag_id' => '标签',
+            'recommend_name' => '介绍人姓名',
+            'tags' => '标签',
             'first_cooperation_at' => '第一次合作时间',
             'vindicator_sn' => '维护人编号',
             'vindicator_name' => '维护人姓名',
             'remark' => '备注',
-            'brand' => '品牌',
+            'brands' => '品牌',
             //品牌  店铺
         ];
     }

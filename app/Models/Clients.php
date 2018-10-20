@@ -49,6 +49,6 @@ class Clients extends Model
 
     public function provinces()
     {
-        return $this->hasMany(ClientHasProvincial::class,'client_id','id');
+        return $this->hasMany(ClientHasProvince::class,'client_id','id');
     }
 }
