@@ -89,7 +89,7 @@ class FilesController extends Controller
         if (!$files->isValid()) {
             abort(400, '文件上传失败');
         }
-        $exe = $files->getClientOriginalExtension();
+        $exe = $files->extension();
         $fileName = rand(99, 999) . time() . $request->user()->staff_sn;
         $path = Storage::url($files->storeAs('temporary', $fileName . '.' . $exe, 'public'));
         if ($path == false) {
