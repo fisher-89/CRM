@@ -47,8 +47,8 @@ class Clients extends Model
         return $this->hasMany(ClientHasLevel::class,'client_id','id');
     }
 
-    public function provinces()
+    public function linkages()
     {
-        return $this->hasMany(ClientHasProvince::class,'client_id','id');
+        return $this->hasMany(ClientHasLinkage::class,'client_id','id');
     }
 }
