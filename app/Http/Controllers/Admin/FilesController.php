@@ -57,7 +57,7 @@ class FilesController extends Controller
         if (!$files->isValid()) {
             abort(400, '文件上传失败');
         }
-        $exe = $files->getClientOriginalExtension();
+        $exe = $files->extension();
         $fileName = rand(99, 999) . time() . $request->user()->staff_sn;
         $path = Storage::url($files->storeAs('temporary', $fileName . '.' . $exe, 'public'));
         $age = ImageManagerStatic::make($files->getRealPath())->resize(96,96);
@@ -71,7 +71,7 @@ class FilesController extends Controller
     protected function imageVerify($request)
     {
         $this->validate($request,[
-                'iconImage' => 'file|max:4096|mimes:png,gif,jpeg'
+                'iconImage' => 'file|max:4096|image'
 //                    |dimensions:width=180,height=180
             ],[],[
                 'iconImage' => '头像'
