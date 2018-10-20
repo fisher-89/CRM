@@ -71,7 +71,8 @@ class FilesController extends Controller
     protected function imageVerify($request)
     {
         $this->validate($request,[
-                'iconImage' => 'file|max:4096|mimes:png,gif,jpeg|dimensions:width=180,height=180'
+                'iconImage' => 'file|max:4096|mimes:png,gif,jpeg'
+//                    |dimensions:width=180,height=180
             ],[],[
                 'iconImage' => '头像'
             ]
