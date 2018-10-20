@@ -77,7 +77,7 @@ class ClientRequest extends FormRequest
                 },
                 'max:18',
                 'regex:/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/'],
-            'native_place' => 'nullable|max:8|exists:province,name',
+            'native_place' => 'nullable|max:8|exists:provinces,name',
             'province_id' => 'nullable|numeric|exists:linkage,id',
             'city_id' => 'nullable|numeric|exists:linkage,id',
             'county_id' => 'nullable|numeric|exists:linkage,id',
@@ -132,7 +132,7 @@ class ClientRequest extends FormRequest
                     return $event('合作省份必选');
                 }
             }],
-            'provinces.*.province_id' => 'numeric|exists:province,id|required',
+            'provinces.*.province_id' => 'numeric|exists:provinces,id|required',
             'levels' => 'array',
             'levels.*.level_id' => 'numeric|exists:levels,id',
             'vindicator_name' => 'max:10',

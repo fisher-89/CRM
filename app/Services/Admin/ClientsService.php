@@ -7,6 +7,8 @@ use App\Http\Resources\ClientsCollection;
 use App\Models\AuthGroupHasEditableBrands;
 use App\Models\AuthGroupHasVisibleBrands;
 use App\Models\ClientHasBrands;
+use App\Models\ClientHasLevel;
+use App\Models\ClientHasProvince;
 use App\Models\ClientHasShops;
 use App\Models\ClientHasTags;
 use App\Models\ClientLogs;
@@ -28,11 +30,14 @@ class ClientsService
     protected $nations;
     protected $clientLogs;
     protected $clientHasTags;
+    protected $clientHasLevel;
     protected $clientHasShops;
     protected $clientHasBrands;
+    protected $clientHasProvincial;
 
-    public function __construct(Clients $clients, ClientHasTags $clientHasTags, Source $source, Nations $nations,
-                                Tags $tags, ClientHasShops $clientHasShops, ClientHasBrands $clientHasBrands, ClientLogs $clientLogs)
+    public function __construct(Clients $clients, ClientHasTags $clientHasTags, Source $source, Nations $nations, Tags $tags,
+                                ClientHasShops $clientHasShops, ClientHasBrands $clientHasBrands, ClientLogs $clientLogs,
+                                ClientHasLevel $clientHasLevel, ClientHasProvince $clientHasProvincial)
     {
         $this->tags = $tags;
         $this->source = $source;
@@ -40,8 +45,10 @@ class ClientsService
         $this->nations = $nations;
         $this->clientLogs = $clientLogs;
         $this->clientHasTags = $clientHasTags;
+        $this->clientHasLevel = $clientHasLevel;
         $this->clientHasShops = $clientHasShops;
         $this->clientHasBrands = $clientHasBrands;
+        $this->clientHasProvincial = $clientHasProvincial;
     }
 
     /**
@@ -53,15 +60,7 @@ class ClientsService
      */
     public function listClient($request, $brand)
     {
-//        foreach ($brand as $key => $value) {
-//            foreach ($value['visibles'] as $k => $v) {
-//                $arrData[] = $v['brand_id'];
-//            }
-//        }
-//        $arr = isset($arrData) ? $arrData : [];
-        $list = $this->client->with('tags')->with('shops')->with('brands')
-//            ->whereHas('brands', function ($query) use ($arr) {
-//                $query->whereIn('brand_id', $arr);})
+        $list = $this->client->with(['tags','shops','brands','levels','provinces'])
             ->filterByQueryString()->SortByQueryString()->withPagination($request->get('pagesize', 10));
         if (isset($list['data'])) {
             $list['data'] = new ClientsCollection(collect($list['data']));
@@ -80,15 +79,19 @@ class ClientsService
     public function addClient($request)
     {
         $all = $request->all();
-        try {
-            DB::beginTransaction();
+//        try {
+//            DB::beginTransaction();
             if ((bool)$request->icon === true) {
                 $icon = $this->imageDispose($request->icon, 'icon');
                 $all['icon'] = $icon;
             }
-            if ((bool)$request->id_card_image === true) {
-                $card = $this->imageDispose($request->id_card_image, 'card');
-                $all['id_card_image'] = $card;
+            if ((bool)$request->id_card_image_f === true) {
+                $card = $this->imageDispose($request->id_card_image_f, 'card');
+                $all['id_card_image_f'] = $card;
+            }
+            if ((bool)$request->id_card_image_b === true) {
+                $card = $this->imageDispose($request->id_card_image_b, 'card');
+                $all['id_card_image_b'] = $card;
             }
             $bool = $this->client->create($all);
             if ((bool)$bool === false) {
@@ -121,12 +124,30 @@ class ClientsService
                     ];
                 }
                 $this->clientHasShops->insert($shopSql);
+            }// 合作省份
+            if (isset($request->provinces) && $request->provinces != []) {
+                foreach ($request->provinces as $val) {
+                    $provincialSql[] = [
+                        'client_id' => $bool->id,
+                        'province_id' => $val['province_id'],
+                    ];
+                }
+                $this->clientHasProvincial->insert($provincialSql);
+            }// 客户等级
+            if (isset($request->levels) && $request->levels != []) {
+                foreach ($request->levels as $value) {
+                    $levelSql[] = [
+                        'client_id' => $bool->id,
+                        'level_id' => $value['level_id'],
+                    ];
+                }
+                $this->clientHasLevel->insert($levelSql);
             }
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollback();
-            abort(400, '客户添加失败');
-        }
+//            DB::commit();
+//        } catch (\Exception $e) {
+//            DB::rollback();
+//            abort(400, '客户添加失败');
+//        }
         return response()->json($this->client->with('tags')->with('shops')->with('brands')->where('id', $bool->id)->first(), 201);
     }
 
@@ -139,7 +160,7 @@ class ClientsService
     public function editClient($request)
     {
         $all = $request->all();
-        $clientData = $this->client->with(['tags', 'shops', 'brands'])->find($request->route('id'));
+        $clientData = $this->client->with(['tags', 'shops', 'brands','levels','provinces'])->find($request->route('id'));
         if ((bool)$clientData === false) {
             abort(404, '未找到数据');
         }
@@ -150,9 +171,13 @@ class ClientsService
             $icon = $this->imageDispose($request->icon, 'icon', $clientData['icon']);
             $all['icon'] = $icon;
         }
-        if ((bool)$request->id_card_image === true) {
-            $card = $this->imageDispose($request->id_card_image, 'card', $clientData['id_card_image']);
-            $all['id_card_image'] = $card;
+        if ((bool)$request->id_card_image_f === true) {
+            $card = $this->imageDispose($request->id_card_image_f, 'card', $clientData['id_card_image_f']);
+            $all['id_card_image_f'] = $card;
+        }
+        if ((bool)$request->id_card_image_b === true) {
+            $card = $this->imageDispose($request->id_card_image_b, 'card', $clientData['id_card_image_b']);
+            $all['id_card_image_b'] = $card;
         }
         $clientData->update($all);
         if ((bool)$clientData === false) {
@@ -162,6 +187,8 @@ class ClientsService
         $this->clientHasTags->where('client_id', $clientData->id)->delete();
         $this->clientHasShops->where('client_id', $clientData->id)->delete();
         $this->clientHasBrands->where('client_id', $clientData->id)->delete();
+        $this->clientHasLevel->where('client_id', $clientData->id)->delete();
+        $this->clientHasProvincial->where('client_id', $clientData->id)->delete();
         if (isset($request->tags)) {
             if ($request->tags != []) {
                 foreach ($request->tags as $k => $v) {
@@ -194,6 +221,24 @@ class ClientsService
                 }
                 $this->clientHasShops->insert($shopSql);
             }
+        }
+        if (isset($request->provinces) && $request->provinces != []) {
+            foreach ($request->provinces as $val) {
+                $provincialSql[] = [
+                    'client_id' => $clientData->id,
+                    'province_id' => $val['province_id'],
+                ];
+            }
+            $this->clientHasProvincial->insert($provincialSql);
+        }// 客户等级
+        if (isset($request->levels) && $request->levels != []) {
+            foreach ($request->levels as $value) {
+                $levelSql[] = [
+                    'client_id' => $clientData->id,
+                    'level_id' => $value['level_id'],
+                ];
+            }
+            $this->clientHasLevel->insert($levelSql);
         }
         $this->saveClientLog($specialHandling, $all, $request);
 //            DB::commit();
@@ -277,14 +322,8 @@ class ClientsService
         if(isset($model['icon'])){
             $model['icon'] = json_encode($model['icon']);
         }
-        if(isset($model['id_card_image'])){
-            $model['id_card_image'] = json_encode($model['id_card_image']);
-        }
         if(isset($commit['icon'])){
             $commit['icon'] = json_encode($commit['icon']);
-        }
-        if(isset($commit['id_card_image'])){
-            $commit['id_card_image'] = json_encode($commit['id_card_image']);
         }
         $model['source_id'] = (string)$model['source_id'];
         $model['status'] = (string)$model['status'];

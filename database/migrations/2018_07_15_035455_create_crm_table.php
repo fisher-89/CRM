@@ -46,7 +46,7 @@ class CreateCrmTable extends Migration
             $table->softDeletes();
         });
 
-        Schema::create('province', function (Blueprint $table) {
+        Schema::create('provinces', function (Blueprint $table) {
             $table->tinyIncrements('id');
             $table->char('name',8)->comment('省级')->unique();
         });

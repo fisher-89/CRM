@@ -260,7 +260,7 @@ class ClientsController extends Controller
                     'nation' => 'required|max:5|exists:nations,name',
                     'id_card_number' => ['required', 'unique:clients,id_card_number', 'max:18',
                         'regex:/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/'],
-                    'native_place' => 'nullable|max:8|exists:provincial,name',
+                    'native_place' => 'nullable|max:8|exists:province,name',
                     'present_address' => 'nullable|max:150',
                     'first_cooperation_at' => 'nullable|date',
                     'vindicator_sn' => ['numeric', 'nullable',],
@@ -415,8 +415,8 @@ class ClientsController extends Controller
         $nationsData = array_column($nations == null ? [] : $nations->toArray(), 'name');//民族
         $tags = DB::table('tags')->get();
         $tagsData = array_column($tags == null ? [] : $tags->toArray(), 'name');//标签
-        $provincial = DB::table('provincial')->get();
-        $provincialData = array_column($provincial == null ? [] : $provincial->toArray(), 'name');//籍贯
+        $province = DB::table('province')->get();
+        $provincialData = array_column($province == null ? [] : $province->toArray(), 'name');//籍贯
         $max = count(max($sourceData, $statusData, $brandData, $nationsData, $tagsData, $provincialData));
         $data[] = ['客户来源', '客户状态', '合作品牌', '民族', '标签', '籍贯'];
         for ($i = 0; $i < $max; $i++) {

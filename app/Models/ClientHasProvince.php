@@ -9,7 +9,7 @@ class ClientHasProvince extends Model
 {
     use ListScopes;
 
-    protected $table = 'client_has_provincial';
+    protected $table = 'client_has_province';
 
     protected $fillable = ['client_id', 'province_id'];
 
@@ -17,6 +17,6 @@ class ClientHasProvince extends Model
 
     public function province()
     {
-        return $this->hasOne(Province::class, 'id', 'province_id');
+        return $this->hasOne(Provinces::class, 'id', 'province_id');
     }
 }
