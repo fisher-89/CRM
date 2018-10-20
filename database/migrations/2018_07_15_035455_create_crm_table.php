@@ -93,7 +93,7 @@ class CreateCrmTable extends Migration
             $table->char('recommend_name',10)->comment('介绍人姓名')->index()->nullable();
             $table->unsignedMediumInteger('vindicator_sn')->comment('维护人编号')->nullable();
             $table->char('vindicator_name', 10)->comment('维护人姓名')->nullable();
-            $table->char('remark', 200)->comment('备注')->nullable();
+            $table->string('remark', 200)->comment('备注')->nullable();
             $table->foreign('source_id')->references('id')->on('source');
             $table->timestamps();
             $table->softDeletes();
