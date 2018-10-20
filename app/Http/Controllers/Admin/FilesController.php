@@ -58,6 +58,7 @@ class FilesController extends Controller
             abort(400, '文件上传失败');
         }
         $exe = $files->extension();
+//        $exe = $files->getClientOriginalExtension();
         $fileName = rand(99, 999) . time() . $request->user()->staff_sn;
         $path = Storage::url($files->storeAs('temporary', $fileName . '.' . $exe, 'public'));
         $age = ImageManagerStatic::make($files->getRealPath())->resize(96,96);
