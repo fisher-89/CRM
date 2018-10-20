@@ -84,7 +84,7 @@ class CreateCrmTable extends Migration
             $table->date('first_cooperation_at')->comment('初次合作时间')->nullable();
             $table->text('icon')->comment('头像')->nullable();
             $table->text('id_card_image_f')->comment('身份证照片正面')->nullable();
-            $table->text('id_card_image_v')->comment('身份证照片反面')->nullable();
+            $table->text('id_card_image_b')->comment('身份证照片反面')->nullable();
             $table->char('develop_sn',6)->comment('开发人编号')->index()->nullable();
             $table->char('develop_name',10)->comment('开发人姓名')->index()->nullable();
             $table->integer('recommend_id')->comment('介绍人id')->index()->nullable();
