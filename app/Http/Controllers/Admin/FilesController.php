@@ -60,12 +60,11 @@ class FilesController extends Controller
         $exe = $files->extension();
 //        $exe = $files->getClientOriginalExtension();
         $fileName = rand(99, 999) . time() . $request->user()->staff_sn;
-        $path = Storage::url($files->storeAs('temporary', $fileName . '.' . $exe, 'public'));
+//        $path = Storage::url($files->storeAs('temporary', $fileName . '.' . $exe, 'public'));
+        $compress = ImageManagerStatic::make($files->getRealPath())->resize(180,180);
+        $compress ->save(public_path('storage/temporary/'.$fileName . '.'. $exe));
         $age = ImageManagerStatic::make($files->getRealPath())->resize(96,96);
         $age ->save(public_path('storage/temporary/'.$fileName . '_thumb.'. $exe));
-        if ($path == false) {
-            abort(400, '文件上传失败');
-        }
         return config('app.url') . '/storage/temporary/' . $fileName . '.' . $exe;
     }
 
