@@ -127,8 +127,12 @@ class ClientRequest extends FormRequest
                     }
                 }
             ],
-            'provinces' => 'array',
-            'provinces.*.province_id' => 'numeric|exists:provincial,id',
+            'provinces' => ['array',function($attribute, $value, $event){
+                if (count($value) == 0) {
+                    return $event('合作省份必选');
+                }
+            }],
+            'provinces.*.province_id' => 'numeric|exists:provincial,id|required',
             'levels' => 'array',
             'levels.*.level_id' => 'numeric|exists:levels,id',
             'vindicator_name' => 'max:10',
