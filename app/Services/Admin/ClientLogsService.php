@@ -10,6 +10,7 @@ use DB;
 use App\Models\Clients;
 use App\Models\ClientLogs;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ClientLogsService
 {
@@ -78,6 +79,15 @@ class ClientLogsService
                     abort(400, '还原失败，身份证号码与姓名为:' . $idCardNumber->name);
                 }
             }
+        }
+        if(isset($changes['icon'])){
+            $this->iconImageRestore($changes['icon'],'icon');
+        }
+        if(isset($changes['id_card_image_f'])){
+            $this->iconImageRestore($changes['id_card_image_f'],'card');
+        }
+        if(isset($changes['id_card_image_b'])){
+            $this->iconImageRestore($changes['id_card_image_b'],'card');
         }
 //        try {
 //            DB::beginTransaction();
@@ -157,6 +167,29 @@ class ClientLogsService
 //        }
         $data = $this->clientLogs->where('id', $id)->with('clients.brands')->first();
         return (bool)$bool === true ? response($data, 201) : abort(400, '还原失败');
+    }
+
+    protected function iconImageRestore($icon,$type)
+    {
+        foreach ($icon as $k => $v) {
+            $fileName = basename($v);
+            $src = '/abandon/' . $fileName;
+            $dst = '/' . $type . '/' . $fileName;
+            if (Storage::disk('public')->exists($src)) {
+                Storage::disk('public')->move($src, $dst);
+            }
+            if ($type == 'icon') {
+                $fileNameArr = explode('.', $fileName);
+                $fileNameArr[0] = $fileNameArr[0] . '_thumb';
+                $acr = '/abandon/' . implode('.', $fileNameArr);
+                $std = '/' . $type . '/' . implode('.', $fileNameArr);
+                if (Storage::disk('public')->exists($acr)) {
+                    Storage::disk('public')->move($acr, $std);
+                    $url[] = config('app.url') . '/storage' . $std;
+                }
+            }
+            $url[] = config('app.url') . '/storage' . $dst;
+        }
     }
 
     protected function dataDispose($changes)
