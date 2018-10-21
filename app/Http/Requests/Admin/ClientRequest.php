@@ -132,7 +132,11 @@ class ClientRequest extends FormRequest
                     return $event('合作省份必选');
                 }
             }],
-            'linkages.*.linkage_id' => 'numeric|exists:linkage,id|required',
+            'linkages.*.linkage_id' => ['numeric','required',function($attribute, $value, $event){
+                if((bool)DB::table('linkage')->where(['id'=>$value,'level'=>1])->first() === false){
+                    return $event('未找到的合作省份');
+                };
+            }],
             'levels' => 'array',
             'levels.*.level_id' => 'numeric|exists:levels,id',
             'vindicator_name' => 'max:10',
