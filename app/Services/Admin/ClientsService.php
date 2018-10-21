@@ -593,6 +593,8 @@ class ClientsService
                 $icon[] = config('app.url') . '/storage' . $dst;
                 $icon[] = config('app.url') . '/storage' . $std;
                 return $icon;
+            }else{
+                abort(500,'图片未找到');
             }
         }
         return config('app.url') . '/storage' . $dst;
