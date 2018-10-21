@@ -29,14 +29,12 @@ Route::group(['middleware' => 'auth:api'], function (Registrar $admin) {
     $admin->delete('clients/{id}', Admin\ClientsController::class . '@delete');
     $admin->get('clients/{id}', Admin\ClientsController::class . '@details');
     $admin->get('clients/export', Admin\ClientsController::class . '@export');//导出
-    $admin->post('clients/import', Admin\ClientsController::class . '@import');//导入 todo  导入人权限品牌验证，合作店铺，合作品牌，合作区域   没弄
+    $admin->post('clients/import', Admin\ClientsController::class . '@import');//导入
     $admin->post('clients/image',Admin\FilesController::class.'@iconImage');//头像
     $admin->post('clients/card',Admin\FilesController::class.'@cardImage');//身份证照片
-
     $admin->get('clients/brands',Admin\AuthBrandController::class.'@getBrand');
     //民族选择
     $admin->get('nation', Admin\NationController::class . '@index');//获取民族
-    $admin->post('nation', Admin\NationController::class . '@store');//todo 临时用接口
     //客户资料-log
     $admin->get('client/logs', Admin\ClientLogsController::class . '@index');
     $admin->get('client/logs/{id}', Admin\ClientLogsController::class . '@restore');
@@ -48,7 +46,7 @@ Route::group(['middleware' => 'auth:api'], function (Registrar $admin) {
     $admin->get('notes', Admin\NotesController::class . '@index');
     $admin->post('notes', Admin\NotesController::class . '@store');
     $admin->put('notes/{id}', Admin\NotesController::class . '@edit');
-    $admin->delete('notes/{id}', Admin\NotesController::class . '@delete');//todo 还没有做废弃文件夹定时清理
+    $admin->delete('notes/{id}', Admin\NotesController::class . '@delete');
     $admin->get('notes/{id}', Admin\NotesController::class . '@detailNote');
     $admin->get('notes/brand/{id}',Admin\NotesController::class.'@getUserBrands');
     //临时文件存储
