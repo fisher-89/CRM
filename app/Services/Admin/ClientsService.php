@@ -148,7 +148,7 @@ class ClientsService
 //            DB::rollback();
 //            abort(400, '客户添加失败');
 //        }
-        return response()->json($this->client->with(['tags','shops','brands','levels','linkages'])->first(), 201);
+        return response()->json($this->client->where('id',$bool->id)->with(['tags','shops','brands','levels','linkages'])->first(), 201);
     }
 
     /**
@@ -246,7 +246,7 @@ class ClientsService
 //            DB::rollback();
 //            abort(400, '客户修改失败');
 //        }
-        return response($this->client->with(['tags', 'shops', 'brands','levels','linkages'])->first(), 201);
+        return response($this->client->where('id',$clientData->id)->with(['tags', 'shops', 'brands','levels','linkages'])->first(), 201);
     }
 
     /**
