@@ -76,7 +76,7 @@ class CreateCrmTable extends Migration
             $table->char('gender', 1)->comment('性别 ,男,女');
             $table->char('mobile', 11)->comment('电话号码')->unique();
             $table->char('wechat', 20)->comment('微信')->index()->nullable();
-            $table->char('nation', 5)->comment('民族');
+            $table->char('nation', 5)->comment('民族')->nullable();
             $table->char('id_card_number', 18)->comment('身份证号码')->unique();
             $table->char('native_place', 8)->comment('籍贯：省份')->default('')->nullable();
             $table->char('province_id', 6)->comment('现住地址:省')->default('')->nullable();
