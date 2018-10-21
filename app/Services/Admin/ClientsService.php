@@ -33,11 +33,11 @@ class ClientsService
     protected $clientHasLevel;
     protected $clientHasShops;
     protected $clientHasBrands;
-    protected $clientHasProvincial;
+    protected $clientHasLinkages;
 
     public function __construct(Clients $clients, ClientHasTags $clientHasTags, Source $source, Nations $nations, Tags $tags,
                                 ClientHasShops $clientHasShops, ClientHasBrands $clientHasBrands, ClientLogs $clientLogs,
-                                ClientHasLevel $clientHasLevel, ClientHasLinkage $clientHasProvincial)
+                                ClientHasLevel $clientHasLevel, ClientHasLinkage $clientHasLinkages)
     {
         $this->tags = $tags;
         $this->source = $source;
@@ -48,7 +48,7 @@ class ClientsService
         $this->clientHasLevel = $clientHasLevel;
         $this->clientHasShops = $clientHasShops;
         $this->clientHasBrands = $clientHasBrands;
-        $this->clientHasProvincial = $clientHasProvincial;
+        $this->clientHasLinkages = $clientHasLinkages;
     }
 
     /**
@@ -125,14 +125,14 @@ class ClientsService
                 }
                 $this->clientHasShops->insert($shopSql);
             }// 合作省份
-            if (isset($request->provinces) && $request->provinces != []) {
-                foreach ($request->provinces as $val) {
-                    $provincialSql[] = [
+            if (isset($request->linkages) && $request->linkages != []) {
+                foreach ($request->linkages as $val) {
+                    $linkageSql[] = [
                         'client_id' => $bool->id,
                         'linkage_id' => $val['linkage_id'],
                     ];
                 }
-                $this->clientHasProvincial->insert($provincialSql);
+                $this->clientHasLinkages->insert($linkageSql);
             }// 客户等级
             if (isset($request->levels) && $request->levels != []) {
                 foreach ($request->levels as $value) {
@@ -188,7 +188,7 @@ class ClientsService
         $this->clientHasShops->where('client_id', $clientData->id)->delete();
         $this->clientHasBrands->where('client_id', $clientData->id)->delete();
         $this->clientHasLevel->where('client_id', $clientData->id)->delete();
-        $this->clientHasProvincial->where('client_id', $clientData->id)->delete();
+        $this->clientHasLinkages->where('client_id', $clientData->id)->delete();
         if (isset($request->tags)) {
             if ($request->tags != []) {
                 foreach ($request->tags as $k => $v) {
@@ -222,14 +222,14 @@ class ClientsService
                 $this->clientHasShops->insert($shopSql);
             }
         }
-        if (isset($request->provinces) && $request->provinces != []) {
+        if (isset($request->linkages) && $request->linkages != []) {
             foreach ($request->provinces as $val) {
-                $provincialSql[] = [
+                $linkageSql[] = [
                     'client_id' => $clientData->id,
                     'linkage_id' => $val['linkage_id'],
                 ];
             }
-            $this->clientHasProvincial->insert($provincialSql);
+            $this->clientHasLinkages->insert($linkageSql);
         }// 客户等级
         if (isset($request->levels) && $request->levels != []) {
             foreach ($request->levels as $value) {
