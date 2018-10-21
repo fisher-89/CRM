@@ -60,7 +60,7 @@ class ClientsService
      */
     public function listClient($request, $brand)
     {
-        $list = $this->client->with(['tags','shops','brands','levels','linkages'])
+        $list = $this->client->with(['tags', 'shops', 'brands', 'levels', 'linkages'])
             ->filterByQueryString()->SortByQueryString()->withPagination($request->get('pagesize', 10));
         if (isset($list['data'])) {
             $list['data'] = new ClientsCollection(collect($list['data']));
@@ -81,74 +81,74 @@ class ClientsService
         $all = $request->all();
 //        try {
 //            DB::beginTransaction();
-            if ((bool)$request->icon === true) {
-                $icon = $this->imageDispose($request->icon, 'icon');
-                $all['icon'] = $icon;
+        if ((bool)$request->icon === true) {
+            $icon = $this->imageDispose($request->icon, 'icon');
+            $all['icon'] = $icon;
+        }
+        if ((bool)$request->id_card_image_f === true) {
+            $card = $this->imageDispose($request->id_card_image_f, 'card');
+            $all['id_card_image_f'] = $card;
+        }
+        if ((bool)$request->id_card_image_b === true) {
+            $card = $this->imageDispose($request->id_card_image_b, 'card');
+            $all['id_card_image_b'] = $card;
+        }
+        $bool = $this->client->create($all);
+        if ((bool)$bool === false) {
+            DB::rollback();
+            abort(400, '客户添加失败');
+        }
+        if (isset($request->tags) && $request->tags != []) {
+            foreach ($request->tags as $k => $v) {
+                $tagSql[] = [
+                    'client_id' => $bool->id,
+                    'tag_id' => $v['tag_id'],
+                ];
             }
-            if ((bool)$request->id_card_image_f === true) {
-                $card = $this->imageDispose($request->id_card_image_f, 'card');
-                $all['id_card_image_f'] = $card;
+            $this->clientHasTags->insert($tagSql);
+        }
+        if (isset($request->brands) && $request->brands != []) {
+            foreach ($request->brands as $item) {
+                $brandSql[] = [
+                    'client_id' => $bool->id,
+                    'brand_id' => $item['brand_id'],
+                ];
             }
-            if ((bool)$request->id_card_image_b === true) {
-                $card = $this->imageDispose($request->id_card_image_b, 'card');
-                $all['id_card_image_b'] = $card;
+            $this->clientHasBrands->insert($brandSql);
+        }
+        if (isset($request->shops) && $request->shops != []) {
+            foreach ($request->shops as $items) {
+                $shopSql[] = [
+                    'client_id' => $bool->id,
+                    'shop_sn' => $items['shop_sn'],
+                ];
             }
-            $bool = $this->client->create($all);
-            if ((bool)$bool === false) {
-                DB::rollback();
-                abort(400, '客户添加失败');
+            $this->clientHasShops->insert($shopSql);
+        }// 合作省份
+        if (isset($request->linkages) && $request->linkages != []) {
+            foreach ($request->linkages as $val) {
+                $linkageSql[] = [
+                    'client_id' => $bool->id,
+                    'linkage_id' => $val['linkage_id'],
+                ];
             }
-            if (isset($request->tags) && $request->tags != []) {
-                foreach ($request->tags as $k => $v) {
-                    $tagSql[] = [
-                        'client_id' => $bool->id,
-                        'tag_id' => $v['tag_id'],
-                    ];
-                }
-                $this->clientHasTags->insert($tagSql);
+            $this->clientHasLinkages->insert($linkageSql);
+        }// 客户等级
+        if (isset($request->levels) && $request->levels != []) {
+            foreach ($request->levels as $value) {
+                $levelSql[] = [
+                    'client_id' => $bool->id,
+                    'level_id' => $value['level_id'],
+                ];
             }
-            if (isset($request->brands) && $request->brands != []) {
-                foreach ($request->brands as $item) {
-                    $brandSql[] = [
-                        'client_id' => $bool->id,
-                        'brand_id' => $item['brand_id'],
-                    ];
-                }
-                $this->clientHasBrands->insert($brandSql);
-            }
-            if (isset($request->shops) && $request->shops != []) {
-                foreach ($request->shops as $items) {
-                    $shopSql[] = [
-                        'client_id' => $bool->id,
-                        'shop_sn' => $items['shop_sn'],
-                    ];
-                }
-                $this->clientHasShops->insert($shopSql);
-            }// 合作省份
-            if (isset($request->linkages) && $request->linkages != []) {
-                foreach ($request->linkages as $val) {
-                    $linkageSql[] = [
-                        'client_id' => $bool->id,
-                        'linkage_id' => $val['linkage_id'],
-                    ];
-                }
-                $this->clientHasLinkages->insert($linkageSql);
-            }// 客户等级
-            if (isset($request->levels) && $request->levels != []) {
-                foreach ($request->levels as $value) {
-                    $levelSql[] = [
-                        'client_id' => $bool->id,
-                        'level_id' => $value['level_id'],
-                    ];
-                }
-                $this->clientHasLevel->insert($levelSql);
-            }
+            $this->clientHasLevel->insert($levelSql);
+        }
 //            DB::commit();
 //        } catch (\Exception $e) {
 //            DB::rollback();
 //            abort(400, '客户添加失败');
 //        }
-        return response()->json($this->client->where('id',$bool->id)->with(['tags','shops','brands','levels','linkages'])->first(), 201);
+        return response()->json($this->client->where('id', $bool->id)->with(['tags', 'shops', 'brands', 'levels', 'linkages'])->first(), 201);
     }
 
     /**
@@ -160,7 +160,7 @@ class ClientsService
     public function editClient($request)
     {
         $all = $request->all();
-        $clientData = $this->client->with(['tags', 'shops', 'brands','levels','linkages'])->find($request->route('id'));
+        $clientData = $this->client->with(['tags', 'shops', 'brands', 'levels', 'linkages'])->find($request->route('id'));
         if ((bool)$clientData === false) {
             abort(404, '未找到数据');
         }
@@ -246,7 +246,7 @@ class ClientsService
 //            DB::rollback();
 //            abort(400, '客户修改失败');
 //        }
-        return response($this->client->where('id',$clientData->id)->with(['tags', 'shops', 'brands','levels','linkages'])->first(), 201);
+        return response($this->client->where('id', $clientData->id)->with(['tags', 'shops', 'brands', 'levels', 'linkages'])->first(), 201);
     }
 
     /**
@@ -348,10 +348,10 @@ class ClientsService
             $commit['levels'] = '';
         }
 
-        if(isset($model['icon'])){
+        if (isset($model['icon']) && (bool)$model['icon'] === true) {
             $model['icon'] = json_encode($model['icon']);
         }
-        if(isset($commit['icon'])){
+        if (isset($commit['icon']) && (bool)$model['icon'] === true) {
             $commit['icon'] = json_encode($commit['icon']);
         }
         $model['source_id'] = (string)$model['source_id'];
@@ -388,8 +388,6 @@ class ClientsService
             $this->clientLogs->create($clientLogSql);
         }
     }
-
-
 
     protected function identifying($id)
     {
@@ -499,10 +497,10 @@ class ClientsService
         if ($request->user()->staff_sn == 999999) {
             $arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
         }
-        return $this->client->with(['tags','shops','brands','levels','linkages'])->where('id', $request->route('id'))
+        return $this->client->with(['tags', 'shops', 'brands', 'levels', 'linkages'])->where('id', $request->route('id'))
             ->whereHas('brands', function ($query) use ($arr) {
                 $query->whereIn('brand_id', $arr);
-            })->first();//todo 缩列图处理
+            })->first();
     }
 
     /**
