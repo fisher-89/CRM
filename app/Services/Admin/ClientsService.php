@@ -79,8 +79,8 @@ class ClientsService
     public function addClient($request)
     {
         $all = $request->all();
-        try {
-            DB::beginTransaction();
+//        try {
+//            DB::beginTransaction();
             if ((bool)$request->icon === true) {
                 $icon = $this->imageDispose($request->icon, 'icon');
                 $all['icon'] = $icon;
@@ -143,11 +143,11 @@ class ClientsService
                 }
                 $this->clientHasLevel->insert($levelSql);
             }
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollback();
-            abort(400, '客户添加失败');
-        }
+//            DB::commit();
+//        } catch (\Exception $e) {
+//            DB::rollback();
+//            abort(400, '客户添加失败');
+//        }
         return response()->json($this->client->with(['tags','shops','brands','levels','linkages'])->first(), 201);
     }
 
