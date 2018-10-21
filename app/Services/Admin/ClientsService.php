@@ -167,7 +167,8 @@ class ClientsService
         $specialHandling = clone $clientData;
 //        try {
 //            DB::beginTransaction();
-        if ((bool)$request->icon === true && $request->icon != isset($clientData['icon'][0]) ? $clientData['icon'][0] : $clientData['icon']) {
+        $basename = is_array($clientData['icon']) ? $clientData['icon'][0] : $clientData['icon'];
+        if (basename($request->icon) != basename($basename)) {
             $all['icon'] = $this->imageDispose($request->icon, 'icon', $clientData['icon']);
         }
         if ((bool)$request->id_card_image_f === true && $request->id_card_image_f != $clientData['id_card_image_f']) {
