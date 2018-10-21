@@ -193,8 +193,10 @@ class ClientRequest extends FormRequest
 
     public function getData()
     {
-        if((bool)DB::table('clients')->where('id' ,$this->route('id'))->first() === false){
-            return false;
+        if((bool)$this->route('id') === true){
+            if((bool)DB::table('clients')->where('id' ,$this->route('id'))->first() === false){
+                return false;
+            }
         }
         return true;
     }
