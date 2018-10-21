@@ -60,7 +60,7 @@ class ClientsService
      */
     public function listClient($request, $brand)
     {
-        $list = $this->client->with(['tags','shops','brands','levels','provinces'])
+        $list = $this->client->with(['tags','shops','brands','levels','linkages'])
             ->filterByQueryString()->SortByQueryString()->withPagination($request->get('pagesize', 10));
         if (isset($list['data'])) {
             $list['data'] = new ClientsCollection(collect($list['data']));
@@ -79,8 +79,8 @@ class ClientsService
     public function addClient($request)
     {
         $all = $request->all();
-//        try {
-//            DB::beginTransaction();
+        try {
+            DB::beginTransaction();
             if ((bool)$request->icon === true) {
                 $icon = $this->imageDispose($request->icon, 'icon');
                 $all['icon'] = $icon;
@@ -143,11 +143,11 @@ class ClientsService
                 }
                 $this->clientHasLevel->insert($levelSql);
             }
-//            DB::commit();
-//        } catch (\Exception $e) {
-//            DB::rollback();
-//            abort(400, '客户添加失败');
-//        }
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+            abort(400, '客户添加失败');
+        }
         return response()->json($this->client->with(['tags','shops','brands','levels','linkages'])->first(), 201);
     }
 
@@ -223,7 +223,7 @@ class ClientsService
             }
         }
         if (isset($request->linkages) && $request->linkages != []) {
-            foreach ($request->provinces as $val) {
+            foreach ($request->linkages as $val) {
                 $linkageSql[] = [
                     'client_id' => $clientData->id,
                     'linkage_id' => $val['linkage_id'],
@@ -259,66 +259,95 @@ class ClientsService
     private function saveClientLog($model, $commit, $request)
     {
         $model = $model->toArray();
-        if (isset($model['tags']) && (bool)$model['tags'] === true) {
+        if (isset($model['tags']) && (bool)$model['tags'] === true) {//模型标签
             foreach ($model['tags'] as $i) {
                 $tags[] = $i['tag_id'];
             }
-            $tag = isset($tags) ? $tags : [];
-            $tag = $this->sort($tag);
-            $model['tags'] = implode(',', $tag);
+            $model['tags'] = implode(',', $this->sort(isset($tags) ? $tags : []));
         } else {
             $model['tags'] = '';
         }
-        if (isset($model['brands']) && (bool)$model['brands'] === true) {
+        if (isset($model['brands']) && (bool)$model['brands'] === true) {//模型品牌
             foreach ($model['brands'] as $item) {
                 $brands[] = $item['brand_id'];
             }
-            $brand = isset($brands) ? $brands : [];
-            $brand = $this->sort($brand);
-            $model['brands'] = implode(',', $brand);
+            $model['brands'] = implode(',', $this->sort(isset($brands) ? $brands : []));
         } else {
             $model['brands'] = '';
         }
-        if (isset($model['shops']) && (bool)$model['shops'] === true) {
+
+        if (isset($model['shops']) && (bool)$model['shops'] === true) {//模型店铺
             foreach ($model['shops'] as $items) {
                 $shops[] = $items['shop_sn'];
             }
-            $shop = isset($shops) ? $shops : [];
-            $shop = $this->sort($shop);
-            $model['shops'] = implode(',', $shop);
+            $model['shops'] = implode(',', $this->sort(isset($shops) ? $shops : []));
         } else {
             $model['shops'] = '';
         }
+
+        if (isset($model['linkages']) && (bool)$model['linkages'] === true) {//模型合作省份
+            foreach ($model['linkages'] as $linkage) {
+                $linkageArr[] = $linkage['linkage_id'];
+            }
+            $model['linkages'] = implode(',', $this->sort(isset($linkageArr) ? $linkageArr : []));
+        } else {
+            $model['linkages'] = '';
+        }
+
+        if (isset($model['levels']) && (bool)$model['levels'] === true) {//模型等级
+            foreach ($model['levels'] as $level) {
+                $levelArr[] = $level['level_id'];
+            }
+            $model['levels'] = implode(',', $this->sort(isset($levelArr) ? $levelArr : []));
+        } else {
+            $model['levels'] = '';
+        }
+
         if (isset($commit['tags']) && (bool)$commit['tags'] === true) {
             foreach ($commit['tags'] as $v) {
                 $commitTag[] = $v['tag_id'];
             }
-            $commitTags = isset($commitTag) ? $commitTag : [];
-            $commitTags = $this->sort($commitTags);
-            $commit['tags'] = implode(',', $commitTags);
+            $commit['tags'] = implode(',', $this->sort(isset($commitTag) ? $commitTag : []));
         } else {
             $commit['tags'] = '';
         }
+
         if (isset($commit['brands']) && (bool)$commit['brands'] === true) {
-            foreach ($commit['brands'] as $v) {
-                $commitBrand[] = $v['brand_id'];
+            foreach ($commit['brands'] as $val) {
+                $commitBrand[] = $val['brand_id'];
             }
-            $commitBrands = isset($commitBrand) ? $commitBrand : [];
-            $commitBrands = $this->sort($commitBrands);
-            $commit['brands'] = implode(',', $commitBrands);
+            $commit['brands'] = implode(',', $this->sort(isset($commitBrand) ? $commitBrand : []));
         } else {
             $commit['brands'] = '';
         }
+
         if (isset($commit['shops']) && (bool)$commit['shops'] === true) {
-            foreach ($commit['shops'] as $v) {
-                $commitShop[] = $v['shop_sn'];
+            foreach ($commit['shops'] as $value) {
+                $commitShop[] = $value['shop_sn'];
             }
-            $commitShops = isset($commitShop) ? $commitShop : [];
-            $commitShops = $this->sort($commitShops);
-            $commit['shops'] = implode(',', $commitShops);
+            $commit['shops'] = implode(',', $this->sort(isset($commitShop) ? $commitShop : []));
         } else {
             $commit['shops'] = '';
         }
+
+        if (isset($commit['linkages']) && (bool)$commit['linkages'] === true) {
+            foreach ($commit['linkages'] as $linkages) {
+                $linkagesArr[] = $linkages['linkage_id'];
+            }
+            $commit['linkages'] = implode(',', $this->sort(isset($linkagesArr) ? $linkagesArr : []));
+        } else {
+            $commit['linkages'] = '';
+        }
+
+        if (isset($commit['levels']) && (bool)$commit['levels'] === true) {
+            foreach ($commit['levels'] as $levels) {
+                $levelsArr[] = $levels['level_id'];
+            }
+            $commit['levels'] = implode(',', $this->sort(isset($levelsArr) ? $levelsArr : []));
+        } else {
+            $commit['levels'] = '';
+        }
+
         if(isset($model['icon'])){
             $model['icon'] = json_encode($model['icon']);
         }
@@ -359,6 +388,8 @@ class ClientsService
             $this->clientLogs->create($clientLogSql);
         }
     }
+
+
 
     protected function identifying($id)
     {
@@ -423,9 +454,6 @@ class ClientsService
         }
         try {
             DB::beginTransaction();
-//            $this->clientHasTags->where('client_id', $id)->delete();
-//            $this->clientHasShops->where('client_id', $id)->delete();
-//            $this->clientHasBrands->where('client_id', $id)->delete();
             $client->delete();
             $this->identifying($id);
             $clientLogSql = [
@@ -471,7 +499,7 @@ class ClientsService
         if ($request->user()->staff_sn == 999999) {
             $arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
         }
-        return $this->client->with(['tags', 'brands', 'shops'])->where('id', $request->route('id'))
+        return $this->client->with(['tags','shops','brands','levels','linkages'])->where('id', $request->route('id'))
             ->whereHas('brands', function ($query) use ($arr) {
                 $query->whereIn('brand_id', $arr);
             })->first();//todo 缩列图处理
