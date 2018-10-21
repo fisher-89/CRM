@@ -175,7 +175,7 @@ class ClientRequest extends FormRequest
             'icon' => '头像照片',
             'id_card_image_f' => '身份证照片正面',
             'id_card_image_b' => '身份证照片反面',
-            'provinces' => '合作省份',
+            'linkages' => '合作省份',
             'levels' => '客户等级',
             'develop_sn' => '开发人编号',
             'develop_name' => '开发人姓名',
