@@ -169,7 +169,6 @@ class ClientsService
 //            DB::beginTransaction();
         if ((bool)$request->icon === true && $request->icon != isset($clientData['icon'][0]) ? $clientData['icon'][0] : $clientData['icon']) {
             $all['icon'] = $this->imageDispose($request->icon, 'icon', $clientData['icon']);
-            dd($all);
         }
         if ((bool)$request->id_card_image_f === true && $request->id_card_image_f != $clientData['id_card_image_f']) {
             $all['id_card_image_f'] = $this->imageDispose($request->id_card_image_f, 'card', $clientData['id_card_image_f']);
