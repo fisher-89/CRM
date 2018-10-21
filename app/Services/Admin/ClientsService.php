@@ -171,10 +171,10 @@ class ClientsService
         if (basename($request->icon) != basename($basename)) {
             $all['icon'] = $this->imageDispose($request->icon, 'icon', $clientData['icon']);
         }
-        if ((bool)$request->id_card_image_f === true && $request->id_card_image_f != $clientData['id_card_image_f']) {
+        if (basename($request->id_card_image_f) != basename($clientData['id_card_image_f'])) {
             $all['id_card_image_f'] = $this->imageDispose($request->id_card_image_f, 'card', $clientData['id_card_image_f']);
         }
-        if ((bool)$request->id_card_image_b === true && $request->id_card_image_b != $clientData['id_card_image_b']) {
+        if (basename($request->id_card_image_b) != basename($clientData['id_card_image_b'])) {
             $all['id_card_image_b'] = $this->imageDispose($request->id_card_image_b, 'card', $clientData['id_card_image_b']);
         }
         $clientData->update($all);
