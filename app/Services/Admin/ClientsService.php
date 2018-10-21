@@ -168,16 +168,14 @@ class ClientsService
 //        try {
 //            DB::beginTransaction();
         if ((bool)$request->icon === true && $request->icon != isset($clientData['icon'][0]) ? $clientData['icon'][0] : $clientData['icon']) {
-            $icon = $this->imageDispose($request->icon, 'icon', $clientData['icon']);
-            $all['icon'] = $icon;
+            $all['icon'] = $this->imageDispose($request->icon, 'icon', $clientData['icon']);
+            dd($all);
         }
         if ((bool)$request->id_card_image_f === true && $request->id_card_image_f != $clientData['id_card_image_f']) {
-            $card = $this->imageDispose($request->id_card_image_f, 'card', $clientData['id_card_image_f']);
-            $all['id_card_image_f'] = $card;
+            $all['id_card_image_f'] = $this->imageDispose($request->id_card_image_f, 'card', $clientData['id_card_image_f']);
         }
         if ((bool)$request->id_card_image_b === true && $request->id_card_image_b != $clientData['id_card_image_b']) {
-            $card = $this->imageDispose($request->id_card_image_b, 'card', $clientData['id_card_image_b']);
-            $all['id_card_image_b'] = $card;
+            $all['id_card_image_b'] = $this->imageDispose($request->id_card_image_b, 'card', $clientData['id_card_image_b']);
         }
         $clientData->update($all);
         if ((bool)$clientData === false) {
