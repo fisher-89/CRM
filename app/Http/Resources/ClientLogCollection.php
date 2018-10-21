@@ -2,9 +2,12 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Levels;
+use App\Models\Linkages;
 use App\Models\Source;
 use App\Models\Tags;
 use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Support\Facades\DB;
 
 class ClientLogCollection extends ResourceCollection
 {
@@ -18,8 +21,8 @@ class ClientLogCollection extends ResourceCollection
      */
     public function toArray($request)
     {
-//        return parent::toArray($request);
-        return $this->collection->map(function ($data) {
+        $brand = app('api')->getBrands([1]);
+        return $this->collection->map(function ($data)use($brand) {
             return [
                 "id" => $data->id,
                 "client_id" => $data->client_id === null ? '' : $data->client_id,
@@ -27,7 +30,7 @@ class ClientLogCollection extends ResourceCollection
                 "staff_sn" => $data->staff_sn === null ? '' : $data->staff_sn,
                 "staff_name" => $data->staff_name === null ? '' : $data->staff_name,
                 "operation_address" => $data->operation_address === null ? '' : $data->operation_address,
-                "changes" => $this->trans($data->changes),
+                "changes" => $this->trans($data->changes,$brand),
                 "status" => $data->status,
                 "restore_sn" => $data->restore_sn === null ? '' : $data->restore_sn,
                 "restore_name" => $data->restore_name === null ? '' : $data->restore_name,
@@ -39,16 +42,16 @@ class ClientLogCollection extends ResourceCollection
         })->toArray();
     }
 
-    private function trans($arr)
+    private function trans($arr,$brand)
     {
         foreach ($arr as $key => $value) {
-            $value = $this->chineseValue($key, $value);
+            $value = $this->chineseValue($key, $value,$brand);
             $data[$this->chinese($key)] = $value;
         }
         return isset($data) ? $data : [];
     }
 
-    private function chineseValue($key, $value)
+    private function chineseValue($key, $value,$brand)
     {
         switch ($key) {
             case 'source_id':
@@ -77,7 +80,6 @@ class ClientLogCollection extends ResourceCollection
                 return isset($status) ? $status : [];
                 break;
             case 'brands':
-                $brand = app('api')->getBrands($value);
                 $brandOne = explode(',', $value[0]);
                 $brandTow = explode(',', $value[1]);
                 foreach ($brand as $k => $val) {
@@ -103,6 +105,28 @@ class ClientLogCollection extends ResourceCollection
                 }
                 return [implode('、', $name), implode('、', $name1)];
                 break;
+            case 'levels';
+                $level = [];
+                foreach (explode(',', $value[0]) as $le){
+                    $level[] = Levels::where('id',$le)->value('name');
+                }
+                $level1 = [];
+                foreach (explode(',', $value[1]) as $lv){
+                    $level1[] = Levels::where('id',$lv)->value('name');
+                }
+                return [implode('、', $level), implode('、', $level1)];
+                break;
+            case 'linkages';
+                $linkage = [];
+                foreach (explode(',', $value[0]) as $linkage){
+                    $linkage[] = Linkages::where('id',$linkage)->value('name');
+                }
+                $linkage1 = [];
+                foreach (explode(',', $value[1]) as $linkages){
+                    $linkage1[] = Linkages::where('id',$linkages)->value('name');
+                }
+                return [implode('、', $linkage), implode('、', $linkage1)];
+                break;
             case 'shops':
                 return [];
                 break;
@@ -122,7 +146,19 @@ class ClientLogCollection extends ResourceCollection
             'wechat' => '微信',
             'nation' => '名族',
             'id_card_number' => '身份证号码',
-            'native_place' => '省份',
+            'province_id' => '省级',
+            'city_id' => '市级',
+            'county_id' => '县级',
+            'address' => '详细地址',
+            'icon' => '头像照片',
+            'id_card_image_f' => '身份证照片正面',
+            'id_card_image_b' => '身份证照片反面',
+            'linkages' => '合作省份',
+            'levels' => '客户等级',
+            'develop_sn' => '开发人编号',
+            'develop_name' => '开发人姓名',
+            'recommend_id' => '介绍人id',
+            'recommend_name' => '介绍人姓名',
             'present_address' => '现住地址',
             'first_cooperation_at' => '初次合作时间',
             'vindicator_sn' => '维护人编号',
