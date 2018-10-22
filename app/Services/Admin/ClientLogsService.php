@@ -4,6 +4,8 @@ namespace App\Services\Admin;
 
 use App\Http\Resources\ClientLogCollection;
 use App\Models\ClientHasBrands;
+use App\Models\ClientHasLevel;
+use App\Models\ClientHasLinkage;
 use App\Models\ClientHasShops;
 use App\Models\ClientHasTags;
 use DB;
@@ -15,20 +17,24 @@ use Illuminate\Support\Facades\Storage;
 class ClientLogsService
 {
     use Traits\GetInfo;
+    protected $clientHasLinkage;
     protected $clientHasBrands;
     protected $clientHasShops;
+    protected $clientHasLevel;
     protected $clientHasTags;
     protected $clientLogs;
     protected $clients;
 
-    public function __construct(ClientLogs $clientLogs, Clients $clients, ClientHasTags $clientHasTags,
-                                ClientHasShops $clientHasShops, ClientHasBrands $clientHasBrands)
+    public function __construct(ClientLogs $clientLogs, Clients $clients, ClientHasTags $clientHasTags, ClientHasShops $clientHasShops,
+                                ClientHasBrands $clientHasBrands, ClientHasLevel $clientHasLevel, ClientHasLinkage $clientHasLinkage)
     {
         $this->clients = $clients;
         $this->clientLogs = $clientLogs;
         $this->clientHasTags = $clientHasTags;
         $this->clientHasShops = $clientHasShops;
+        $this->clientHasLevel = $clientHasLevel;
         $this->clientHasBrands = $clientHasBrands;
+        $this->clientHasLinkage = $clientHasLinkage;
     }
 
     public function getClientLogsList($request, $obj)
@@ -80,55 +86,31 @@ class ClientLogsService
                 }
             }
         }
-        if(isset($changes['icon'])){
-            $this->iconImageRestore($changes['icon'],'icon');
+        if (isset($changes['icon'])) {
+            $this->ImageRestore($changes['icon'], 'icon');
         }
-        if(isset($changes['id_card_image_f'])){
-            $this->iconImageRestore($changes['id_card_image_f'],'card');
+        if (isset($changes['id_card_image_f'])) {
+            $this->ImageRestore($changes['id_card_image_f'], 'card');
         }
-        if(isset($changes['id_card_image_b'])){
-            $this->iconImageRestore($changes['id_card_image_b'],'card');
+        if (isset($changes['id_card_image_b'])) {
+            $this->ImageRestore($changes['id_card_image_b'], 'card');
         }
 //        try {
 //            DB::beginTransaction();
         if (isset($changes['tags'])) {
-            $this->clientHasTags->where('client_id', $log->client_id)->delete();
-            if ((bool)$changes['tags'] === true) {
-                $tags = explode(',', $changes['tags']);
-                foreach ($tags as $value) {
-                    $tagSql = [
-                        'client_id' => $log->client_id,
-                        'tag_id' => $value
-                    ];
-                    $this->clientHasTags->create($tagSql);
-                }
-            }
+            $this->actionLists($this->clientHasTags, $log->client_id, $changes, 'tags', 'tag_id');
         }
         if (isset($changes['shops'])) {
-            $this->clientHasShops->where('client_id', $log->client_id)->delete();
-            if ((bool)$changes['shops'] === true) {
-                $shop = explode(',', $changes['shops']);
-                foreach ($shop as $items) {
-                    $shopSql = [
-                        'client_id' => $log->client_id,
-                        'shop_sn' => $items
-                    ];
-                    $this->clientHasShops->create($shopSql);
-                }
-            }
+            $this->actionLists($this->clientHasShops, $log->client_id, $changes, 'shops', 'shop_sn');
         }
         if (isset($changes['brands'])) {
-            $this->clientHasBrands->where('client_id', $log->client_id)->delete();
-            if ((bool)$changes['brands'] === true) {
-                $brands = explode(',', $changes['brands']);
-                foreach ($brands as $item) {
-                    $brandSql = [
-                        'client_id' => $log->client_id,
-                        'brand_id' => $item
-                    ];
-                    $this->clientHasBrands->create($brandSql);
-                }
-            }
+            $this->actionLists($this->clientHasBrands, $log->client_id, $changes, 'brands', 'brand_id');
+        }
+        if (isset($changes['levels'])) {
+            $this->actionLists($this->clientHasLevel, $log->client_id, $changes, 'levels', 'level_id');
+        }
+        if (isset($changes['linkages'])) {
+            $this->actionLists($this->clientHasLinkage, $log->client_id, $changes, 'linkages', 'linkage_id');
         }
         $client = $this->clients->find($log->client_id);
         if (false === (bool)$client) {
@@ -169,29 +151,49 @@ class ClientLogsService
         return (bool)$bool === true ? response($data, 201) : abort(400, '还原失败');
     }
 
-    protected function iconImageRestore($icon,$type)
+    protected function actionLists($model, $id, $changes, $arr, $key)
     {
-        foreach ($icon as $k => $v) {
-            $fileName = basename($v);
-            $src = '/abandon/' . $fileName;
-            $dst = '/' . $type . '/' . $fileName;
-            if (Storage::disk('public')->exists($src)) {
-                Storage::disk('public')->move($src, $dst);
+        $model->where('client_id', $id)->delete();
+        $sql = [];
+        if ((bool)$changes[$arr] === true) {
+            $brands = explode(',', $changes[$arr]);
+            foreach ($brands as $item) {
+                $sql[] = [
+                    'client_id' => $id,
+                    $key => $item
+                ];
             }
-            if ($type == 'icon') {
-                $fileNameArr = explode('.', $fileName);
-                $fileNameArr[0] = $fileNameArr[0] . '_thumb';
-                $acr = '/abandon/' . implode('.', $fileNameArr);
-                $std = '/' . $type . '/' . implode('.', $fileNameArr);
-                if (Storage::disk('public')->exists($acr)) {
-                    Storage::disk('public')->move($acr, $std);
-                    $url[] = config('app.url') . '/storage' . $std;
-                }
-            }
-            $url[] = config('app.url') . '/storage' . $dst;
+            $model->insert($sql);
         }
     }
 
+    protected function ImageRestore($icon, $type)
+    {
+        $fileName = basename(is_array($icon) ? $icon[0] : $icon);
+        $src = '/abandon/' . $fileName;
+        $dst = '/' . $type . '/' . $fileName;
+        if (Storage::disk('public')->exists($src)) {
+            Storage::disk('public')->move($src, $dst);
+        }
+        if (is_array($icon) && count($icon) === 2) {
+            $acr = '/abandon/' . basename($icon[1]);
+            $std = '/' . $type . '/' . basename($icon[1]);
+            if (Storage::disk('public')->exists($acr)) {
+                Storage::disk('public')->move($acr, $std);
+//                $url[] = config('app.url') . '/storage' . $dst;
+//                $url[] = config('app.url') . '/storage' . $std;
+//                return $url;
+            }
+        }
+//        return config('app.url') . '/storage' . $dst;
+    }
+
+    /**
+     * 提取还原值
+     *
+     * @param $changes
+     * @return array
+     */
     protected function dataDispose($changes)
     {
         $k = [];
@@ -201,6 +203,13 @@ class ClientLogsService
         return $k;
     }
 
+    /**
+     * 删除还原处理
+     *
+     * @param $request
+     * @param $client_id
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response|void
+     */
     public function restoreClientDelete($request, $client_id)
     {
         $id = $request->route('id');
