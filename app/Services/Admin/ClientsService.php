@@ -168,7 +168,7 @@ class ClientsService
         $iconImage = is_array($request->icon) ? $request->icon[0] : $request->icon;
         if (basename($iconImage) != basename($basename)) {
             $all['icon'] = $this->imageDispose($request->icon, 'icon', $clientData['icon']);
-        }else{
+        } else {
             $all['icon'] = $clientData['icon'];
         }
         if (basename($request->id_card_image_f) != basename($clientData['id_card_image_f'])) {
@@ -545,7 +545,7 @@ class ClientsService
                 $this->single($action, $type);
             }
         }
-        if((bool)$path === false){
+        if ((bool)$path === false) {
             return null;
         }
         $url = [];
@@ -580,7 +580,7 @@ class ClientsService
                 $this->single($action, $type);
             }
         }
-        if((bool)$path === false){
+        if ((bool)$path === false) {
             return null;
         }
         $fileName = basename($path);
@@ -599,8 +599,8 @@ class ClientsService
                 $icon[] = config('app.url') . '/storage' . $dst;
                 $icon[] = config('app.url') . '/storage' . $std;
                 return $icon;
-            }else{
-                abort(500,'图片未找到');
+            } else {
+                abort(500, '图片未找到');
             }
         }
         return config('app.url') . '/storage' . $dst;
@@ -646,7 +646,13 @@ class ClientsService
         }
     }
 
-//导出
+    /**
+     * Excel导出数据处理
+     *
+     * @param $request
+     * @param $brand
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function exportClient($request, $brand)
     {
         $all = $request->all();
@@ -659,28 +665,58 @@ class ClientsService
             }
         }
         $arr = isset($arrData) ? $arrData : [];
-        $client = $this->client->with('source')->with('tags')->with('brands')->with('shops')
+        $client = $this->client->with(['tags', 'source', 'brands', 'shops', 'levels', 'linkages'])
             ->whereHas('brands', function ($query) use ($arr) {
                 $query->whereIn('brand_id', $arr);
-            })->filterByQueryString()->withPagination();
+            })->SortByQueryString()->filterByQueryString()->withPagination();
         if (false == (bool)$client) {
             return response()->json(['message' => '没有找到符号条件的数据'], 404);
         }
         $brand = app('api')->getBrands($arr);
-        $eventTop[] = ['姓名', '客户来源', '客户状态', '客户品牌', '性别', '电话', '微信', '民族', '身份证号码', '标签',
-            '籍贯', '首次合作时间', '维护人编号', '备注'];
+        $eventTop[] = ['姓名', '客户来源', '客户状态', '客户品牌', '客户等级', '合作省份', '性别', '电话', '微信', '民族',
+            '身份证号码', '标签', '籍贯', '首次合作时间', '拓展员工编号', '维护员工编号', '备注'];
         foreach ($client as $k => $v) {
             $eventTop[] = [$v['name'], $v['source']['name'], $this->transform($v['status']), $this->transBrand($v['brands'], $brand),
-                $v['gender'], $v['mobile'], $v['wechat'], $v['nation'], $v['id_card_number'],
-                $v['tags'] ? $this->transTags($v['tags']) : '', $v['native_place'], $v['first_cooperation_at'],
-                $v['vindicator_sn'] . ',' . $v['vindicator_name'], $v['remark']
+                $v['levels'] ? $this->transLevel($v['levels']) : '', $v['linkages'] ? $this->transLinkage($v['linkages']) : '',
+                $v['gender'], $v['mobile'], $v['wechat'], $v['nation'], $v['id_card_number'], $v['tags'] ? $this->transTags($v['tags']) : '',
+                $v['native_place'], $v['first_cooperation_at'], $v['develop_sn'] ? $v['develop_sn'] . ',' . $v['develop_name'] : '',
+                $v['vindicator_sn'] ? $v['vindicator_sn'] . ',' . $v['vindicator_name'] : '', $v['remark']
             ];
         }
         Excel::create('客户信息资料', function ($excel) use ($eventTop) {
             $excel->sheet('score', function ($query) use ($eventTop) {
                 $query->rows($eventTop);
+                $query->setColumnFormat(array(
+                    'K' => '@',
+                    'N' => 'yyyy-mm-dd',
+                ));
+                $query->cells('A2:Q' . count($eventTop), function ($cells) {
+                    $cells->setAlignment('center');
+                });
             });
         })->export('xlsx');
+    }
+
+    protected function transLevel($arr)
+    {
+        $data = [];
+        foreach ($arr as $key => $val) {
+            if (isset($val['level']['name'])) {
+                $data[] = $val['level']['name'];
+            }
+        }
+        return implode(',', $data);
+    }
+
+    protected function transLinkage($arr)
+    {
+        $data = [];
+        foreach ($arr as $key => $val) {
+            if (isset($val['linkage']['name'])) {
+                $data[] = $val['linkage']['name'];
+            }
+        }
+        return implode(',', $data);
     }
 
     protected function transBrand($obj, $brand)
