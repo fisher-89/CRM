@@ -174,6 +174,7 @@ class ClientsService
         }else{
             $all['icon'] = $clientData['icon'];
         }
+        dd($request->id_card_image_f,$request->id_card_image_b);
         if (basename($request->id_card_image_f) != basename($clientData['id_card_image_f'])) {
             $all['id_card_image_f'] = $this->imageDispose($request->id_card_image_f, 'card', $clientData['id_card_image_f']);
         }
