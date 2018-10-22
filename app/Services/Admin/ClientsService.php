@@ -580,6 +580,9 @@ class ClientsService
                 $this->single($action, $type);
             }
         }
+        if((bool)$path === false){
+            return [];
+        }
         $fileName = basename($path);
         $src = '/temporary/' . $fileName;
         $dst = '/' . $type . '/' . $fileName;
