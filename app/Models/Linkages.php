@@ -14,5 +14,5 @@ class Linkages extends Model
 
     protected $fillable = [];
 
-    public $timestamps =false;
+    public $timestamps = false;
 }
