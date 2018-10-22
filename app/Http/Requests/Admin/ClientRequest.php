@@ -95,11 +95,12 @@ class ClientRequest extends FormRequest
                     } catch (\Exception $exception) {
                         return $event('错误');
                     }
-                } else {
-                    if ((bool)$recommend === false) {
-                        return $event('员工开发人或客户介绍人必须任选其一');//开发
-                    }
                 }
+//                else {
+//                    if ((bool)$recommend === false) {
+//                        return $event('员工开发人或客户介绍人必须任选其一');//开发
+//                    }
+//                }
             }],
             'develop_name' => 'nullable|max:10',
             'recommend_id' => [ function ($attribute, $value, $event) use ($develop) {
@@ -107,11 +108,12 @@ class ClientRequest extends FormRequest
                     if((bool)DB::table('clients')->where('id',$value)->first() === false){
                         return $event('不存在');
                     }
-                }else{
-                    if ((bool)$develop === false) {
-                        return $event('员工开发人或客户介绍人必须任选其一');
-                    }
                 }
+//                else{
+//                    if ((bool)$develop === false) {
+//                        return $event('员工开发人或客户介绍人必须任选其一');
+//                    }
+//                }
             }],
             'recommend_name' => 'nullable|max:10',
             'tags' => 'array|nullable',
