@@ -581,7 +581,7 @@ class ClientsService
             }
         }
         if((bool)$path === false){
-            return [];
+            return  null;
         }
         $fileName = basename($path);
         $src = '/temporary/' . $fileName;
