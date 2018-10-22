@@ -140,7 +140,7 @@ class ClientsController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function export(Request $request)
-    {
+    {dd(456);
         $brand = $this->auth->readingAuth($request->user()->staff_sn);
         if ($request->user()->staff_sn == 999999) {
             $brand = $this->auth->userAuthentication();
