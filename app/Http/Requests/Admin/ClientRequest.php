@@ -102,8 +102,12 @@ class ClientRequest extends FormRequest
                 }
             }],
             'develop_name' => 'nullable|max:10',
-            'recommend_id' => ['exists:clients,id', function ($attribute, $value, $event) use ($develop) {
-                if ((bool)$value === false) {
+            'recommend_id' => [ function ($attribute, $value, $event) use ($develop) {
+                if ((bool)$value === true) {
+                    if((bool)DB::table('clients')->where('id',$value)->first() === false){
+                        return $event('不存在');
+                    }
+                }else{
                     if ((bool)$develop === false) {
                         return $event('员工开发人或客户介绍人必须任选其一');
                     }
