@@ -170,8 +170,9 @@ class ClientsService
         $basename = is_array($clientData['icon']) ? $clientData['icon'][0] : $clientData['icon'];
         $iconImage = is_array($request->icon) ? $request->icon[0] : $request->icon;
         if (basename($iconImage) != basename($basename)) {
-            dd(basename($iconImage),basename($basename));
             $all['icon'] = $this->imageDispose($request->icon, 'icon', $clientData['icon']);
+        }else{
+            $all['icon'] = $clientData['icon'];
         }
         if (basename($request->id_card_image_f) != basename($clientData['id_card_image_f'])) {
             $all['id_card_image_f'] = $this->imageDispose($request->id_card_image_f, 'card', $clientData['id_card_image_f']);
