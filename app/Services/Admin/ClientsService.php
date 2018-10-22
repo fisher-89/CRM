@@ -157,7 +157,6 @@ class ClientsService
     public function editClient($request)
     {
         $all = $request->all();
-        dd($all);
         $clientData = $this->client->with(['tags', 'shops', 'brands', 'levels', 'linkages'])->find($request->route('id'));
         if ((bool)$clientData === false) {
             abort(404, '未找到数据');
