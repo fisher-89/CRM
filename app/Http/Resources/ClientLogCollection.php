@@ -22,7 +22,7 @@ class ClientLogCollection extends ResourceCollection
     public function toArray($request)
     {
         $brand = app('api')->getBrands([1]);
-        return $this->collection->map(function ($data)use($brand) {
+        return $this->collection->map(function ($data) use ($brand) {
             return [
                 "id" => $data->id,
                 "client_id" => $data->client_id === null ? '' : $data->client_id,
@@ -30,7 +30,7 @@ class ClientLogCollection extends ResourceCollection
                 "staff_sn" => $data->staff_sn === null ? '' : $data->staff_sn,
                 "staff_name" => $data->staff_name === null ? '' : $data->staff_name,
                 "operation_address" => $data->operation_address === null ? '' : $data->operation_address,
-                "changes" => $this->trans($data->changes,$brand),
+                "changes" => $this->trans($data->changes, $brand),
                 "status" => $data->status,
                 "restore_sn" => $data->restore_sn === null ? '' : $data->restore_sn,
                 "restore_name" => $data->restore_name === null ? '' : $data->restore_name,
@@ -42,16 +42,16 @@ class ClientLogCollection extends ResourceCollection
         })->toArray();
     }
 
-    private function trans($arr,$brand)
+    private function trans($arr, $brand)
     {
         foreach ($arr as $key => $value) {
-            $value = $this->chineseValue($key, $value,$brand);
+            $value = $this->chineseValue($key, $value, $brand);
             $data[$this->chinese($key)] = $value;
         }
         return isset($data) ? $data : [];
     }
 
-    private function chineseValue($key, $value,$brand)
+    private function chineseValue($key, $value, $brand)
     {
         switch ($key) {
             case 'source_id':
@@ -107,23 +107,23 @@ class ClientLogCollection extends ResourceCollection
                 break;
             case 'levels';
                 $level = [];
-                foreach (explode(',', $value[0]) as $le){
-                    $level[] = Levels::where('id',$le)->value('name');
+                foreach (explode(',', $value[0]) as $le) {
+                    $level[] = Levels::where('id', $le)->value('name');
                 }
                 $level1 = [];
-                foreach (explode(',', $value[1]) as $lv){
-                    $level1[] = Levels::where('id',$lv)->value('name');
+                foreach (explode(',', $value[1]) as $lv) {
+                    $level1[] = Levels::where('id', $lv)->value('name');
                 }
                 return [implode('、', $level), implode('、', $level1)];
                 break;
             case 'linkages';
                 $linkage = [];
-                foreach (explode(',', $value[0]) as $linkage){
-                    $linkage[] = Linkages::where('id',$linkage)->value('name');
+                foreach (explode(',', $value[0]) as $linkageValue) {
+                    $linkage[] =DB::table('linkage')->where('id', $linkageValue)->value('name');
                 }
                 $linkage1 = [];
-                foreach (explode(',', $value[1]) as $linkages){
-                    $linkage1[] = Linkages::where('id',$linkages)->value('name');
+                foreach (explode(',', $value[1]) as $linkagesValue) {
+                    $linkage1[] = DB::table('linkage')->where('id', $linkagesValue)->value('name');
                 }
                 return [implode('、', $linkage), implode('、', $linkage1)];
                 break;
@@ -151,6 +151,7 @@ class ClientLogCollection extends ResourceCollection
             'county_id' => '县级',
             'address' => '详细地址',
             'icon' => '头像照片',
+            'native_place' => '籍贯',
             'id_card_image_f' => '身份证照片正面',
             'id_card_image_b' => '身份证照片反面',
             'linkages' => '合作省份',
