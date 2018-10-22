@@ -168,6 +168,7 @@ class ClientsService
 //        try {
 //            DB::beginTransaction();
         $basename = is_array($clientData['icon']) ? $clientData['icon'][0] : $clientData['icon'];
+        dd(basename($request->icon) , basename($basename));
         if (basename($request->icon) != basename($basename)) {
             $all['icon'] = $this->imageDispose($request->icon, 'icon', $clientData['icon']);
         }
