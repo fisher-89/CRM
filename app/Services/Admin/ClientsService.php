@@ -82,16 +82,13 @@ class ClientsService
 //        try {
 //            DB::beginTransaction();
         if ((bool)$request->icon === true) {
-            $icon = $this->imageDispose($request->icon, 'icon');
-            $all['icon'] = $icon;
+            $all['icon'] = $this->imageDispose($request->icon, 'icon');
         }
         if ((bool)$request->id_card_image_f === true) {
-            $card = $this->imageDispose($request->id_card_image_f, 'card');
-            $all['id_card_image_f'] = $card;
+            $all['id_card_image_f'] = $this->imageDispose($request->id_card_image_f, 'card');
         }
         if ((bool)$request->id_card_image_b === true) {
-            $card = $this->imageDispose($request->id_card_image_b, 'card');
-            $all['id_card_image_b'] = $card;
+            $all['id_card_image_b'] = $this->imageDispose($request->id_card_image_b, 'card');
         }
         $bool = $this->client->create($all);
         if ((bool)$bool === false) {
@@ -160,6 +157,7 @@ class ClientsService
     public function editClient($request)
     {
         $all = $request->all();
+        dd($all);
         $clientData = $this->client->with(['tags', 'shops', 'brands', 'levels', 'linkages'])->find($request->route('id'));
         if ((bool)$clientData === false) {
             abort(404, '未找到数据');
