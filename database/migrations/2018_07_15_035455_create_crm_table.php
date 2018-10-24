@@ -53,7 +53,7 @@ class CreateCrmTable extends Migration
 
         Schema::create('levels',function(Blueprint $table){
             $table->tinyIncrements('id');
-            $table->char('name',10)->comment('等级名称');
+            $table->char('name',10)->comment('等级名称')->unique();
             $table->string('explain',50)->comment('等级说明')->nullable();
             $table->timestamps();
             $table->softDeletes();
