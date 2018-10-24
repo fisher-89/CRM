@@ -672,30 +672,31 @@ class ClientsService
         if (false == (bool)$client) {
             return response()->json(['message' => '没有找到符号条件的数据'], 404);
         }
-        $brand = app('api')->getBrands($arr);
-        $eventTop[] = ['姓名', '客户来源', '客户状态', '客户品牌', '客户等级', '合作省份', '性别', '电话', '微信', '民族',
-            '身份证号码', '标签', '籍贯', '首次合作时间', '拓展员工编号', '维护员工编号', '备注'];
-        foreach ($client as $k => $v) {
-            $eventTop[] = [$v['name'], $v['source']['name'], $this->transform($v['status']), $this->transBrand($v['brands'], $brand),
-                $v['levels'] ? $this->transLevel($v['levels']) : '', $v['linkages'] ? $this->transLinkage($v['linkages']) : '',
-                $v['gender'], $v['mobile'], $v['wechat'], $v['nation'], $v['id_card_number'], $v['tags'] ? $this->transTags($v['tags']) : '',
-                $v['native_place'], $v['first_cooperation_at'], $v['develop_sn'] ? $v['develop_sn'] . ',' . $v['develop_name'] : '',
-                $v['vindicator_sn'] ? $v['vindicator_sn'] . ',' . $v['vindicator_name'] : '', $v['remark']
-            ];
-        }
-        Excel::create('客户信息资料', function ($excel) use ($eventTop) {
-            $excel->sheet('score', function ($query) use ($eventTop) {
-                $query->setColumnFormat(array(
-                    'K' => '@',
-                    'H' => '@',
-                    'N' => 'yyyy-mm-dd',
-                ));
-                $query->rows($eventTop);
-                $query->cells('A2:Q' . count($eventTop), function ($cells) {
-                    $cells->setAlignment('center');
-                });
-            });
-        })->export('xlsx');
+        return $client;
+//        $brand = app('api')->getBrands($arr);
+//        $eventTop[] = ['姓名', '客户来源', '客户状态', '客户品牌', '客户等级', '合作省份', '性别', '电话', '微信', '民族',
+//            '身份证号码', '标签', '籍贯', '首次合作时间', '拓展员工编号', '维护员工编号', '备注'];
+//        foreach ($client as $k => $v) {
+//            $eventTop[] = [$v['name'], $v['source']['name'], $this->transform($v['status']), $this->transBrand($v['brands'], $brand),
+//                $v['levels'] ? $this->transLevel($v['levels']) : '', $v['linkages'] ? $this->transLinkage($v['linkages']) : '',
+//                $v['gender'], $v['mobile'], $v['wechat'], $v['nation'], $v['id_card_number'], $v['tags'] ? $this->transTags($v['tags']) : '',
+//                $v['native_place'], $v['first_cooperation_at'], $v['develop_sn'] ? $v['develop_sn'] . ',' . $v['develop_name'] : '',
+//                $v['vindicator_sn'] ? $v['vindicator_sn'] . ',' . $v['vindicator_name'] : '', $v['remark']
+//            ];
+//        }
+//        Excel::create('客户信息资料', function ($excel) use ($eventTop) {
+//            $excel->sheet('score', function ($query) use ($eventTop) {
+//                $query->setColumnFormat(array(
+//                    'K' => '@',
+//                    'H' => '@',
+//                    'N' => 'yyyy-mm-dd',
+//                ));
+//                $query->rows($eventTop);
+//                $query->cells('A2:Q' . count($eventTop), function ($cells) {
+//                    $cells->setAlignment('center');
+//                });
+//            });
+//        })->export('xlsx');
     }
 
     protected function transLevel($arr)
