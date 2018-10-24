@@ -28,7 +28,7 @@ Route::group(['middleware' => 'auth:api'], function (Registrar $admin) {
     $admin->put('clients/{id}', Admin\ClientsController::class . '@update');
     $admin->delete('clients/{id}', Admin\ClientsController::class . '@delete');
     $admin->get('clients/{id}', Admin\ClientsController::class . '@details');
-//    $admin->get('clients/export', Admin\ClientsController::class . '@export');//导出
+    $admin->get('clients/export', Admin\ClientsController::class . '@export');//导出
     $admin->post('clients/import', Admin\ClientsController::class . '@import');//导入
     $admin->post('clients/image',Admin\FilesController::class.'@iconImage');//头像
     $admin->post('clients/card',Admin\FilesController::class.'@cardImage');//身份证照片
