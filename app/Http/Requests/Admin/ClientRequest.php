@@ -144,7 +144,7 @@ class ClientRequest extends FormRequest
                 };
             }],
             'levels' => 'array',
-            'levels.*.level_id' => 'numeric|exists:levels,id',
+            'levels.*.level_id' => 'required|numeric|exists:levels,id',
             'vindicator_name' => 'max:10',
             'remark' => 'max:200',
             'brands.*.brand_id' => [
