@@ -702,7 +702,7 @@ class ClientsService
         $data = [];
         foreach ($arr as $key => $val) {
             if (isset($val['level']['name'])) {
-                $data[] = $val['level']['name'];
+                $data[] = $val['level']['name'].'456';
             }
         }
         return implode(',', $data);
@@ -713,7 +713,7 @@ class ClientsService
         $data = [];
         foreach ($arr as $key => $val) {
             if (isset($val['linkages']['name'])) {
-                $data[] = $val['linkages']['name'].'456';
+                $data[] = $val['linkages']['name'];
             }
         }
         return implode(',', $data);
