@@ -751,6 +751,16 @@ class ClientsService
         return $this->clientHasTags->insert($array);
     }
 
+    public function excelSaveLevels($arr)
+    {
+        return $this->clientHasLevel->insert($arr);
+    }
+
+    public function excelSaveLinkages($arr)
+    {
+        return $this->clientHasLinkages->insert($arr);
+    }
+
     protected function strTransNum($str)
     {
         $arr = [

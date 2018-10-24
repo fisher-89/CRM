@@ -184,36 +184,42 @@ class ClientsController extends Controller
         $header = $res[0];
         for ($i = 1; $i < count($res); $i++) {
             $this->error = [];
-            if (trim($res[$i][12]) == true) {
-                $oaData = app('api')->withRealException()->getStaff(trim($res[$i][12]));
-            }
+//            if (trim($res[$i][14]) == true) {
+//                $oaData = app('api')->withRealException()->getStaff(trim($res[$i][15]));
+//            }
             $source = $this->getSource(trim($res[$i][1]));
             $transNum = $this->strTransNum(trim($res[$i][2]));
             $brandId = $this->getBrandId($brand, trim($res[$i][3]));
-            $tagId = trim($res[$i][9]) != '' ? $this->getTagId(trim($res[$i][9])) : '';
+            $level = trim($res[$i][4]) != '' ? $this->getLevelsId(trim($res[$i][4])) : '';
+            $linkage = trim($res[$i][5]) != '' ? $this->getLinkagesId(trim($res[$i][5])) : '';
+            $tagId = trim($res[$i][11]) != '' ? $this->getTagId(trim($res[$i][11])) : '';
             $arr = [
                 'name' => trim($res[$i][0]),
                 'source_id' => $source,
                 'status' => $transNum,
-                'brand' => $brandId,
-                'gender' => trim($res[$i][4]),
-                'mobile' => trim($res[$i][5]),
-                'wechat' => trim($res[$i][6]),
-                'nation' => trim($res[$i][7]),
-                'id_card_number' => trim($res[$i][8]),
+                'brands' => $brandId,
+                'levels' => $level,
+                'linkages' => $linkage,
+                'gender' => trim($res[$i][6]),
+                'mobile' => trim($res[$i][7]),
+                'wechat' => trim($res[$i][8]),
+                'nation' => trim($res[$i][9]),
+                'id_card_number' => trim($res[$i][10]),
                 'tag_id' => $tagId,
-                'native_place' => trim($res[$i][10]),
-                'first_cooperation_at' => trim($res[$i][11]),
-                'vindicator_sn' => trim($res[$i][12]),
-                'vindicator_name' => isset($oaData) ? $oaData['realname'] : null,
-                'remark' => trim($res[$i][13])
+                'native_place' => trim($res[$i][12]),
+                'first_cooperation_at' => trim($res[$i][13]),
+                'develop_sn' => $this->resole($res[$i][14], 0, '开发人编号'),
+                'develop_name' => $this->resole($res[$i][14], 1, '开发人姓名'),
+                'vindicator_sn' => $this->resole($res[$i][15], 0, '维护人编号'),
+                'vindicator_name' => $this->resole($res[$i][15], 1, '维护人姓名'),
+                'remark' => trim($res[$i][16]),
             ];
             $request = new Requests\Admin\ClientRequest($arr);
             $this->excelVerify($request);
             if ($this->error == []) {
                 $data = $this->client->excelSaveClient($arr);
                 $brandArray = [];
-                foreach ($arr['brand'] as $value) {
+                foreach ($arr['brands'] as $value) {
                     $brandArray[] = [
                         'client_id' => $data->id,
                         'brand_id' => $value,
@@ -229,6 +235,26 @@ class ClientsController extends Controller
                         ];
                     }
                     $this->client->excelSaveTags($tagsArray);
+                }
+                if ((bool)$arr['levels'] === true) {
+                    $levelArray = [];
+                    foreach ($arr['levels'] as $items) {
+                        $levelArray[] = [
+                            'client_id' => $data->id,
+                            'level_id' => $items,
+                        ];
+                    }
+                    $this->client->excelSaveLevels($levelArray);
+                }
+                if ((bool)$arr['linkages'] === true) {
+                    $linkageArray = [];
+                    foreach ($arr['linkages'] as $val) {
+                        $linkageArray[] = [
+                            'client_id' => $data->id,
+                            'linkage_id' => $val,
+                        ];
+                    }
+                    $this->client->excelSaveLinkages($linkageArray);
                 }
                 if ($data == true) {
                     $success[] = $data;
@@ -265,14 +291,19 @@ class ClientsController extends Controller
                     }],
                     'mobile' => ['required', 'digits:11', 'regex:/^1[3456789]\d{9}$/', 'unique:clients,mobile'],
                     'wechat' => 'max:20|nullable',
-                    'nation' => 'required|max:5|exists:nations,name',
+                    'nation' => 'max:5|exists:nations,name',
                     'id_card_number' => ['required', 'unique:clients,id_card_number', 'max:18',
                         'regex:/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/'],
-                    'native_place' => 'nullable|max:8|exists:province,name',
+                    'native_place' => 'nullable|max:8|exists:provinces,name',
                     'present_address' => 'nullable|max:150',
                     'first_cooperation_at' => 'nullable|date',
-                    'vindicator_sn' => ['numeric', 'nullable',],
+                    'develop_sn' => 'numeric|nullable|digits:6',
+                    'develop_name' => 'max:10',
+                    'vindicator_sn' => 'numeric|nullable|digits:6',
                     'vindicator_name' => 'max:10',
+                    'brands.*'=>'required',
+                    'levels.*' => 'required',
+                    'linkages.*'=>'required',
                     'remark' => 'max:200',
                     'shops' => 'array|nullable',
                     'shops.*.shop_sn' => [
@@ -286,6 +317,67 @@ class ClientsController extends Controller
             }
         } catch (\Exception $e) {
             $this->error['message'] = '系统异常：' . $e->getMessage();
+        }
+    }
+
+    protected function resole($string, $number, $key)
+    {
+        if ((bool)trim($string) === false) {
+            return null;
+        }
+        $arr = explode(',', $string);
+        if (count($arr) != 2) {
+            $this->error[$key][] = '不正确';
+        } else {
+            return $arr[$number];
+        }
+    }
+
+    protected function getLinkagesId($str)
+    {
+        $arr = explode(',', $str);
+        if (count(array_unique($arr)) < count($arr)) {
+            $this->error['合作省份'][] = '存在重复';
+        }
+        $e = [];
+        $n = 0;
+        foreach ($arr as $item) {
+            $n++;
+            $id = DB::table('linkage')->where(['name' => $item, 'level' => 1])->value('id');
+            if (false == (bool)$id) {
+                $e[] = $n;
+            }
+            $a[] = $id;
+        }
+        $null = isset($e) ? implode(',', $e) : '';
+        if ($null == '') {
+            return isset($a) ? $a : [];
+        } else {
+            $this->error['合作省份'][] = '第' . implode('、', $e) . '未找到';
+        }
+    }
+
+    protected function getLevelsId($str)
+    {
+        $arr = explode(',', $str);
+        if (count(array_unique($arr)) < count($arr)) {
+            $this->error['客户等级'][] = '存在重复';
+        }
+        $e = [];
+        $n = 0;
+        foreach ($arr as $item) {
+            $n++;
+            $id = DB::table('levels')->where('name', $item)->value('id');
+            if (false == (bool)$id) {
+                $e[] = $n;
+            }
+            $a[] = $id;
+        }
+        $null = isset($e) ? implode(',', $e) : '';
+        if ($null == '') {
+            return isset($a) ? $a : [];
+        } else {
+            $this->error['客户等级'][] = '第' . implode('、', $e) . '未找到';
         }
     }
 
@@ -326,6 +418,8 @@ class ClientsController extends Controller
             'present_address' => '现住地址',
             'tag_id' => '标签',
             'first_cooperation_at' => '第一次合作时间',
+            'develop_sn' => '开发员工编号',
+            'develop_name' => '开发员工姓名',
             'vindicator_sn' => '维护人编号',
             'vindicator_name' => '维护人姓名',
             'remark' => '备注',
@@ -447,9 +541,9 @@ class ClientsController extends Controller
                 isset($provincialData[$i]) ? $provincialData[$i] : '',
             ];
         }
-        $cellData[] = ['姓名', '客户来源', '客户状态', '合作品牌', '客户等级', '合作省份', '性别', '电话', '微信', '民族', '身份证号码', '标签', '籍贯', '首次合作时间', '拓展员工编号', '维护员工编号', '备注'];
-        $cellData[] = ['例：张三', '例：朋友介绍', '例：合作中', '例：杰尼威尼专卖,利鲨(多个品牌用英文逗号分开)', '请以辅助表数据填写', '例：成都市', '例：女', '例：13333333333', '例：weixin', '例：汉族', '例：510111199905065215', 'VIP客户,市代客户（多个标签用英文逗号分开）', '例：四川省（选填）', '例：2010-01-01', '例：110000', '例：110105（选填）', '例：备注（选填）'];
-        $cellTop[] = ['姓名', '客户来源', '客户状态', '合作品牌', '客户等级', '合作省份', '性别', '电话', '微信', '民族', '身份证号码', '标签', '籍贯', '首次合作时间', '拓展员工编号', '维护人员工编号', '备注'];
+        $cellData[] = ['姓名', '客户来源', '客户状态', '合作品牌', '客户等级', '合作省份', '性别', '电话', '微信', '民族', '身份证号码', '标签', '籍贯', '首次合作时间', '开发员工编号', '维护员工编号', '备注'];
+        $cellData[] = ['例：张三', '例：朋友介绍', '例：合作中', '例：杰尼威尼专卖,利鲨(多个品牌用英文逗号分开)', '请以辅助表数据填写', '例：成都市', '例：女', '例：13333333333', '例：weixin', '例：汉族', '例：510111199905065215', 'VIP客户,市代客户（多个标签用英文逗号分开）', '例：四川省（选填）', '例：2010-01-01', '例：110000,王某某（选填）', '例：110105,刘某某（选填）', '例：备注（选填）'];
+        $cellTop[] = ['姓名', '客户来源', '客户状态', '合作品牌', '客户等级', '合作省份', '性别', '电话', '微信', '民族', '身份证号码', '标签', '籍贯', '首次合作时间', '开发员工编号', '维护人员工编号', '备注'];
         $fileName = '客户资料导入模板';
         $tot = count($cellData);
         $maxi = $max + 1;
