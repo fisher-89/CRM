@@ -712,8 +712,8 @@ class ClientsService
     {
         $data = [];
         foreach ($arr as $key => $val) {
-            if (isset($val['linkage']['name'])) {
-                $data[] = $val['linkage']['name'];
+            if (isset($val['linkages']['name'])) {
+                $data[] = $val['linkages']['name'];
             }
         }
         return implode(',', $data);
