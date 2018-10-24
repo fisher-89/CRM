@@ -678,7 +678,7 @@ class ClientsService
         foreach ($client as $k => $v) {
             $eventTop[] = [$v['name'], $v['source']['name'], $this->transform($v['status']), $this->transBrand($v['brands'], $brand),
                 $v['levels'] ? $this->transLevel($v['levels']) : '', $v['linkages'] ? $this->transLinkage($v['linkages']) : '',
-                $v['gender'], '\''.$v['mobile'], $v['wechat'], $v['nation'], '\''.$v['id_card_number'], $v['tags'] ? $this->transTags($v['tags']) : '',
+                $v['gender'], '\t'.$v['mobile'], $v['wechat'], $v['nation'], '\t'.$v['id_card_number'], $v['tags'] ? $this->transTags($v['tags']) : '',
                 $v['native_place'], $v['first_cooperation_at'], $v['develop_sn'] ? $v['develop_sn'] . ',' . $v['develop_name'] : '',
                 $v['vindicator_sn'] ? $v['vindicator_sn'] . ',' . $v['vindicator_name'] : '', $v['remark']
             ];
