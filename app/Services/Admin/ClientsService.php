@@ -695,7 +695,7 @@ class ClientsService
                     $cells->setAlignment('center');
                 });
             });
-        })->export('xlsx');
+        })->export('xls');
     }
 
     protected function transLevel($arr)
