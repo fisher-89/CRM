@@ -685,11 +685,11 @@ class ClientsService
         }
         Excel::create('客户信息资料', function ($excel) use ($eventTop) {
             $excel->sheet('score', function ($query) use ($eventTop) {
-                $query->rows($eventTop);
                 $query->setColumnFormat(array(
                     'K' => '@',
                     'N' => 'yyyy-mm-dd',
                 ));
+                $query->rows($eventTop);
                 $query->cells('A2:Q' . count($eventTop), function ($cells) {
                     $cells->setAlignment('center');
                 });
