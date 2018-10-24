@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Linkages extends Model
 {
-    use ListScopes, SoftDeletes;
+    use ListScopes;
 
     protected $table = 'linkage';
 
