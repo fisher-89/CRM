@@ -678,7 +678,7 @@ class ClientsService
         foreach ($client as $k => $v) {
             $eventTop[] = [$v['name'], $v['source']['name'], $this->transform($v['status']), $this->transBrand($v['brands'], $brand),
                 $v['levels'] ? $this->transLevel($v['levels']) : '', $v['linkages'] ? $this->transLinkage($v['linkages']) : '',
-                $v['gender'], '\''.$v['mobile'], $v['wechat'], $v['nation'], '\''.$v['id_card_number'], $v['tags'] ? $this->transTags($v['tags']) : '',
+                $v['gender'], $v['mobile'], $v['wechat'], $v['nation'], $v['id_card_number'], $v['tags'] ? $this->transTags($v['tags']) : '',
                 $v['native_place'], $v['first_cooperation_at'], $v['develop_sn'] ? $v['develop_sn'] . ',' . $v['develop_name'] : '',
                 $v['vindicator_sn'] ? $v['vindicator_sn'] . ',' . $v['vindicator_name'] : '', $v['remark']
             ];
@@ -686,7 +686,8 @@ class ClientsService
         Excel::create('客户信息资料', function ($excel) use ($eventTop) {
             $excel->sheet('score', function ($query) use ($eventTop) {
                 $query->setColumnFormat(array(
-//                    'K' => '@',
+                    'K' => '@',
+                    'H' => '@',
                     'N' => 'yyyy-mm-dd',
                 ));
                 $query->rows($eventTop);
