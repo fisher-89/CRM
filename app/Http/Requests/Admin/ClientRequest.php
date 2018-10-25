@@ -110,7 +110,7 @@ class ClientRequest extends FormRequest
                     if((bool)$recommend === false){
                         return $event('不存在');
                     }
-                    if($recommend['id_card_number'] == $number){
+                    if($recommend->id_card_number == $number){
                         return $event('介绍人不能选择自己');
                     }
                 }
