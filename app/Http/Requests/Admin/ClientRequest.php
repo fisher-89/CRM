@@ -91,10 +91,10 @@ class ClientRequest extends FormRequest
                     try {
                         $develop = app('api')->withRealException()->getStaff($value);
                         if ($develop == false) {
-                            return $event('错误');
+                            return $event('开发员工编号错误');
                         }
                     } catch (\Exception $exception) {
-                        return $event('错误');
+                        return $event('开发员工编号错误');
                     }
                 }
 //                else {
@@ -108,7 +108,7 @@ class ClientRequest extends FormRequest
                 if ((bool)$value === true) {
                     $recommend = DB::table('clients')->where('id',$value)->first();
                     if((bool)$recommend === false){
-                        return $event('不存在');
+                        return $event('介绍人不存在');
                     }
                     if($recommend->id_card_number == $number){
                         return $event('介绍人不能选择自己');
