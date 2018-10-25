@@ -29,6 +29,7 @@ class ClientRequest extends FormRequest
     {
         $recommend = $this->recommend_id;
         $develop = $this->develop_sn;
+        $number = $this->id_card_number;
         return [
             'name' => 'required|max:10',
             'source_id' => 'required|numeric|max:5|exists:source,id',
@@ -85,12 +86,15 @@ class ClientRequest extends FormRequest
             'icon' => 'nullable',
             'id_card_image_f' => 'nullable',
             'id_card_image_b' => 'nullable',
-            'develop_sn' => ['max:6', function ($attribute, $value, $event) use ($recommend) {
+            'develop_sn' => ['max:6', function ($attribute, $value, $event) use ($recommend,$number) {
                 if ((bool)$value === true) {
                     try {
                         $develop = app('api')->withRealException()->getStaff($value);
                         if ($develop == false) {
                             return $event('错误');
+                        }
+                        if($develop['id_card_number'] == $number){
+                            return $event('介绍人不能选择自己');
                         }
                     } catch (\Exception $exception) {
                         return $event('错误');
@@ -105,7 +109,8 @@ class ClientRequest extends FormRequest
             'develop_name' => 'nullable|max:10',
             'recommend_id' => [ function ($attribute, $value, $event) use ($develop) {
                 if ((bool)$value === true) {
-                    if((bool)DB::table('clients')->where('id',$value)->first() === false){
+                    $recommend = DB::table('clients')->where('id',$value)->first();
+                    if((bool)$recommend === false){
                         return $event('不存在');
                     }
                 }
