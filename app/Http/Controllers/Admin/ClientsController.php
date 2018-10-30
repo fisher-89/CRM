@@ -559,32 +559,30 @@ class ClientsController extends Controller
                 });
                 $sheet->setAutoSize(true);
             });
-            $excel->sheet('示例表', function ($sheet) use ($cellData, $tot) {
+            $excel->sheet('主表', function ($sheet) use ($cellData, $tot) {
                 $sheet->rows($cellData);
                 $sheet->cells('A1:Q1', function ($cells) {
                     $cells->setAlignment('center');
                     $cells->setBackground('#D2E9FF');
                 });
                 $sheet->setColumnFormat(array(
+                    'A' => '@',
+                    'B' => '@',
+                    'C' => '@',
+                    'D' => '@',
+                    'E' => '@',
+                    'F' => '@',
+                    'G' => '@',
+                    'H' => '@',
+                    'I' => '@',
+                    'J' => '@',
                     'K' => '@',
-                    'N' => 'yyyy-mm-dd',
-                ));
-                $sheet->cells('A2:Q' . $tot, function ($cells) {
-                    $cells->setAlignment('center');
-                });
-                $sheet->setAutoSize(true);
-            });
-            $excel->sheet('主表', function ($sheet) use ($cellTop, $tot) {
-                $sheet->rows($cellTop);
-                $sheet->cells('A1:Q1', function ($cells) {
-                    $cells->setAlignment('center');
-                    $cells->setFontWeight('bold');
-                    $cells->setFontSize(12);
-                    $cells->setBackground('#D2E9FF');
-                });
-                $sheet->setColumnFormat(array(
-                    'K' => '@',
-                    'N' => 'yyyy-mm-dd',
+                    'L' => '@',
+                    'M' => '@',
+                    'N' => '@',
+                    'O' => '@',
+                    'P' => '@',
+                    'q' => '@',
                 ));
                 $sheet->cells('A2:Q' . $tot, function ($cells) {
                     $cells->setAlignment('center');

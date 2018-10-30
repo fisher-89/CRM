@@ -59,7 +59,7 @@ class ClientRequest extends FormRequest
                     }
                 }
             ],
-            'wechat' => 'max:20|nullable',
+            'wechat' => 'max:20|nullable|regex:/^[a-zA-Z0-9_]+$/',
             'nation' => 'max:5|exists:nations,name',
             'id_card_number' => ['required',
                 function ($attribute, $value, $event) {
