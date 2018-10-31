@@ -30,7 +30,7 @@ class ClientRequest extends FormRequest
         $recommend = $this->recommend_id;
         $develop = $this->develop_sn;
         $number = $this->id_card_number;
-        $status = $this->status;dd($status );
+        $status = $this->status;
         return [
             'name' => 'required|max:10',
             'source_id' => ['numeric','max:5','exists:source,id',$status == "0" ? 'nullable' : 'required'],
