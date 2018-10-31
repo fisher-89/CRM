@@ -30,9 +30,10 @@ class ClientRequest extends FormRequest
         $recommend = $this->recommend_id;
         $develop = $this->develop_sn;
         $number = $this->id_card_number;
+        $status = $this->status;
         return [
             'name' => 'required|max:10',
-            'source_id' => 'required|numeric|max:5|exists:source,id',
+            'source_id' => ['numeric','max:5','exists:source,id',$status == "0" ? 'nullable' : 'required'],
             'status' => ['required', 'max:2', 'numeric', function ($attribute, $value, $event) {
                 if ($value != '-1' && $value != '0' && $value != '1' && $value != '2') {
                     return $event('未知状态');
@@ -61,7 +62,7 @@ class ClientRequest extends FormRequest
             ],
             'wechat' => 'max:20|nullable|regex:/^[a-zA-Z0-9_]+$/',
             'nation' => 'max:5|exists:nations,name',
-            'id_card_number' => ['required',
+            'id_card_number' => [$status == "0" ? 'nullable' : 'required',
                 function ($attribute, $value, $event) {
                     $id = $this->route('id');
                     if (isset($id)) {
@@ -77,7 +78,7 @@ class ClientRequest extends FormRequest
                     }
                 },
                 'max:18',
-                'regex:/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/'],
+                $status == "0" ? 'nullable' : 'regex:/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/'],
             'native_place' => 'nullable|max:8|exists:provinces,name',
             'province_id' => 'nullable|numeric|exists:linkage,id',
             'city_id' => 'nullable|numeric|exists:linkage,id',
@@ -143,17 +144,17 @@ class ClientRequest extends FormRequest
                     return $event('合作省份必选');
                 }
             }],
-            'linkages.*.linkage_id' => ['numeric','required',function($attribute, $value, $event){
+            'linkages.*.linkage_id' => ['numeric',$status == "0" ? 'nullable' : 'required',function($attribute, $value, $event){
                 if((bool)DB::table('linkage')->where(['id'=>$value,'level'=>1])->first() === false){
                     return $event('未找到的合作省份');
                 };
             }],
             'levels' => 'array',
-            'levels.*.level_id' => 'required|numeric|exists:levels,id',
+            'levels.*.level_id' => $status == "0" ? 'nullable' : 'required','numeric','exists:levels,id',
             'vindicator_name' => 'max:10',
             'remark' => 'max:200',
             'brands.*.brand_id' => [
-                'numeric', 'required'
+                'numeric', $status == "0" ? 'nullable' : 'required'
             ],
             'brands' => ['array', function ($attribute, $value, $event) {
                 if (count($value) == 0) {
