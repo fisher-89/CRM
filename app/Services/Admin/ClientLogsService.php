@@ -244,6 +244,6 @@ class ClientLogsService
             $logs->update($logSql);
         }
         $data = $this->clients->where('id', $log->client_id)->with(['tags', 'shops', 'brands', 'levels', 'linkages'])->first();
-        return (bool)$log === true ? response($data, 201) : abort(400, '还原失败');
+        return (bool)$log === true ? response($data, 201) : abort(500, '还原失败');
     }
 }
