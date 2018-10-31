@@ -95,8 +95,8 @@ class ClientLogsService
         if (isset($changes['id_card_image_b'])) {
             $this->ImageRestore($changes['id_card_image_b'], 'card');
         }
-//        try {
-//            DB::beginTransaction();
+        try {
+            DB::beginTransaction();
         if (isset($changes['tags'])) {
             $this->actionLists($this->clientHasTags, $log->client_id, $changes, 'tags', 'tag_id');
         }
@@ -142,12 +142,12 @@ class ClientLogsService
             ];
             $logs->update($logSql);
         }
-//            DB::commit();
-//        } catch (\Exception $e) {
-//            DB::rollback();
-//            abort(400, '还原失败');
-//        }
-        $data = $this->clientLogs->where('id', $id)->with('clients.brands')->first();
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+            abort(400, '还原失败');
+        }
+        $data = $this->clients->where('id', $log->client_id)->with(['tags', 'shops', 'brands', 'levels', 'linkages'])->first();
         return (bool)$bool === true ? response($data, 201) : abort(400, '还原失败');
     }
 
@@ -243,7 +243,7 @@ class ClientLogsService
             ];
             $logs->update($logSql);
         }
-        $data = $this->clientLogs->where('id', $id)->with('clients.brands')->first();
+        $data = $this->clients->where('id', $log->client_id)->with(['tags', 'shops', 'brands', 'levels', 'linkages'])->first();
         return (bool)$log === true ? response($data, 201) : abort(400, '还原失败');
     }
 }
