@@ -221,14 +221,16 @@ class ClientsController extends Controller
             if ($this->error == []) {
                 $arr['id_card_number'] = (bool)$arr['id_card_number'] == false ? uniqid('auto') : $arr['id_card_number'];
                 $data = $this->client->excelSaveClient($arr);
-                $brandArray = [];
-                foreach ($arr['brands'] as $value) {
-                    $brandArray[] = [
-                        'client_id' => $data->id,
-                        'brand_id' => $value,
-                    ];
+                if((bool)$arr['brands'] === true){
+                    $brandArray = [];
+                    foreach ($arr['brands'] as $value) {
+                        $brandArray[] = [
+                            'client_id' => $data->id,
+                            'brand_id' => $value,
+                        ];
+                    }
+                    $this->client->excelSaveBrand($brandArray);
                 }
-                $this->client->excelSaveBrand($brandArray);
                 if ((bool)$arr['tag_id'] === true) {
                     $tagsArray = [];
                     foreach ($arr['tag_id'] as $item) {
