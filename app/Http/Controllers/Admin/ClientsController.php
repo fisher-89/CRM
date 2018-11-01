@@ -182,7 +182,7 @@ class ClientsController extends Controller
         } catch (\Exception $exception) {
             abort(500, '调取数据错误');
         }
-        $header = $res[0];dd(4532);
+        $header = $res[0];
         for ($i = 1; $i < count($res); $i++) {
             $this->error = [];
 //            if (trim($res[$i][14]) == true) {
