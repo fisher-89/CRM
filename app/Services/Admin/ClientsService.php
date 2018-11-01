@@ -78,7 +78,7 @@ class ClientsService
      */
     public function addClient($request)
     {
-        $all = $request->all();dd($all);
+        $all = $request->all();
         try {
             DB::beginTransaction();
             if ((bool)$request->icon === true) {
