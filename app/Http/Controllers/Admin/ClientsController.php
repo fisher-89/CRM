@@ -292,7 +292,7 @@ class ClientsController extends Controller
                         }
                     }],
                     'mobile' => ['required', 'digits:11', 'regex:/^1[3456789]\d{9}$/', 'unique:clients,mobile'],
-                    'wechat' => 'max:20|nullable',
+                    'wechat' => 'max:20|nullable|regex:/^[a-zA-Z0-9_]+$/',
                     'nation' => 'max:5|exists:nations,name',
                     'id_card_number' => [$this->status == 0 ? 'nullable' : 'required', 'unique:clients,id_card_number', 'max:18',
                         'regex:/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/'],
