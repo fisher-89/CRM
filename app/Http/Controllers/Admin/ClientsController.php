@@ -20,6 +20,7 @@ use Excel;
 class ClientsController extends Controller
 {
     protected $client;
+    protected $status;
     protected $error;
     protected $auth;
 
@@ -187,9 +188,10 @@ class ClientsController extends Controller
 //            if (trim($res[$i][14]) == true) {
 //                $oaData = app('api')->withRealException()->getStaff(trim($res[$i][15]));
 //            }
-            $source = $this->getSource(trim($res[$i][1]));
             $transNum = $this->strTransNum(trim($res[$i][2]));
-            $brandId = $this->getBrandId($brand, trim($res[$i][3]));
+            $this->status = $transNum;
+            $source = trim($res[$i][1]) != '' ? $this->getSource(trim($res[$i][1])) : $transNum == '0' ? null : $this->error['来源'][] = '不能为空';
+            $brandId = trim($res[$i][3]) != '' ? $this->getBrandId($brand, trim($res[$i][3])) : $transNum == '0' ? null : $this->error['合作品牌'][] = '不能为空';
             $level = trim($res[$i][4]) != '' ? $this->getLevelsId(trim($res[$i][4])) : '';
             $linkage = trim($res[$i][5]) != '' ? $this->getLinkagesId(trim($res[$i][5])) : '';
             $tagId = trim($res[$i][11]) != '' ? $this->getTagId(trim($res[$i][11])) : '';
@@ -292,7 +294,7 @@ class ClientsController extends Controller
                     'mobile' => ['required', 'digits:11', 'regex:/^1[3456789]\d{9}$/', 'unique:clients,mobile'],
                     'wechat' => 'max:20|nullable',
                     'nation' => 'max:5|exists:nations,name',
-                    'id_card_number' => ['required', 'unique:clients,id_card_number', 'max:18',
+                    'id_card_number' => [$this->status == 0 ? 'nullable' : 'required', 'unique:clients,id_card_number', 'max:18',
                         'regex:/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/'],
                     'native_place' => 'nullable|max:8|exists:provinces,name',
                     'present_address' => 'nullable|max:150',
@@ -301,9 +303,9 @@ class ClientsController extends Controller
                     'develop_name' => 'max:10',
                     'vindicator_sn' => 'numeric|nullable|digits:6',
                     'vindicator_name' => 'max:10',
-                    'brands.*'=>'required',
-                    'levels.*' => 'required',
-                    'linkages.*'=>'required',
+                    'brands.*' => $this->status == 0 ? 'nullable' : 'required',
+                    'levels.*' => $this->status == 0 ? 'nullable' : 'required',
+                    'linkages.*' => $this->status == 0 ? 'nullable' : 'required',
                     'remark' => 'max:200',
                     'shops' => 'array|nullable',
                     'shops.*.shop_sn' => [
