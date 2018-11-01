@@ -154,7 +154,7 @@ class ClientRequest extends FormRequest
             'vindicator_name' => 'max:10',
             'remark' => 'max:200',
             'brands.*.brand_id' => [
-                'numeric', $status == "0" ? 'nullable' : 'required'
+                'numeric', 'required'
             ],
             'brands' => ['array', function ($attribute, $value, $event) {
                 if (count($value) == 0) {

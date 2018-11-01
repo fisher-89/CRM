@@ -306,7 +306,7 @@ class ClientsController extends Controller
                     'develop_name' => 'max:10',
                     'vindicator_sn' => 'numeric|nullable|digits:6',
                     'vindicator_name' => 'max:10',
-                    'brands.*' => $this->status == 0 ? 'nullable' : 'required',
+                    'brands.*' =>  'required',
                     'levels.*' => $this->status == 0 ? 'nullable' : 'required',
                     'linkages.*' => $this->status == 0 ? 'nullable' : 'required',
                     'remark' => 'max:200',
