@@ -191,7 +191,7 @@ class ClientsController extends Controller
             $transNum = $this->strTransNum(trim($res[$i][2]));
             $this->status = $transNum;
             $source = trim($res[$i][1]) != '' ? $this->getSource(trim($res[$i][1])) : $transNum == '0' ? null : $this->error['来源'][] = '不能为空';
-            $brandId = $this->getBrandId($brand, trim($res[$i][3]));
+            $brandId = (bool)trim($res[$i][3]) == true ? $this->getBrandId($brand, trim($res[$i][3])) : $this->error['合作品牌'][] = '不能为空';
             $level = trim($res[$i][4]) != '' ? $this->getLevelsId(trim($res[$i][4])) : '';
             $linkage = trim($res[$i][5]) != '' ? $this->getLinkagesId(trim($res[$i][5])) : '';
             $tagId = trim($res[$i][11]) != '' ? $this->getTagId(trim($res[$i][11])) : '';
