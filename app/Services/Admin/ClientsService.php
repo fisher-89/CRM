@@ -222,23 +222,27 @@ class ClientsService
                     $this->clientHasShops->insert($shopSql);
                 }
             }
-            if (isset($request->linkages) && $request->linkages != []) {
-                foreach ($request->linkages as $val) {
-                    $linkageSql[] = [
-                        'client_id' => $clientData->id,
-                        'linkage_id' => $val['linkage_id'],
-                    ];
+            if (isset($request->linkages)) {
+                if($request->linkages != []){
+                    foreach ($request->linkages as $val) {
+                        $linkageSql[] = [
+                            'client_id' => $clientData->id,
+                            'linkage_id' => $val['linkage_id'],
+                        ];
+                    }
+                    $this->clientHasLinkages->insert($linkageSql);
                 }
-                $this->clientHasLinkages->insert($linkageSql);
             }
-            if (isset($request->levels) && $request->levels != []) {
-                foreach ($request->levels as $value) {
-                    $levelSql[] = [
-                        'client_id' => $clientData->id,
-                        'level_id' => $value['level_id'],
-                    ];
+            if (isset($request->levels)) {
+                if($request->levels != []){
+                    foreach ($request->levels as $value) {
+                        $levelSql[] = [
+                            'client_id' => $clientData->id,
+                            'level_id' => $value['level_id'],
+                        ];
+                    }
+                    $this->clientHasLevel->insert($levelSql);
                 }
-                $this->clientHasLevel->insert($levelSql);
             }
             $this->saveClientLog($specialHandling, $all, $request);
             DB::commit();
