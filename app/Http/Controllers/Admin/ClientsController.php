@@ -209,7 +209,7 @@ class ClientsController extends Controller
                 'id_card_number' => trim($res[$i][10]),
                 'tag_id' => $tagId,
                 'native_place' => trim($res[$i][12]),
-                'first_cooperation_at' => trim($res[$i][13]),
+                'first_cooperation_at' => (bool)trim($res[$i][13]) == false ? null : $res[$i][13],
                 'develop_sn' => $this->resole($res[$i][14], 0, '开发人编号'),
                 'develop_name' => $this->resole($res[$i][14], 1, '开发人姓名'),
                 'vindicator_sn' => $this->resole($res[$i][15], 0, '维护人编号'),
