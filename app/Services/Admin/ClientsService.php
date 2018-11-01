@@ -90,7 +90,7 @@ class ClientsService
             if ((bool)$request->id_card_image_b === true) {
                 $all['id_card_image_b'] = $this->imageDispose($request->id_card_image_b, 'card');
             }
-            $all['id_card_number'] = (bool)$all['id_card_number'] == false ? uniqid('admin') : $all['id_card_number'];
+            $all['id_card_number'] = (bool)$all['id_card_number'] == false ? uniqid('auto') : $all['id_card_number'];
             $bool = $this->client->create($all);
             if ((bool)$bool === false) {
                 DB::rollback();
@@ -178,7 +178,7 @@ class ClientsService
             if (basename($request->id_card_image_b) != basename($clientData['id_card_image_b'])) {
                 $all['id_card_image_b'] = $this->imageDispose($request->id_card_image_b, 'card', $clientData['id_card_image_b']);
             }
-            $all['id_card_number'] = (bool)$all['id_card_number'] == false ? uniqid('admin') : $all['id_card_number'];
+            $all['id_card_number'] = (bool)$all['id_card_number'] == false ? $clientData['id_card_number'] : $all['id_card_number'];
             $clientData->update($all);
             if ((bool)$clientData === false) {
                 DB::rollback();

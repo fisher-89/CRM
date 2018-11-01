@@ -219,6 +219,7 @@ class ClientsController extends Controller
             $request = new Requests\Admin\ClientRequest($arr);
             $this->excelVerify($request);
             if ($this->error == []) {
+                $arr['id_card_number'] = (bool)$arr['id_card_number'] == false ? uniqid('auto') : $arr['id_card_number'];
                 $data = $this->client->excelSaveClient($arr);
                 $brandArray = [];
                 foreach ($arr['brands'] as $value) {
