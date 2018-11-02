@@ -139,7 +139,7 @@ class ClientRequest extends FormRequest
                     }
                 }
             ],
-            'linkages' => ['array',function($attribute, $value, $event){
+            'linkages' => ['array','nullable',function($attribute, $value, $event){
                 if (count($value) == 0) {
                     return $event('合作省份必选');
                 }
