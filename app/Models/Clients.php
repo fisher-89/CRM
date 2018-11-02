@@ -24,6 +24,13 @@ class Clients extends Model
         'recommend_name',
     ];
 
+    public function getIdCardNumberAttribute($value)
+    {
+        if(strlen($value) == 18 && substr($value,0,4) != 'auto'){
+            return $value;
+        }
+    }
+
     public function source()
     {
         return $this->belongsTo(Source::class,'source_id','id');
