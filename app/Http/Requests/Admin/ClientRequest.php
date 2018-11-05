@@ -33,7 +33,7 @@ class ClientRequest extends FormRequest
         $status = $this->status;
         return [
             'name' => 'required|max:10',
-            'source_id' => ['numeric','max:5','exists:source,id',$status == "0" ? 'nullable' : 'required'],
+            'source_id' => ['numeric', 'max:5', 'exists:source,id', $status == "0" ? 'nullable' : 'required'],
             'status' => ['required', 'max:2', 'numeric', function ($attribute, $value, $event) {
                 if ($value != '-1' && $value != '0' && $value != '1' && $value != '2') {
                     return $event('未知状态');
@@ -105,13 +105,13 @@ class ClientRequest extends FormRequest
 //                }
             }],
             'develop_name' => 'nullable|max:10',
-            'recommend_id' => [ function ($attribute, $value, $event) use ($develop,$number) {
+            'recommend_id' => [function ($attribute, $value, $event) use ($develop, $number) {
                 if ((bool)$value === true) {
-                    $recommend = DB::table('clients')->where('id',$value)->first();
-                    if((bool)$recommend === false){
+                    $recommend = DB::table('clients')->where('id', $value)->first();
+                    if ((bool)$recommend === false) {
                         return $event('介绍人不存在');
                     }
-                    if($recommend->id_card_number == $number){
+                    if ($recommend->id_card_number == $number) {
                         return $event('介绍人不能选择自己');
                     }
                 }
@@ -139,24 +139,25 @@ class ClientRequest extends FormRequest
                     }
                 }
             ],
-            'linkages' => ['array',$status == "0" ? 'nullable' : 'required',function($attribute, $value, $event){
-                if (count($value) == 0) {
-                    return $event('合作省份必选');
-                }
-            }],
-            'linkages.*.linkage_id' => ['numeric',$status == "0" ? 'nullable' : 'required',function($attribute, $value, $event){
-                if((bool)DB::table('linkage')->where(['id'=>$value,'level'=>1])->first() === false){
+            'linkages' => ['array', $status == "0" ? 'nullable' : 'required',
+                function ($attribute, $value, $event) {
+//                    if (count($value) == 0) {
+//                        return $event('合作省份必选');
+//                    }
+                }],
+            'linkages.*.linkage_id' => ['numeric', $status == "0" ? 'nullable' : 'required', function ($attribute, $value, $event) {
+                if ((bool)DB::table('linkage')->where(['id' => $value, 'level' => 1])->first() === false) {
                     return $event('未找到的合作省份');
                 };
             }],
             'levels' => 'array',
-            'levels.*.level_id' => $status == "0" ? 'nullable' : 'required','numeric','exists:levels,id',
+            'levels.*.level_id' => $status == "0" ? 'nullable' : 'required', 'numeric', 'exists:levels,id',
             'vindicator_name' => 'max:10',
             'remark' => 'max:200',
             'brands.*.brand_id' => [
-                'numeric', $status == "0" ? 'nullable' : 'required'
+                'numeric', 'required'
             ],
-            'brands' => ['array', $status == "0" ? 'nullable' : 'required',function ($attribute, $value, $event) {
+            'brands' => ['array', function ($attribute, $value, $event) {
                 if (count($value) == 0) {
                     return $event('合作品牌必须');
                 }
@@ -205,8 +206,8 @@ class ClientRequest extends FormRequest
 
     public function getData()
     {
-        if((bool)$this->route('id') === true){
-            if((bool)DB::table('clients')->where('id' ,$this->route('id'))->first() === false){
+        if ((bool)$this->route('id') === true) {
+            if ((bool)DB::table('clients')->where('id', $this->route('id'))->first() === false) {
                 return false;
             }
         }
