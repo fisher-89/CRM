@@ -154,11 +154,11 @@ class ClientRequest extends FormRequest
             'vindicator_name' => 'max:10',
             'remark' => 'max:200',
             'brands.*.brand_id' => [
-                'numeric', 'required'
+                'numeric', $status == "0" ? 'nullable' : 'required'
             ],
-            'brands' => ['array', function ($attribute, $value, $event) {
+            'brands' => ['array', $status == "0" ? 'nullable' : 'required',function ($attribute, $value, $event) {
                 if (count($value) == 0) {
-                    return $event('未选择品牌');
+                    return $event('合作品牌必须');
                 }
             }],
             'shops' => 'array|nullable',
