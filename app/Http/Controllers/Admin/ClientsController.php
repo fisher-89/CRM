@@ -534,7 +534,7 @@ class ClientsController extends Controller
         $levelData = array_column($level == null ? [] : $level->toArray(), 'name');//标签
 
         $max = count(max($sourceData, $statusData, $brandData, $nationsData, $tagsData, $provincialData));
-        $data[] = ['客户来源', '客户状态', '合作品牌', '民族', '标签', '客户等级', '籍贯/合作省份'];
+        $data[] = ['客户来源', '客户状态', '合作品牌', '民族', '标签', '客户等级', '籍贯/合作省份', '主表填写说明：表头背景为红色是必填栏，黄色为潜在客户选填栏，绿色为全部选填栏，其中合作省份、标签可填多个，请注意用英文逗号分隔（一定要英文逗号），开发员工和维护员格式为：员工编号,员工姓名'];
         for ($i = 0; $i < $max; $i++) {
             $data[] = [
                 isset($sourceData[$i]) ? $sourceData[$i] : '',
@@ -547,12 +547,11 @@ class ClientsController extends Controller
             ];
         }
         $cellData[] = ['姓名', '客户来源', '客户状态', '合作品牌', '客户等级', '合作省份', '性别', '电话', '微信', '民族', '身份证号码', '标签', '籍贯', '首次合作时间', '开发员工编号', '维护员工编号', '备注'];
-        $cellData[] = ['例：张三', '例：朋友介绍', '例：合作中', '例：杰尼威尼专卖,利鲨(多个品牌用英文逗号分开)', '请以辅助表数据填写', '例：成都市', '例：女', '例：13333333333', '例：weixin', '例：汉族', '例：510111199905065215', 'VIP客户,市代客户（多个标签用英文逗号分开）', '例：四川省（选填）', '例：2010-01-01', '例：110000,王某某（选填）', '例：110105,刘某某（选填）', '例：备注（选填）'];
-        $cellTop[] = ['姓名', '客户来源', '客户状态', '合作品牌', '客户等级', '合作省份', '性别', '电话', '微信', '民族', '身份证号码', '标签', '籍贯', '首次合作时间', '开发员工编号', '维护人员工编号', '备注'];
+        $cellData[] = ['例：张三', '例：朋友介绍', '例：合作中', '例：杰尼威尼专卖,利鲨(多个品牌用英文逗号分开)', '请以辅助表数据填写', '例：成都市', '例：女', '例：13333333333', '例：weixin', '例：汉族', '例：510111199905065215', 'VIP客户,市代客户（多个标签用英文逗号分开）', '例：四川省', '例：2010-01-01', '例：110000,王某某', '例：110105,刘某某', '例：备注'];
         $fileName = '客户资料导入模板';
         $tot = count($cellData);
         $maxi = $max + 1;
-        Excel::create($fileName, function ($excel) use ($cellData, $data, $tot, $maxi, $cellTop) {
+        Excel::create($fileName, function ($excel) use ($cellData, $data, $tot, $maxi) {
             $excel->sheet('辅助附表', function ($sheet) use ($data, $maxi) {
                 $sheet->rows($data);
                 $sheet->cells('A1:G1', function ($cells) {
@@ -568,26 +567,37 @@ class ClientsController extends Controller
                 $sheet->rows($cellData);
                 $sheet->cells('A1:Q1', function ($cells) {
                     $cells->setAlignment('center');
-                    $cells->setBackground('#D2E9FF');
+                });
+                $sheet->cells('A1', function ($cells) {
+                    $cells->setBackground('#FF0000');
+                });
+                $sheet->cells('C1:D1', function ($cells) {
+                    $cells->setBackground('#FF0000');
+                });
+                $sheet->cells('G1:H1', function ($cells) {
+                    $cells->setBackground('#FF0000');
+                });
+
+                $sheet->cells('B1', function ($cells) {
+                    $cells->setBackground('#FFFF00');
+                });
+                $sheet->cells('E1:F1', function ($cells) {
+                    $cells->setBackground('#FFFF00');
+                });
+                $sheet->cells('K1', function ($cells) {
+                    $cells->setBackground('#FFFF00');
+                });
+
+                $sheet->cells('I1:J1', function ($cells) {
+                    $cells->setBackground('#008000');
+                });
+                $sheet->cells('L1:Q1', function ($cells) {
+                    $cells->setBackground('#008000');
                 });
                 $sheet->setColumnFormat(array(
-                    'A' => '@',
-                    'B' => '@',
-                    'C' => '@',
-                    'D' => '@',
-                    'E' => '@',
-                    'F' => '@',
-                    'G' => '@',
-                    'H' => '@',
-                    'I' => '@',
-                    'J' => '@',
-                    'K' => '@',
-                    'L' => '@',
-                    'M' => '@',
-                    'N' => '@',
-                    'O' => '@',
-                    'P' => '@',
-                    'q' => '@',
+                    'A' => '@', 'B' => '@', 'C' => '@', 'D' => '@', 'E' => '@', 'F' => '@',
+                    'G' => '@', 'H' => '@', 'I' => '@', 'J' => '@', 'K' => '@', 'L' => '@',
+                    'M' => '@', 'N' => '@', 'O' => '@', 'P' => '@', 'q' => '@',
                 ));
                 $sheet->cells('A2:Q' . $tot, function ($cells) {
                     $cells->setAlignment('center');
