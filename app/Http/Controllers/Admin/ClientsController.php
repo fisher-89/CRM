@@ -533,8 +533,15 @@ class ClientsController extends Controller
         $level = DB::table('levels')->get();
         $levelData = array_column($level == null ? [] : $level->toArray(), 'name');//标签
 
-        $max = count(max($sourceData, $statusData, $brandData, $nationsData, $tagsData, $provincialData));
-        $data[] = ['客户来源', '客户状态', '合作品牌', '民族', '标签', '客户等级', '籍贯/合作省份', '主表填写说明：表头背景为红色是必填栏，黄色为潜在客户选填栏，绿色为全部选填栏，其中合作省份、标签可填多个，请注意用英文逗号分隔（一定要英文逗号），开发员工和维护员格式为：员工编号,员工姓名'];
+        $explain = [
+            '在客户选填栏，绿色为全部选填栏，其中合作省份、',
+            '标签可填多个，请注意用英文逗号分隔（一定要英文',
+            '逗号），开发员工和维护员格式为：员工编号,员工',
+            '姓名；例如：100000,陈某（也必须是英文逗号）',
+        ];
+
+        $max = count(max($sourceData, $statusData, $brandData, $nationsData, $tagsData, $provincialData,$explain));
+        $data[] = ['客户来源', '客户状态', '合作品牌', '民族', '标签', '客户等级', '籍贯/合作省份', '主表填写说明：表头背景为红色是必填栏，黄色为潜'];
         for ($i = 0; $i < $max; $i++) {
             $data[] = [
                 isset($sourceData[$i]) ? $sourceData[$i] : '',
@@ -544,6 +551,7 @@ class ClientsController extends Controller
                 isset($tagsData[$i]) ? $tagsData[$i] : '',
                 isset($levelData[$i]) ? $levelData[$i] : '',
                 isset($provincialData[$i]) ? $provincialData[$i] : '',
+                isset($explain[$i]) ? $explain[$i] : '',
             ];
         }
         $cellData[] = ['姓名', '客户来源', '客户状态', '合作品牌', '客户等级', '合作省份', '性别', '电话', '微信', '民族', '身份证号码', '标签', '籍贯', '首次合作时间', '开发员工编号', '维护员工编号', '备注'];
@@ -557,6 +565,9 @@ class ClientsController extends Controller
                 $sheet->cells('A1:G1', function ($cells) {
                     $cells->setAlignment('center');
                     $cells->setBackground('#D2E9FF');
+                });
+                $sheet->cells('H1:H5', function ($cells) {
+                    $cells->setBackground('#B0C4DE');
                 });
                 $sheet->cells('A2:G' . $maxi, function ($cells) {
                     $cells->setAlignment('center');
