@@ -192,9 +192,9 @@ class ClientsController extends Controller
             $this->status = $transNum;
             $source = trim($res[$i][1]) != '' ? $this->getSource(trim($res[$i][1])) : $transNum == '0' ? null : $this->error['来源'][] = '不能为空';
             $brandId = (bool)trim($res[$i][3]) == true ? $this->getBrandId($brand, trim($res[$i][3])) : $this->error['合作品牌'][] = '不能为空';
-            $level = trim($res[$i][4]) != '' ? $this->getLevelsId(trim($res[$i][4])) : '';
-            $linkage = trim($res[$i][5]) != '' ? $this->getLinkagesId(trim($res[$i][5])) : '';
-            $tagId = trim($res[$i][11]) != '' ? $this->getTagId(trim($res[$i][11])) : '';
+            $level = isset($res[$i][4]) ? trim($res[$i][4]) != '' ? $this->getLevelsId(trim($res[$i][4])) : '' : $this->error['客户等级'][] = '不能为空';
+            $linkage = isset($res[$i][5]) ? trim($res[$i][5]) != '' ? $this->getLinkagesId(trim($res[$i][5])) : '' : $this->error['合作省份'][] = '不能为空';
+            $tagId = isset($res[$i][11]) ? trim($res[$i][11]) != '' ? $this->getTagId(trim($res[$i][11])) : '' : $this->error['标签'][] = '不能为空';
             $arr = [
                 'name' => trim($res[$i][0]),
                 'source_id' => $source,
@@ -537,7 +537,7 @@ class ClientsController extends Controller
             '在客户选填栏，绿色为全部选填栏，其中合作省份、',
             '标签可填多个，请注意用英文逗号分隔（一定要英文',
             '逗号），开发员工和维护员格式为：员工编号,员工',
-            '姓名；例如：100000,陈某（也必须是英文逗号）',
+            '姓名；例如：100000,陈某（也必须是英文逗号分隔）',
         ];
 
         $max = count(max($sourceData, $statusData, $brandData, $nationsData, $tagsData, $provincialData,$explain));
