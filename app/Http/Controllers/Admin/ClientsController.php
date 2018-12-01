@@ -543,6 +543,8 @@ class ClientsController extends Controller
             '',
             '',
             '',
+            '',
+            '',
             '主表填写说明：其中合作省份、标签可填多个，请注',
             '意用英文逗号分隔（一定要英文逗号），开发员工和',
             '维护员格式为：员工编号,员工姓名；例如：100000,',
@@ -593,13 +595,13 @@ class ClientsController extends Controller
                 $sheet->cells('A2:G' . $maxi, function ($cells) {
                     $cells->setAlignment('center');
                 });
-                $sheet->cells('K1:K3',function($cells){
+                $sheet->cells('H1:H3',function($cells){
                     $cells->setBackground('#55ACFD');
                 });
-                $sheet->cells('K5:K7',function($cells){
+                $sheet->cells('H5:H7',function($cells){
                     $cells->setBackground('#FFC25F');
                 });
-                $sheet->cells('K9:K11',function($cells){
+                $sheet->cells('H9:H11',function($cells){
                     $cells->setBackground('#4FDADA');
                 });
                 $sheet->setAutoSize(true);
