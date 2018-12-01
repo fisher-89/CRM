@@ -580,30 +580,30 @@ class ClientsController extends Controller
                     $cells->setAlignment('center');
                 });
                 $sheet->cells('A1', function ($cells) {
-                    $cells->setBackground('#FF0000');
+                    $cells->setBackground('#55ACFD');
                 });
                 $sheet->cells('C1:D1', function ($cells) {
-                    $cells->setBackground('#FF0000');
+                    $cells->setBackground('#55ACFD');
                 });
                 $sheet->cells('G1:H1', function ($cells) {
-                    $cells->setBackground('#FF0000');
+                    $cells->setBackground('#55ACFD');
                 });
 
                 $sheet->cells('B1', function ($cells) {
-                    $cells->setBackground('#FFFF00');
+                    $cells->setBackground('#FFC25F');
                 });
                 $sheet->cells('E1:F1', function ($cells) {
-                    $cells->setBackground('#FFFF00');
+                    $cells->setBackground('#FFC25F');
                 });
                 $sheet->cells('K1', function ($cells) {
-                    $cells->setBackground('#FFFF00');
+                    $cells->setBackground('#FFC25F');
                 });
 
                 $sheet->cells('I1:J1', function ($cells) {
-                    $cells->setBackground('#008000');
+                    $cells->setBackground('#4FDADA');
                 });
                 $sheet->cells('L1:Q1', function ($cells) {
-                    $cells->setBackground('#008000');
+                    $cells->setBackground('#4FDADA');
                 });
                 $sheet->setColumnFormat(array(
                     'A' => '@', 'B' => '@', 'C' => '@', 'D' => '@', 'E' => '@', 'F' => '@',
