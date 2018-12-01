@@ -540,7 +540,20 @@ class ClientsController extends Controller
             '英文逗号分隔）',
         ];
 
-        $max = count(max($sourceData, $statusData, $brandData, $nationsData, $tagsData, $provincialData,$explain));
+        $str = [
+            '',
+            '必填',
+            '',
+            '',
+            '',
+            '潜在客户选填',
+            '',
+            '',
+            '',
+            '选填'
+        ];
+
+        $max = count(max($sourceData, $statusData, $brandData, $nationsData, $tagsData, $provincialData,$explain,$str));
         $data[] = ['客户来源', '客户状态', '合作品牌', '民族', '标签', '客户等级', '籍贯/合作省份', '主表填写说明：表头背景为红色是必填栏，黄色为潜'];
         for ($i = 0; $i < $max; $i++) {
             $data[] = [
@@ -552,6 +565,7 @@ class ClientsController extends Controller
                 isset($levelData[$i]) ? $levelData[$i] : '',
                 isset($provincialData[$i]) ? $provincialData[$i] : '',
                 isset($explain[$i]) ? $explain[$i] : '',
+                isset($str[$i]) ? $str[$i] : '',
             ];
         }
         $cellData[] = ['姓名', '客户来源', '客户状态', '合作品牌', '客户等级', '合作省份', '性别', '电话', '微信', '民族', '身份证号码', '标签', '籍贯', '首次合作时间', '开发员工编号', '维护员工编号', '备注'];
@@ -572,23 +586,14 @@ class ClientsController extends Controller
                 $sheet->cells('A2:G' . $maxi, function ($cells) {
                     $cells->setAlignment('center');
                 });
-                $sheet->cells('L3:L5',function($cells){
+                $sheet->cells('I1:I3',function($cells){
                     $cells->setBackground('#55ACFD');
                 });
-                $sheet->cells('L4',function()use($sheet){
-                    $sheet->rows([['必填']]);
-                });
-                $sheet->cells('L7:L9',function($cells){
+                $sheet->cells('I5:I7',function($cells){
                     $cells->setBackground('#FFC25F');
                 });
-                $sheet->cells('L8',function()use($sheet){
-                    $sheet->rows([['潜在客户选填']]);
-                });
-                $sheet->cells('L11:L13',function($cells){
+                $sheet->cells('I8:I10',function($cells){
                     $cells->setBackground('#4FDADA');
-                });
-                $sheet->cells('L12',function()use($sheet){
-                    $sheet->rows([['选填']]);
                 });
                 $sheet->setAutoSize(true);
             });
