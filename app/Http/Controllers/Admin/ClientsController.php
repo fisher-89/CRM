@@ -589,7 +589,7 @@ class ClientsController extends Controller
                     $cells->setAlignment('center');
                     $cells->setBackground('#D2E9FF');
                 });
-                $sheet->cells('H1:H5', function ($cells) {
+                $sheet->cells('H13:H16', function ($cells) {
                     $cells->setBackground('#B0C4DE');
                 });
                 $sheet->cells('A2:G' . $maxi, function ($cells) {
