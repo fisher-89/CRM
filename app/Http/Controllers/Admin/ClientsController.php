@@ -539,15 +539,15 @@ class ClientsController extends Controller
             '陈某（也必须是英文逗号分隔）',
         ];
         $null = [
-            '           ',
-            '           ',
-            '           ',
-            '           ',
-            '           ',
-            '           ',
-            '           ',
-            '           ',
-            '           ',
+            '隐藏数据',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
         ];
         $str = [
             '必填',
@@ -597,6 +597,7 @@ class ClientsController extends Controller
                 });
                 $sheet->cells('I1:I3',function($cells){
                     $cells->setBackground('#55ACFD');
+                    $cells->setFontColor('#55ACFD');
                 });
                 $sheet->cells('I5:I7',function($cells){
                     $cells->setBackground('#FFC25F');
