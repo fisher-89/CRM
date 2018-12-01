@@ -534,21 +534,19 @@ class ClientsController extends Controller
         $levelData = array_column($level == null ? [] : $level->toArray(), 'name');//标签
 
         $explain = [
-            '其中合作省份、标签可填多个，请注意用英文逗号分',
-            '隔（一定要英文逗号），开发员工和维护员格式为：',
-            '员工编号,员工姓名；例如：100000,陈某（也必须是',
-            '英文逗号分隔）',
-        ];
-        $null = [
-            '------------------------------------',
             '',
             '',
             '',
-            '------------------------------------',
             '',
             '',
             '',
-            '------------------------------------',
+            '',
+            '',
+            '',
+            '主表填写说明：其中合作省份、标签可填多个，请注',
+            '意用英文逗号分隔（一定要英文逗号），开发员工和',
+            '维护员格式为：员工编号,员工姓名；例如：100000,',
+            '陈某（也必须是英文逗号分隔）',
         ];
         $str = [
             '必填',
@@ -562,8 +560,8 @@ class ClientsController extends Controller
             '选填'
         ];
 
-        $max = count(max($sourceData, $statusData, $brandData, $nationsData, $tagsData, $provincialData,$explain,$null,$str));
-        $data[] = ['客户来源', '客户状态', '合作品牌', '民族', '标签', '客户等级', '籍贯/合作省份', '主表填写说明：表头背景为红色是必填栏，黄色为潜'];
+        $max = count(max($sourceData, $statusData, $brandData, $nationsData, $tagsData, $provincialData,$explain,$str));
+        $data[] = ['客户来源', '客户状态', '合作品牌', '民族', '标签', '客户等级', '籍贯/合作省份', ''];
         for ($i = 0; $i < $max; $i++) {
             $data[] = [
                 isset($sourceData[$i]) ? $sourceData[$i] : '',
@@ -574,7 +572,6 @@ class ClientsController extends Controller
                 isset($levelData[$i]) ? $levelData[$i] : '',
                 isset($provincialData[$i]) ? $provincialData[$i] : '',
                 isset($explain[$i]) ? $explain[$i] : '',
-                isset($null[$i]) ? $null[$i] : '',
                 isset($str[$i]) ? $str[$i] : '',
             ];
         }
@@ -596,13 +593,13 @@ class ClientsController extends Controller
                 $sheet->cells('A2:G' . $maxi, function ($cells) {
                     $cells->setAlignment('center');
                 });
-                $sheet->cells('I1:I3',function($cells){
+                $sheet->cells('K1:K3',function($cells){
                     $cells->setBackground('#55ACFD');
                 });
-                $sheet->cells('I5:I7',function($cells){
+                $sheet->cells('K5:K7',function($cells){
                     $cells->setBackground('#FFC25F');
                 });
-                $sheet->cells('I9:I11',function($cells){
+                $sheet->cells('K9:K11',function($cells){
                     $cells->setBackground('#4FDADA');
                 });
                 $sheet->setAutoSize(true);
