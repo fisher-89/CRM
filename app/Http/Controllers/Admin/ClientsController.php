@@ -540,7 +540,6 @@ class ClientsController extends Controller
             '英文逗号分隔）',
         ];
         $null = [
-            '',
             '------------------------------------',
             '',
             '',
