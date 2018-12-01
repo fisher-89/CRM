@@ -534,10 +534,10 @@ class ClientsController extends Controller
         $levelData = array_column($level == null ? [] : $level->toArray(), 'name');//标签
 
         $explain = [
-            '在客户选填栏，绿色为全部选填栏，其中合作省份、',
-            '标签可填多个，请注意用英文逗号分隔（一定要英文',
-            '逗号），开发员工和维护员格式为：员工编号,员工',
-            '姓名；例如：100000,陈某（也必须是英文逗号分隔）',
+            '其中合作省份、标签可填多个，请注意用英文逗号分',
+            '隔（一定要英文逗号），开发员工和维护员格式为：',
+            '员工编号,员工姓名；例如：100000,陈某（也必须是',
+            '英文逗号分隔）',
         ];
 
         $max = count(max($sourceData, $statusData, $brandData, $nationsData, $tagsData, $provincialData,$explain));
@@ -571,6 +571,25 @@ class ClientsController extends Controller
                 });
                 $sheet->cells('A2:G' . $maxi, function ($cells) {
                     $cells->setAlignment('center');
+                });
+                $sheet->cells('L3:L5',function($cells){
+                    $cells->setBackground('#55ACFD');
+                });
+                $sheet->cells('L4',function($cells){
+                    $cells->rows('必填');
+                });
+                $sheet->cells('L7:L9',function($cells){
+                    $cells->setBackground('#FFC25F');
+                });
+                $sheet->cells('L8',function($cells){
+                    $cells->rows('潜在客户选填');
+                });
+
+                $sheet->cells('L11:L13',function($cells){
+                    $cells->setBackground('#4FDADA');
+                });
+                $sheet->cells('L12',function($cells){
+                    $cells->rows('选填');
                 });
                 $sheet->setAutoSize(true);
             });
