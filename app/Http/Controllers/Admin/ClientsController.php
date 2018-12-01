@@ -221,7 +221,7 @@ class ClientsController extends Controller
             if ($this->error == []) {
                 $arr['id_card_number'] = (bool)$arr['id_card_number'] == false ? uniqid('auto') : $arr['id_card_number'];
                 $data = $this->client->excelSaveClient($arr);
-                if((bool)$arr['brands'] === true){
+                if ((bool)$arr['brands'] === true) {
                     $brandArray = [];
                     foreach ($arr['brands'] as $value) {
                         $brandArray[] = [
@@ -306,7 +306,7 @@ class ClientsController extends Controller
                     'develop_name' => 'max:10',
                     'vindicator_sn' => 'numeric|nullable|digits:6',
                     'vindicator_name' => 'max:10',
-                    'brands.*' =>  'required',
+                    'brands.*' => 'required',
                     'levels.*' => $this->status == 0 ? 'nullable' : 'required',
                     'linkages.*' => $this->status == 0 ? 'nullable' : 'required',
                     'remark' => 'max:200',
@@ -562,7 +562,7 @@ class ClientsController extends Controller
             '选填'
         ];
 
-        $max = count(max($sourceData, $statusData, $brandData, $nationsData, $tagsData, $provincialData,$explain,$str));
+        $max = count(max($sourceData, $statusData, $brandData, $nationsData, $tagsData, $provincialData, $explain, $str));
         $data[] = ['客户来源', '客户状态', '合作品牌', '民族', '标签', '客户等级', '籍贯/合作省份', ''];
         for ($i = 0; $i < $max; $i++) {
             $data[] = [
@@ -595,13 +595,13 @@ class ClientsController extends Controller
                 $sheet->cells('A2:G' . $maxi, function ($cells) {
                     $cells->setAlignment('center');
                 });
-                $sheet->cells('H1:H3',function($cells){
+                $sheet->cells('H1:H3', function ($cells) {
                     $cells->setBackground('#55ACFD');
                 });
-                $sheet->cells('H5:H7',function($cells){
+                $sheet->cells('H5:H7', function ($cells) {
                     $cells->setBackground('#FFC25F');
                 });
-                $sheet->cells('H9:H11',function($cells){
+                $sheet->cells('H9:H11', function ($cells) {
                     $cells->setBackground('#4FDADA');
                 });
                 $sheet->setAutoSize(true);
