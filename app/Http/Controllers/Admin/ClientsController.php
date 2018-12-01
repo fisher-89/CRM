@@ -575,21 +575,20 @@ class ClientsController extends Controller
                 $sheet->cells('L3:L5',function($cells){
                     $cells->setBackground('#55ACFD');
                 });
-                $sheet->cells('L4',function($cells){
-                    $cells->rows('必填');
+                $sheet->cells('L4',function()use($sheet){
+                    $sheet->rows('必填');
                 });
                 $sheet->cells('L7:L9',function($cells){
                     $cells->setBackground('#FFC25F');
                 });
-                $sheet->cells('L8',function($cells){
-                    $cells->rows('潜在客户选填');
+                $sheet->cells('L8',function()use($sheet){
+                    $sheet->rows('潜在客户选填');
                 });
-
                 $sheet->cells('L11:L13',function($cells){
                     $cells->setBackground('#4FDADA');
                 });
-                $sheet->cells('L12',function($cells){
-                    $cells->rows('选填');
+                $sheet->cells('L12',function()use($sheet){
+                    $sheet->rows('选填');
                 });
                 $sheet->setAutoSize(true);
             });
