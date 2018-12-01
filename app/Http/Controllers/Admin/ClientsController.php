@@ -539,9 +539,10 @@ class ClientsController extends Controller
             '员工编号,员工姓名；例如：100000,陈某（也必须是',
             '英文逗号分隔）',
         ];
-
-        $str = [
+        $null = [
             '',
+        ];
+        $str = [
             '必填',
             '',
             '',
@@ -553,7 +554,7 @@ class ClientsController extends Controller
             '选填'
         ];
 
-        $max = count(max($sourceData, $statusData, $brandData, $nationsData, $tagsData, $provincialData,$explain,$str));
+        $max = count(max($sourceData, $statusData, $brandData, $nationsData, $tagsData, $provincialData,$explain,$null,$str));
         $data[] = ['客户来源', '客户状态', '合作品牌', '民族', '标签', '客户等级', '籍贯/合作省份', '主表填写说明：表头背景为红色是必填栏，黄色为潜'];
         for ($i = 0; $i < $max; $i++) {
             $data[] = [
@@ -565,6 +566,7 @@ class ClientsController extends Controller
                 isset($levelData[$i]) ? $levelData[$i] : '',
                 isset($provincialData[$i]) ? $provincialData[$i] : '',
                 isset($explain[$i]) ? $explain[$i] : '',
+                isset($null[$i]) ? $null[$i] : '',
                 isset($str[$i]) ? $str[$i] : '',
             ];
         }
@@ -592,7 +594,7 @@ class ClientsController extends Controller
                 $sheet->cells('I5:I7',function($cells){
                     $cells->setBackground('#FFC25F');
                 });
-                $sheet->cells('I8:I10',function($cells){
+                $sheet->cells('I9:I11',function($cells){
                     $cells->setBackground('#4FDADA');
                 });
                 $sheet->setAutoSize(true);
