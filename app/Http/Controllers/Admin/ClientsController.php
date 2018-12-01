@@ -221,7 +221,7 @@ class ClientsController extends Controller
             if ($this->error == []) {
                 $arr['id_card_number'] = (bool)$arr['id_card_number'] == false ? uniqid('auto') : $arr['id_card_number'];
                 $data = $this->client->excelSaveClient($arr);
-                if ((bool)$arr['brands'] === true) {
+                if((bool)$arr['brands'] === true){
                     $brandArray = [];
                     foreach ($arr['brands'] as $value) {
                         $brandArray[] = [
@@ -306,7 +306,7 @@ class ClientsController extends Controller
                     'develop_name' => 'max:10',
                     'vindicator_sn' => 'numeric|nullable|digits:6',
                     'vindicator_name' => 'max:10',
-                    'brands.*' => 'required',
+                    'brands.*' =>  'required',
                     'levels.*' => $this->status == 0 ? 'nullable' : 'required',
                     'linkages.*' => $this->status == 0 ? 'nullable' : 'required',
                     'remark' => 'max:200',
@@ -534,21 +534,20 @@ class ClientsController extends Controller
         $levelData = array_column($level == null ? [] : $level->toArray(), 'name');//标签
 
         $explain = [
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '主表填写说明：其中合作省份、标签可填多个，请注',
             '意用英文逗号分隔（一定要英文逗号），开发员工和',
             '维护员格式为：员工编号,员工姓名；例如：100000,',
             '陈某（也必须是英文逗号分隔）',
+        ];
+        $null = [
+            '           ',
+            '           ',
+            '           ',
+            '           ',
+            '           ',
+            '           ',
+            '           ',
+            '           ',
+            '           ',
         ];
         $str = [
             '必填',
@@ -562,8 +561,8 @@ class ClientsController extends Controller
             '选填'
         ];
 
-        $max = count(max($sourceData, $statusData, $brandData, $nationsData, $tagsData, $provincialData, $explain, $str));
-        $data[] = ['客户来源', '客户状态', '合作品牌', '民族', '标签', '客户等级', '籍贯/合作省份', ''];
+        $max = count(max($sourceData, $statusData, $brandData, $nationsData, $tagsData, $provincialData,$explain,$null,$str));
+        $data[] = ['客户来源', '客户状态', '合作品牌', '民族', '标签', '客户等级', '籍贯/合作省份', '主表填写说明：其中合作省份、标签可填多个，请注'];
         for ($i = 0; $i < $max; $i++) {
             $data[] = [
                 isset($sourceData[$i]) ? $sourceData[$i] : '',
@@ -574,6 +573,7 @@ class ClientsController extends Controller
                 isset($levelData[$i]) ? $levelData[$i] : '',
                 isset($provincialData[$i]) ? $provincialData[$i] : '',
                 isset($explain[$i]) ? $explain[$i] : '',
+                isset($null[$i]) ? $null[$i] : '',
                 isset($str[$i]) ? $str[$i] : '',
             ];
         }
@@ -589,19 +589,19 @@ class ClientsController extends Controller
                     $cells->setAlignment('center');
                     $cells->setBackground('#D2E9FF');
                 });
-                $sheet->cells('H13:H16', function ($cells) {
+                $sheet->cells('H1:H5', function ($cells) {
                     $cells->setBackground('#B0C4DE');
                 });
                 $sheet->cells('A2:G' . $maxi, function ($cells) {
                     $cells->setAlignment('center');
                 });
-                $sheet->cells('H1:H3', function ($cells) {
+                $sheet->cells('I1:I3',function($cells){
                     $cells->setBackground('#55ACFD');
                 });
-                $sheet->cells('H5:H7', function ($cells) {
+                $sheet->cells('I5:I7',function($cells){
                     $cells->setBackground('#FFC25F');
                 });
-                $sheet->cells('H9:H11', function ($cells) {
+                $sheet->cells('I9:I11',function($cells){
                     $cells->setBackground('#4FDADA');
                 });
                 $sheet->setAutoSize(true);
