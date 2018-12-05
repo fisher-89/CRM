@@ -3533,7 +3533,7 @@ class LinkageTableSeeder extends Seeder
             ['id' => '232703', 'name' => '新林区', 'parent_id' => '232700', 'level' => '3', 'full_name' => '黑龙江省-大兴安岭地区-新林区'],
             ['id' => '232704', 'name' => '呼中区', 'parent_id' => '232700', 'level' => '3', 'full_name' => '黑龙江省-大兴安岭地区-呼中区'],
         ];
-//        DB::table("linkage")->truncate();
+        DB::table("linkage")->truncate();
         DB::table("linkage")->insert($data);
     }
 }
